@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { User } from '../models/user.model';
+import { User } from '../users/entities/user.model';
 import { Appointment } from '../models/appointment.model';
 
 @Module({

@@ -1,5 +1,5 @@
 import { Column, Model, Table, ForeignKey, BelongsTo } from 'sequelize-typescript';
-import { User } from './user.model';
+import { User } from '../users/entities/user.model';
 
 @Table
 export class Appointment extends Model {
