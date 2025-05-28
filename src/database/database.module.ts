@@ -9,8 +9,8 @@ import { Appointment } from "../appointments/entities/appointment.model";
       type: "postgres",
       host: "localhost",
       port: 5432, // Puerto correcto para PostgreSQL
-      username: "root",
-      password: "password",
+      username: "postgres",
+      password: "admin",
       database: "appmedicos",
       entities: [User, Appointment],
       synchronize: true, // Ten cuidado con esto en producción
