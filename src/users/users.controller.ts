@@ -27,7 +27,7 @@ export class UsersController {
     return this.userService.createUser(userData);
   }
 
-  @Get(":id/appoinments")
+  @Get(":id/appointments")
   async getUserAppoinments(@Param("id", ParseIntPipe) id: number) {
     return this.userService.getUserAppoinments(id);
   }

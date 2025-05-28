@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "../users/entities/user.model";
 import { Appointment } from "../appointments/entities/appointment.model";
+import { Doctor } from "src/doctors/entities/doctor.model";
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { Appointment } from "../appointments/entities/appointment.model";
       username: "postgres",
       password: "admin",
       database: "appmedicos",
-      entities: [User, Appointment],
+      entities: [User, Appointment, Doctor], // Agregar cada nueva entidad acá
       synchronize: true, // Ten cuidado con esto en producción
     }),
   ],
