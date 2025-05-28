@@ -1,27 +1,33 @@
-import { Column, Model, Table, ForeignKey, BelongsTo } from 'sequelize-typescript';
-import { User } from '../../users/entities/user.model';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
+import { User } from "../../users/entities/user.model";
 
-@Table
-export class Appointment extends Model {
-  @Column({ primaryKey: true, autoIncrement: true })
-  declare id: number;
+@Entity()
+export class Appointment {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column
+  @Column()
   fecha: Date;
 
-  @Column
+  @Column()
   hora: string;
 
-  @Column
+  @Column()
   motivo: string;
 
-  @Column({ defaultValue: 'Pendiente' })
+  @Column({ default: "Pendiente" })
   estado: string;
 
-  @ForeignKey(() => User)
-  @Column
+  @Column()
   userId: number;
 
-  @BelongsTo(() => User)
+  @ManyToOne(() => User, (user) => user.appointments)
+  @JoinColumn({ name: "userId" })
   user: User;
 }
