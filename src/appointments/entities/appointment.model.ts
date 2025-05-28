@@ -4,7 +4,7 @@ import { User } from '../../users/entities/user.model';
 @Table
 export class Appointment extends Model {
   @Column({ primaryKey: true, autoIncrement: true })
-  id: number;
+  declare id: number;
 
   @Column
   fecha: Date;
