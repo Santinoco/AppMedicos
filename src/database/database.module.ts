@@ -4,18 +4,20 @@ import { User } from "../users/entities/user.model";
 import { Appointment } from "../appointments/entities/appointment.model";
 import { Doctor } from "src/doctors/entities/doctor.model";
 import { Patient } from "src/patients/entities/patient.model";
+import { Location } from "src/locations/entities/location.model";
+import { AppointmentStatus } from "src/appointment-statuses/entities/appointment-status.model";
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: "postgres",
       host: "localhost",
-      port: 5432, // Puerto correcto para PostgreSQL
+      port: 5432,
       username: "postgres",
       password: "admin",
       database: "appmedicos",
-      entities: [User, Appointment, Doctor, Patient], // Agregar cada nueva entidad acá
-      synchronize: true, // Ten cuidado con esto en producción
+      entities: [User, Appointment, Doctor, Patient, Location, AppointmentStatus], // Agregar cada nueva entidad acá
+      synchronize: true, // Tener cuidado con esto en producción porque puede borrar la info de la base de datos
     }),
   ],
   exports: [TypeOrmModule],
