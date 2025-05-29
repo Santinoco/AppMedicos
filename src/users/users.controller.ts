@@ -5,6 +5,8 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  Patch,
+  Delete,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 
@@ -31,4 +33,20 @@ export class UsersController {
   async getUserAppoinments(@Param("id", ParseIntPipe) id: number) {
     return this.userService.getUserAppoinments(id);
   }
+
+  @Patch(":id")
+  async updateUser(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateData: any,
+  ) {
+    return this.userService.updateUser(id, updateData);
+  }
+
+  @Delete(":id")
+  async deleteUser(
+    @Param("id", ParseIntPipe) id: number,
+  ) {
+    return this.userService.deleteUser(id);
+  }
+
 }

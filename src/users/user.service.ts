@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.model";
@@ -33,4 +33,20 @@ export class UserService {
       message: `Citas del usuario con id: ${id}`,
     };
   }
+
+  async updateUser(id: number, updateData: Partial<User>) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) throw new NotFoundException("User with id ${id} not found");
+    Object.assign(user, updateData);
+    return this.userRepository.save(user);
+  }
+
+  async deleteUser(id: number) {
+    const result = await this.userRepository.delete({id});
+    if (result.affected === 0) {
+      throw new NotFoundException("User with id ${id} not found");
+    }
+    return { message: `User deleted succesfully` };
+  }
+
 }
