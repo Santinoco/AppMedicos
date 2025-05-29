@@ -29,6 +29,12 @@ let LocationController = class LocationController {
     async createLocation(locationData) {
         return this.locationService.createLocation(locationData);
     }
+    async deleteLocation(location_id) {
+        return this.locationService.deleteLocation(location_id);
+    }
+    async updateLocation(location_id, updateData) {
+        return this.locationService.updateLocation(location_id, updateData);
+    }
 };
 exports.LocationController = LocationController;
 __decorate([
@@ -51,6 +57,21 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], LocationController.prototype, "createLocation", null);
+__decorate([
+    (0, common_1.Delete)(':location_id'),
+    __param(0, (0, common_1.Param)('location_id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], LocationController.prototype, "deleteLocation", null);
+__decorate([
+    (0, common_1.Patch)(':location_id'),
+    __param(0, (0, common_1.Param)('location_id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], LocationController.prototype, "updateLocation", null);
 exports.LocationController = LocationController = __decorate([
     (0, common_1.Controller)("locations"),
     __metadata("design:paramtypes", [locations_service_1.LocationService])

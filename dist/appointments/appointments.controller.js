@@ -59,7 +59,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)('estado')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String]),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "updateStatus", null);
 exports.AppointmentsController = AppointmentsController = __decorate([

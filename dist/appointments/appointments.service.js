@@ -33,7 +33,7 @@ let AppointmentsService = class AppointmentsService {
         return this.appointmentRepository.save(appointment);
     }
     async updateAppointmentStatus(id, newStatus) {
-        await this.appointmentRepository.update(id, { estado: newStatus });
+        await this.appointmentRepository.update(id, { estado_id: newStatus });
         return this.getAppointmentById(id);
     }
 };

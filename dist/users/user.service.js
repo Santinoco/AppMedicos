@@ -42,6 +42,20 @@ let UserService = class UserService {
             message: `Citas del usuario con id: ${id}`,
         };
     }
+    async updateUser(id, updateData) {
+        const user = await this.userRepository.findOne({ where: { id } });
+        if (!user)
+            throw new common_1.NotFoundException("User with id ${id} not found");
+        Object.assign(user, updateData);
+        return this.userRepository.save(user);
+    }
+    async deleteUser(id) {
+        const result = await this.userRepository.delete({ id });
+        if (result.affected === 0) {
+            throw new common_1.NotFoundException("User with id ${id} not found");
+        }
+        return { message: `User deleted succesfully` };
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

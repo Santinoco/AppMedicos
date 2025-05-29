@@ -6,5 +6,5 @@ export declare class AppointmentsService {
     getAllAppointments(): Promise<Appointment[]>;
     getAppointmentById(id: number): Promise<Appointment | null>;
     createAppointment(appointmentData: any): Promise<Appointment[]>;
-    updateAppointmentStatus(id: number, newStatus: string): Promise<Appointment | null>;
+    updateAppointmentStatus(id: number, newStatus: number): Promise<Appointment | null>;
 }

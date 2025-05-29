@@ -32,6 +32,20 @@ let LocationService = class LocationService {
         const location = this.locationRepository.create(locationData);
         return this.locationRepository.save(location);
     }
+    async deleteLocation(location_id) {
+        const result = await this.locationRepository.delete({ location_id });
+        if (result.affected === 0) {
+            throw new common_1.NotFoundException(`Location with id ${location_id} not found`);
+        }
+        return { message: "Location deleted successfully" };
+    }
+    async updateLocation(location_id, updateData) {
+        const location = await this.locationRepository.findOne({ where: { location_id } });
+        if (!location)
+            throw new common_1.NotFoundException('Location not found');
+        Object.assign(location, updateData);
+        return this.locationRepository.save(location);
+    }
 };
 exports.LocationService = LocationService;
 exports.LocationService = LocationService = __decorate([

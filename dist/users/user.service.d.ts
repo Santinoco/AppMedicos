@@ -10,4 +10,8 @@ export declare class UserService {
         user: User | null;
         message: string;
     }>;
+    updateUser(id: number, updateData: Partial<User>): Promise<User>;
+    deleteUser(id: number): Promise<{
+        message: string;
+    }>;
 }
