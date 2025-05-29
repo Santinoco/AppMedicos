@@ -31,7 +31,7 @@ export class AppointmentsController {
   @Patch(':id/status')
   async updateStatus(
     @Param('id') id: number,
-    @Body('estado') newStatus: string,
+    @Body('estado') newStatus: number,
   ) {
     return this.appointmentsService.updateAppointmentStatus(id, newStatus);
   }

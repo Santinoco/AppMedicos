@@ -27,8 +27,8 @@ export class AppointmentsService {
   }
 
   // Actualizar estado de una cita
-  async updateAppointmentStatus(id: number, newStatus: string) {
-    await this.appointmentRepository.update(id, { estado: newStatus });
+  async updateAppointmentStatus(id: number, newStatus: number) {
+    await this.appointmentRepository.update(id, { estado_id: newStatus });
     return this.getAppointmentById(id);
   }
 }
