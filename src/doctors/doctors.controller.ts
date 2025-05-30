@@ -5,6 +5,8 @@ import {
     Body,
     Param,
     ParseIntPipe,
+    Patch,
+    Delete,
   } from "@nestjs/common";
   import { DoctorsService } from "./doctors.service";
   
@@ -26,4 +28,20 @@ import {
     async createDoctor(@Body() doctorData: any) {
       return this.doctorService.createDoctor(doctorData);
     }
+
+    @Patch(":user_id")
+    async updateDoctor(
+      @Param('user_id', ParseIntPipe) user_id: number,
+      @Body() updateData: any
+    ) {
+      return this.doctorService.updateDoctor(user_id, updateData);
+    }
+
+    @Delete(":user_id")
+    async deleteDoctor(
+      @Param('user_id', ParseIntPipe) user_id: number
+    ) {
+      return this.doctorService.deleteDoctor(user_id);
+    }
+
   }

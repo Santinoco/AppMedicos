@@ -29,6 +29,12 @@ let DoctorsController = class DoctorsController {
     async createDoctor(doctorData) {
         return this.doctorService.createDoctor(doctorData);
     }
+    async updateDoctor(user_id, updateData) {
+        return this.doctorService.updateDoctor(user_id, updateData);
+    }
+    async deleteDoctor(user_id) {
+        return this.doctorService.deleteDoctor(user_id);
+    }
 };
 exports.DoctorsController = DoctorsController;
 __decorate([
@@ -51,6 +57,21 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], DoctorsController.prototype, "createDoctor", null);
+__decorate([
+    (0, common_1.Patch)(":user_id"),
+    __param(0, (0, common_1.Param)('user_id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], DoctorsController.prototype, "updateDoctor", null);
+__decorate([
+    (0, common_1.Delete)(":user_id"),
+    __param(0, (0, common_1.Param)('user_id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], DoctorsController.prototype, "deleteDoctor", null);
 exports.DoctorsController = DoctorsController = __decorate([
     (0, common_1.Controller)("doctors"),
     __metadata("design:paramtypes", [doctors_service_1.DoctorsService])

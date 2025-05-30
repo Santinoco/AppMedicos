@@ -35,6 +35,20 @@ let DoctorsService = class DoctorsService {
         const doctor = this.doctorRepository.create(doctorData);
         return this.doctorRepository.save(doctor);
     }
+    async updateDoctor(user_id, updateData) {
+        const doctor = await this.doctorRepository.findOne({ where: { user_id } });
+        if (!doctor)
+            throw new common_1.NotFoundException(`Doctor with user_id ${user_id} not found`);
+        Object.assign(doctor, updateData);
+        return this.doctorRepository.save(doctor);
+    }
+    async deleteDoctor(user_id) {
+        const result = await this.doctorRepository.delete({ user_id });
+        if (result.affected === 0) {
+            throw new common_1.NotFoundException(`Doctor with user_id ${user_id} not found`);
+        }
+        return { message: "Doctor deleted successfully" };
+    }
 };
 exports.DoctorsService = DoctorsService;
 exports.DoctorsService = DoctorsService = __decorate([
