@@ -1,0 +1,52 @@
+/* home.module.css */
+
+.main {
+  min-height: 100vh;
+  background: linear-gradient(to right, #e8f5e9, #ffffff); /* verde claro */
+  font-family: Arial, sans-serif;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.desktopLayout {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.sidebar {
+  flex: 1;
+  background: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.calendarContainer {
+  flex: 2;
+  background: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.h2 {
+  color: #2e7d32;
+  margin-bottom: 1rem;
+}
+
+.button {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  background-color: #66bb6a;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 1rem;
+  width: 100%;
+}

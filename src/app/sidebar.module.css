@@ -1,0 +1,32 @@
+/* styles/sidebar.module.css */
+.sidebar {
+  min-height: 100vh;
+  width: 220px;
+  background-color: #e8f5e9;
+  padding: 2rem 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-family: Arial, sans-serif;
+}
+
+.logo {
+  font-size: 1.5rem;
+  color: #2e7d32;
+  margin-bottom: 2rem;
+}
+
+.nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.nav ul li {
+  margin-bottom: 1.2rem;
+}
+
+.nav ul li a {
+  text-decoration: none;
+  color: #2e7d32;
+  font-weight: bold;
+}
