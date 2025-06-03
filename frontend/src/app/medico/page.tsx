@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 interface Turno {
   id: number;
   nombre: string;
@@ -6,7 +10,7 @@ interface Turno {
   fechaTurno: Date;
 }
 
-const misTurnos: Turno[] = [
+const misTurnosInicial: Turno[] = [
   {
     id: 1,
     nombre: "Juan Perez",
@@ -23,7 +27,7 @@ const misTurnos: Turno[] = [
   },
 ];
 
-const nuevosTurnos: Turno[] = [
+const nuevosTurnosInicial: Turno[] = [
   {
     id: 3,
     nombre: "Carlos Rodríguez",
@@ -36,7 +40,7 @@ const nuevosTurnos: Turno[] = [
     nombre: "Lucía Fernández",
     email: "lucia@mail.com",
     motivo: "Chequeo general",
-    fechaTurno: new Date("2025-05-29T12:00:00"),
+    fechaTurno: new Date("2025-06-29T12:00:00"),
   },
   {
     id: 5,
@@ -48,6 +52,32 @@ const nuevosTurnos: Turno[] = [
 ];
 
 export default function MedicoDashboard() {
+  const [misTurnos, setMisTurnos] = useState<Turno[]>(misTurnosInicial);
+  const [nuevosTurnos, setNuevosTurnos] =
+    useState<Turno[]>(nuevosTurnosInicial);
+
+  const tomarTurno = (id: number) => {
+    const turnoTomado = nuevosTurnos.find((turno) => turno.id === id);
+    if (turnoTomado) {
+      setMisTurnos([...misTurnos, turnoTomado]);
+      setNuevosTurnos(nuevosTurnos.filter((turno) => turno.id !== id));
+    }
+
+    //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
+    //y la nueva lista de turnos a tomar
+  };
+
+  const cancelarTurno = (id: number) => {
+    const turnoCancelado = misTurnos.find((turno) => turno.id === id);
+    if (turnoCancelado) {
+      setNuevosTurnos([...nuevosTurnos, turnoCancelado]);
+      setMisTurnos(misTurnos.filter((turno) => turno.id !== id));
+    }
+
+    //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
+    //y la nueva lista de turnos a tomar
+  };
+
   return (
     <div className="main">
       <h1 className="h1 text-4xl">Bienvenido, Medico</h1>
@@ -76,15 +106,18 @@ export default function MedicoDashboard() {
                       {misTurnos.fechaTurno.getMinutes()}
                     </span>
                     <span className="mx-1">
-                      {misTurnos.fechaTurno.getDay()}/
-                      {misTurnos.fechaTurno.getMonth()}
+                      {misTurnos.fechaTurno.getDate()}/
+                      {misTurnos.fechaTurno.getMonth() + 1}
                     </span>
                   </div>
                   <div className="mb-2">
                     <div className="font-bold">Motivo:</div>
                     <p>{misTurnos.motivo}</p>
                   </div>
-                  <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                  <button
+                    onClick={() => cancelarTurno(misTurnos.id)}
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                  >
                     Cancelar Turno
                   </button>
                 </div>
@@ -114,15 +147,18 @@ export default function MedicoDashboard() {
                       {nuevoTurno.fechaTurno.getMinutes()}
                     </span>
                     <span className="mx-1">
-                      {nuevoTurno.fechaTurno.getDay()}/
-                      {nuevoTurno.fechaTurno.getMonth()}
+                      {nuevoTurno.fechaTurno.getDate()}/
+                      {nuevoTurno.fechaTurno.getMonth() + 1}
                     </span>
                   </div>
                   <div className="mb-2">
                     <div className="font-bold">Motivo:</div>
                     <p>{nuevoTurno.motivo}</p>
                   </div>
-                  <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                  <button
+                    onClick={() => tomarTurno(nuevoTurno.id)}
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                  >
                     Tomar Turno
                   </button>
                 </div>
