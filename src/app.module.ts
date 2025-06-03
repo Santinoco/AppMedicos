@@ -8,10 +8,11 @@ import { DoctorModule } from './doctors/doctors.module';
 import { PatientModule } from './patients/patients.module';
 import { LocationModule } from './locations/locations.module';
 import { AppointmentStatusModule } from "./appointment-statuses/appointment-status.module";
+import { UserTypeModule } from './user-type/user-type.module';
 
 @Module({
-  imports: [DatabaseModule, UsersModule, AppointmentsModule, DoctorModule, PatientModule, LocationModule, AppointmentStatusModule],
-  controllers: [AppController,],
-  providers: [AppService,],
+  imports: [DatabaseModule, UsersModule, AppointmentsModule, DoctorModule, PatientModule, LocationModule, AppointmentStatusModule, UserTypeModule],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

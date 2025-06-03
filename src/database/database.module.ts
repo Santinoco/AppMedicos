@@ -6,6 +6,7 @@ import { Doctor } from "src/doctors/entities/doctor.model";
 import { Patient } from "src/patients/entities/patient.model";
 import { Location } from "src/locations/entities/location.model";
 import { AppointmentStatus } from "src/appointment-statuses/entities/appointment-status.model";
+import { UserType } from "src/user-type/entities/user-type.model";
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { AppointmentStatus } from "src/appointment-statuses/entities/appointment
       username: "postgres",
       password: "admin",
       database: "appmedicos",
-      entities: [User, Appointment, Doctor, Patient, Location, AppointmentStatus], // Agregar cada nueva entidad acá
+      entities: [User, Appointment, Doctor, Patient, Location, AppointmentStatus, UserType], // Agregar cada nueva entidad acá
       synchronize: true, // Tener cuidado con esto en producción porque puede borrar la info de la base de datos
     }),
   ],

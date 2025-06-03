@@ -1,4 +1,5 @@
 import { Appointment } from "../../appointments/entities/appointment.model";
+import { UserType } from "../../user-type/entities/user-type.model";
 export declare class User {
     id: number;
     nombre: string;
@@ -6,5 +7,6 @@ export declare class User {
     email: string;
     password: string;
     activo: boolean;
+    type: UserType;
     appointments: Appointment[];
 }

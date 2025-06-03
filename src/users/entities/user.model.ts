@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from "typeorm";
 import { Appointment } from "../../appointments/entities/appointment.model";
+import { UserType } from "../../user-type/entities/user-type.model";
 
 @Entity()
 export class User {
@@ -20,6 +21,10 @@ export class User {
 
   @Column({ default: true })
   activo: boolean;
+
+  @ManyToOne(() => UserType, (type) => type.users)
+  @JoinColumn({ name: "user_type_id" })
+  type: UserType;
 
   @OneToMany(() => Appointment, (appointment) => appointment.user)
   appointments: Appointment[];

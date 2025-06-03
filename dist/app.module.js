@@ -17,14 +17,15 @@ const doctors_module_1 = require("./doctors/doctors.module");
 const patients_module_1 = require("./patients/patients.module");
 const locations_module_1 = require("./locations/locations.module");
 const appointment_status_module_1 = require("./appointment-statuses/appointment-status.module");
+const user_type_module_1 = require("./user-type/user-type.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule, users_module_1.UsersModule, appointments_module_1.AppointmentsModule, doctors_module_1.DoctorModule, patients_module_1.PatientModule, locations_module_1.LocationModule, appointment_status_module_1.AppointmentStatusModule],
-        controllers: [app_controller_1.AppController,],
-        providers: [app_service_1.AppService,],
+        imports: [database_module_1.DatabaseModule, users_module_1.UsersModule, appointments_module_1.AppointmentsModule, doctors_module_1.DoctorModule, patients_module_1.PatientModule, locations_module_1.LocationModule, appointment_status_module_1.AppointmentStatusModule, user_type_module_1.UserTypeModule],
+        controllers: [app_controller_1.AppController],
+        providers: [app_service_1.AppService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map
