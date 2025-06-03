@@ -79,7 +79,7 @@ export default function MedicoDashboard() {
   };
 
   return (
-    <div className="main">
+    <div className="min-h-screen items-center justify-center font-sans text-center bg-gradient-to-r from-green-100 to-white">
       <h1 className="h1 text-4xl">Bienvenido, Medico</h1>
       <p className="p mb-4">Esta es la vista del panel médico.</p>
 
