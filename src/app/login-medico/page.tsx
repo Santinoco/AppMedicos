@@ -41,10 +41,10 @@ export default function Login() {
   };
 
   return (
-  <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-green-100 to-white px-4">
+  <div className="flex items-center justify-center px-4">
     <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold text-center mb-4">Iniciar sesión</h1>
-      <p className="text-center mb-6">Accedé a la plataforma para gestionar tus turnos médicos.</p>
+      <p className="text-center mb-6">Ingresá para administrar tu agenda y pacientes</p>
 
       <form
         onSubmit={handleSubmit}

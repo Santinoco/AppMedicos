@@ -18,11 +18,24 @@ export default function Home() {
         <li>✅ Acceso rápido para pacientes</li>
       </ul>
 
-      <Link href="/login">
-        <button className="mt-4 px-6 py-3 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition">
-          Iniciar sesión
-        </button>
-      </Link>
+      <div className="flex gap-4">
+        <Link href="/login-medico">
+          <button className="px-6 py-3 bg-green-400 text-white rounded-lg shadow hover:bg-green-600 transition">
+            Soy Médico
+          </button>
+        </Link>
+
+        <Link href="/login-paciente">
+          <button className="px-6 py-3 bg-green-400 text-white rounded-lg shadow hover:bg-green-600 transition">
+            Soy Paciente
+          </button>
+        </Link>
+        <Link href="/sign-up">
+          <button className="px-6 py-3 bg-green-500 text-white rounded-lg shadow hover:bg-green-700 transition">
+            Registrarse
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }
