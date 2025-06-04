@@ -26,7 +26,7 @@ const nuevosTurnosInicial: Turno[] = [
     email: "lucia@mail.com",
     motivo: "Chequeo general",
     fechaTurno: new Date("2025-06-29T12:00:00"),
-    especialidad: "Pediatríaa",
+    especialidad: "Pediatría",
   },
   {
     id: 5,
@@ -43,13 +43,25 @@ export default function agregarTurnos() {
     useState<Turno[]>(nuevosTurnosInicial);
 
   const tomarTurno = (id: number) => {
+    //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
+    //y la nueva lista de turnos a tomar
+    //por ahora solo actualizo el estado local
+
     const turnoTomado = nuevosTurnos.find((turno) => turno.id === id);
     if (turnoTomado) {
       setNuevosTurnos(nuevosTurnos.filter((turno) => turno.id !== id));
     }
+  };
 
-    //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
-    //y la nueva lista de turnos a tomar
+  const filtrarLista = (especialidad: string) => {
+    if (especialidad === "Todas") {
+      setNuevosTurnos(nuevosTurnosInicial);
+    } else {
+      const turnosFiltrados = nuevosTurnosInicial.filter(
+        (turno) => turno.especialidad === especialidad
+      );
+      setNuevosTurnos(turnosFiltrados);
+    }
   };
 
   return (
@@ -58,6 +70,20 @@ export default function agregarTurnos() {
       className="flex-1 mx-2 flex flex-col items-center"
     >
       <h1 className="text-3xl">Nuevos Turnos</h1>
+      <div className="mb-4">
+        <label htmlFor="especialidad" className="mr-2">
+          Filtrar por Especialidad:
+        </label>
+        <select
+          id="especialidad"
+          onChange={(e) => filtrarLista(e.target.value)}
+          className="border border-gray-300 rounded p-2"
+        >
+          <option value="Todas">Todas</option>
+          <option value="Neurología">Neurología</option>
+          <option value="Pediatría">Pediatría</option>
+        </select>
+      </div>
       <ul>
         {nuevosTurnos.map((nuevoTurno) => (
           <li key={nuevoTurno.id}>

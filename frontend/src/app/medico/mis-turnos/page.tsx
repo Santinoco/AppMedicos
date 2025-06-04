@@ -34,18 +34,44 @@ export default function misTurnos() {
   const [misTurnos, setMisTurnos] = useState<Turno[]>(misTurnosInicial);
 
   const cancelarTurno = (id: number) => {
+    //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
+    //y la nueva lista de turnos a tomar
+    //por ahora solo actualizo el estado local
+
     const turnoCancelado = misTurnos.find((turno) => turno.id === id);
     if (turnoCancelado) {
       setMisTurnos(misTurnos.filter((turno) => turno.id !== id));
     }
+  };
 
-    //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
-    //y la nueva lista de turnos a tomar
+  const filtrarLista = (especialidad: string) => {
+    if (especialidad === "Todas") {
+      setMisTurnos(misTurnosInicial);
+    } else {
+      const turnosFiltrados = misTurnosInicial.filter(
+        (turno) => turno.especialidad === especialidad
+      );
+      setMisTurnos(turnosFiltrados);
+    }
   };
 
   return (
     <section id="misTurnos" className="flex-1 mx-2 flex flex-col items-center ">
       <h1 className="text-3xl">Tus Turnos</h1>
+      <div className="mb-4">
+        <label htmlFor="especialidad" className="mr-2">
+          Filtrar por Especialidad:
+        </label>
+        <select
+          id="especialidad"
+          onChange={(e) => filtrarLista(e.target.value)}
+          className="border border-gray-300 rounded p-2"
+        >
+          <option value="Todas">Todas</option>
+          <option value="Neurología">Neurología</option>
+          <option value="Pediatría">Pediatría</option>
+        </select>
+      </div>
       <ul>
         {misTurnos.map((misTurnos) => (
           <li key={misTurnos.id}>
