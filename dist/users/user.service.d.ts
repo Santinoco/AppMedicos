@@ -5,7 +5,7 @@ export declare class UserService {
     constructor(userRepository: Repository<User>);
     getAllUsers(): Promise<User[]>;
     getUserById(id: number): Promise<User | null>;
-    createUser(userData: any): Promise<User[]>;
+    createUser(userData: Partial<User>): Promise<User>;
     getUserAppoinments(id: number): Promise<{
         user: User | null;
         message: string;

@@ -4,7 +4,6 @@ import { UserService } from '../users/user.service';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginAuthDto } from './dto/login-auth.dto';
-import { identity } from 'rxjs';
 
 
 @Injectable()
