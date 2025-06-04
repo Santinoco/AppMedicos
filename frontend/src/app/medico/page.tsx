@@ -8,6 +8,7 @@ interface Turno {
   email: string;
   motivo: string;
   fechaTurno: Date;
+  especialidad: string;
 }
 
 const misTurnosInicial: Turno[] = [
@@ -17,6 +18,7 @@ const misTurnosInicial: Turno[] = [
     email: "juan@mail.com",
     motivo: "Fiebre",
     fechaTurno: new Date("2025-05-29T10:30:00"),
+    especialidad: "Neurología",
   },
   {
     id: 2,
@@ -24,6 +26,7 @@ const misTurnosInicial: Turno[] = [
     email: "maria@mail.com",
     motivo: "Control",
     fechaTurno: new Date("2025-05-29T11:00:00"),
+    especialidad: "Pediatría",
   },
 ];
 
@@ -34,6 +37,7 @@ const nuevosTurnosInicial: Turno[] = [
     email: "carlos@mail.com",
     motivo: "Dolor de cabeza",
     fechaTurno: new Date("2025-05-29T11:30:00"),
+    especialidad: "Neurología",
   },
   {
     id: 4,
@@ -41,6 +45,7 @@ const nuevosTurnosInicial: Turno[] = [
     email: "lucia@mail.com",
     motivo: "Chequeo general",
     fechaTurno: new Date("2025-06-29T12:00:00"),
+    especialidad: "Pediatríaa",
   },
   {
     id: 5,
@@ -48,6 +53,7 @@ const nuevosTurnosInicial: Turno[] = [
     email: "diego@mail.com",
     motivo: "Vacunación",
     fechaTurno: new Date("2025-05-29T12:30:00"),
+    especialidad: "Pediatría",
   },
 ];
 
@@ -79,7 +85,7 @@ export default function MedicoDashboard() {
   };
 
   return (
-    <div className="min-h-screen items-center justify-center font-sans text-center bg-gradient-to-r from-green-100 to-white">
+    <div className="flex flex-col w-full min-h-screen items-center justify-center font-sans text-center bg-gradient-to-r from-green-100 to-white flex-1">
       <h1 className="h1 text-4xl">Bienvenido, Medico</h1>
       <p className="p mb-4">Esta es la vista del panel médico.</p>
 
@@ -110,8 +116,12 @@ export default function MedicoDashboard() {
                       {misTurnos.fechaTurno.getMonth() + 1}
                     </span>
                   </div>
+                  <div className="my-2">
+                    <span className="font-bold">Especialidad: </span>
+                    <span>{misTurnos.especialidad}</span>
+                  </div>
                   <div className="mb-2">
-                    <div className="font-bold">Motivo:</div>
+                    <div className="font-bold">Motivo de consulta:</div>
                     <p>{misTurnos.motivo}</p>
                   </div>
                   <button
@@ -151,8 +161,12 @@ export default function MedicoDashboard() {
                       {nuevoTurno.fechaTurno.getMonth() + 1}
                     </span>
                   </div>
+                  <div className="my-2">
+                    <span className="font-bold">Especialidad: </span>
+                    <span>{nuevoTurno.especialidad}</span>
+                  </div>
                   <div className="mb-2">
-                    <div className="font-bold">Motivo:</div>
+                    <div className="font-bold">Motivo de consulta:</div>
                     <p>{nuevoTurno.motivo}</p>
                   </div>
                   <button
