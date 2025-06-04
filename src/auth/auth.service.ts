@@ -35,7 +35,8 @@ export class AuthService {
                 id: newUser.id,
                 nombre: newUser.nombre,
                 apellido: newUser.apellido,
-                email: newUser.email
+                email: newUser.email,
+                type: newUser.type
             },
             access_token: await this.jwtService.sign(payload)
         }
