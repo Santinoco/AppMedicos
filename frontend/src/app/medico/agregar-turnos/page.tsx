@@ -41,6 +41,7 @@ const nuevosTurnosInicial: Turno[] = [
 export default function agregarTurnos() {
   const [nuevosTurnos, setNuevosTurnos] =
     useState<Turno[]>(nuevosTurnosInicial);
+  const [turnosBase, setTurnosBase] = useState<Turno[]>(nuevosTurnosInicial);
 
   const tomarTurno = (id: number) => {
     //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
@@ -49,15 +50,18 @@ export default function agregarTurnos() {
 
     const turnoTomado = nuevosTurnos.find((turno) => turno.id === id);
     if (turnoTomado) {
-      setNuevosTurnos(nuevosTurnos.filter((turno) => turno.id !== id));
+      const nuevaLista = nuevosTurnos.filter((turno) => turno.id !== id);
+      setNuevosTurnos(nuevaLista);
+      const nuevaBase = turnosBase.filter((turno) => turno.id !== id);
+      setTurnosBase(nuevaBase);
     }
   };
 
   const filtrarLista = (especialidad: string) => {
     if (especialidad === "Todas") {
-      setNuevosTurnos(nuevosTurnosInicial);
+      setNuevosTurnos(turnosBase);
     } else {
-      const turnosFiltrados = nuevosTurnosInicial.filter(
+      const turnosFiltrados = turnosBase.filter(
         (turno) => turno.especialidad === especialidad
       );
       setNuevosTurnos(turnosFiltrados);

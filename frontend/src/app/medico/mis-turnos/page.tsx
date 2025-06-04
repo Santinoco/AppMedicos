@@ -32,6 +32,7 @@ const misTurnosInicial: Turno[] = [
 
 export default function misTurnos() {
   const [misTurnos, setMisTurnos] = useState<Turno[]>(misTurnosInicial);
+  const [turnosBase, setTurnosBase] = useState<Turno[]>(misTurnosInicial);
 
   const cancelarTurno = (id: number) => {
     //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
@@ -40,15 +41,19 @@ export default function misTurnos() {
 
     const turnoCancelado = misTurnos.find((turno) => turno.id === id);
     if (turnoCancelado) {
-      setMisTurnos(misTurnos.filter((turno) => turno.id !== id));
+      const nuevaLista = misTurnos.filter((turno) => turno.id !== id);
+      setMisTurnos(nuevaLista);
+
+      const nuevaBase = turnosBase.filter((turno) => turno.id !== id);
+      setTurnosBase(nuevaBase);
     }
   };
 
   const filtrarLista = (especialidad: string) => {
     if (especialidad === "Todas") {
-      setMisTurnos(misTurnosInicial);
+      setMisTurnos(turnosBase);
     } else {
-      const turnosFiltrados = misTurnosInicial.filter(
+      const turnosFiltrados = turnosBase.filter(
         (turno) => turno.especialidad === especialidad
       );
       setMisTurnos(turnosFiltrados);
