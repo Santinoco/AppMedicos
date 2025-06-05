@@ -31,13 +31,13 @@ export default function MedicoDashboard() {
     especialidad: "Neurología",
   };
 
-  const [medico, setMedico] = useState<Medico>({
+  const medico: Medico = {
     nombre: "Dr. Juan Perez",
     especialidad: ["Neurología", "Cardiología"],
     localidad: "Buenos Aires",
     telefono: 123456789,
     email: "medico@mail.com",
-  });
+  };
 
   return (
     <main className="flex-1 p-10 space-y-6">
