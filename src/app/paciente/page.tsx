@@ -39,16 +39,6 @@ export default function PacienteInicio() {
 
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-800">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md p-6">
-        <h2 className="text-2xl font-bold text-green-600 mb-6">Paciente</h2>
-        <nav className="flex flex-col gap-4">
-          <a href="/paciente" className="text-green-700 hover:underline">Inicio</a>
-          <a href="/paciente/mis-turnos" className="text-green-700 hover:underline">Mis turnos</a>
-          <a href="/paciente/listado-medicos" className="text-green-700 hover:underline">Cartilla de médicos</a>
-        </nav>
-      </aside>
-
       {/* Panel principal */}
       <main className="flex-1 p-10 space-y-6">
         <h1 className="text-3xl font-bold text-green-800">Bienvenido, {user.nombre}</h1>
