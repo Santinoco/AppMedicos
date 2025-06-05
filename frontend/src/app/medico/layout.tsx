@@ -11,13 +11,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body>
-        <div className="flex min-h-screen bg-gray-100 text-gray-800">
-          <Sidebar></Sidebar>
-          {children}
-        </div>
-      </body>
-    </html>
+    <div className="flex min-h-screen bg-gray-100 text-gray-800">
+      <Sidebar></Sidebar>
+      {children}
+    </div>
   );
 }
