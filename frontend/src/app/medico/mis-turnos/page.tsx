@@ -61,61 +61,72 @@ export default function misTurnos() {
   };
 
   return (
-    <section id="misTurnos" className="flex-1 mx-2 flex flex-col items-center ">
-      <h1 className="text-3xl">Tus Turnos</h1>
-      <div className="mb-4">
-        <label htmlFor="especialidad" className="mr-2">
-          Filtrar por Especialidad:
-        </label>
-        <select
-          id="especialidad"
-          onChange={(e) => filtrarLista(e.target.value)}
-          className="border border-gray-300 rounded p-2"
-        >
-          <option value="Todas">Todas</option>
-          <option value="Neurología">Neurología</option>
-          <option value="Pediatría">Pediatría</option>
-        </select>
-      </div>
-      <ul>
-        {misTurnos.map((misTurnos) => (
-          <li key={misTurnos.id}>
-            <div className="container flex flex-col bg-white my-4 p-4 rounded-md">
-              <div>
-                <span className="font-bold">{misTurnos.nombre}</span>{" "}
-                <span className="text-gray-500 font-light">
-                  - {misTurnos.email}
-                </span>
-              </div>
-              <div className="my-2">
-                <span className="font-bold">Fecha:</span>
-                <span className="mx-1">
-                  {misTurnos.fechaTurno.getHours()}:
-                  {misTurnos.fechaTurno.getMinutes()}
-                </span>
-                <span className="mx-1">
-                  {misTurnos.fechaTurno.getDate()}/
-                  {misTurnos.fechaTurno.getMonth() + 1}
-                </span>
-              </div>
-              <div className="my-2">
-                <span className="font-bold">Especialidad: </span>
-                <span>{misTurnos.especialidad}</span>
-              </div>
-              <div className="mb-2">
-                <div className="font-bold">Motivo de consulta:</div>
-                <p>{misTurnos.motivo}</p>
-              </div>
-              <button
-                onClick={() => cancelarTurno(misTurnos.id)}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+    <div className="flex-1 p-10 space-y-6">
+      <section id="misTurnos" className=" mx-2 flex flex-col items-center ">
+        <h1 className="text-3xl">Tus Turnos</h1>
+        <div className="mb-4">
+          <label htmlFor="especialidad" className="mr-2">
+            Filtrar por Especialidad:
+          </label>
+          <select
+            id="especialidad"
+            onChange={(e) => filtrarLista(e.target.value)}
+            className="border border-gray-300 rounded p-2"
+          >
+            <option value="Todas">Todas</option>
+            <option value="Neurología">Neurología</option>
+            <option value="Pediatría">Pediatría</option>
+          </select>
+        </div>
+      </section>
+      <section className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">📅 Turnos agendados</h2>
+        {misTurnos.length === 0 ? (
+          <p className="text-gray-500">No tenés turnos agendados.</p>
+        ) : (
+          <ul className="space-y-4">
+            {misTurnos.map((misTurnos) => (
+              <li
+                className="border p-4 rounded-lg flex justify-between items-start"
+                key={misTurnos.id}
               >
-                Cancelar Turno
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </section>
+                <div>
+                  <div>
+                    <span className="font-bold">{misTurnos.nombre}</span>{" "}
+                    <span className="text-gray-500 font-light">
+                      - {misTurnos.email}
+                    </span>
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold mr-1">Fecha:</span>
+                    📅{" "}
+                    {new Intl.DateTimeFormat("es-ES", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }).format(misTurnos.fechaTurno)}
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold">Especialidad requerida: </span>
+                    <span>{misTurnos.especialidad}</span>
+                  </div>
+                  <div className="mb-1">
+                    <div className="font-bold">Motivo de consulta:</div>
+                    <p>{misTurnos.motivo}</p>
+                  </div>
+                </div>
+                <div className="flex gap-4 items-center">
+                  <button
+                    onClick={() => cancelarTurno(misTurnos.id)}
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Cancelar Turno
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
   );
 }
