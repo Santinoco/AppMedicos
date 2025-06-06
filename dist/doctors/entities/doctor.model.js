@@ -12,12 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Doctor = void 0;
 const typeorm_1 = require("typeorm");
 const user_model_1 = require("../../users/entities/user.model");
+const appointment_model_1 = require("../../appointments/entities/appointment.model");
 let Doctor = class Doctor {
     user_id;
     user;
     specialty;
     license_number;
     active;
+    appointments;
 };
 exports.Doctor = Doctor;
 __decorate([
@@ -41,6 +43,10 @@ __decorate([
     (0, typeorm_1.Column)({ default: true }),
     __metadata("design:type", Boolean)
 ], Doctor.prototype, "active", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => appointment_model_1.Appointment, (appointment) => appointment.doctor_id),
+    __metadata("design:type", Array)
+], Doctor.prototype, "appointments", void 0);
 exports.Doctor = Doctor = __decorate([
     (0, typeorm_1.Entity)()
 ], Doctor);

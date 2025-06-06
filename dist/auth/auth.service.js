@@ -29,9 +29,7 @@ let AuthService = class AuthService {
         }
         const hashedPassword = await bcrypt.hash(registerDto.password, 10);
         const newUser = await this.usersService.createUser({
-            email: registerDto.email,
-            nombre: registerDto.nombre,
-            apellido: registerDto.apellido,
+            ...registerDto,
             password: hashedPassword
         });
         const payload = { email: newUser.email, sub: newUser.id };

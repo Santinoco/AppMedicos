@@ -26,6 +26,4 @@ export class User {
   @JoinColumn({ name: "user_type_id" })
   type: UserType;
 
-  @OneToMany(() => Appointment, (appointment) => appointment.user)
-  appointments: Appointment[];
 }

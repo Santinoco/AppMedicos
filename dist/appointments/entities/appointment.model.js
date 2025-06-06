@@ -11,16 +11,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Appointment = void 0;
 const typeorm_1 = require("typeorm");
-const user_model_1 = require("../../users/entities/user.model");
 const appointment_status_model_1 = require("../../appointment-statuses/entities/appointment-status.model");
+const doctor_model_1 = require("../../doctors/entities/doctor.model");
+const patient_model_1 = require("../../patients/entities/patient.model");
 let Appointment = class Appointment {
     id;
     fecha;
     hora;
     motivo;
     estado_id;
-    userId;
-    user;
+    doctor_id;
+    patient_id;
     status;
 };
 exports.Appointment = Appointment;
@@ -45,14 +46,15 @@ __decorate([
     __metadata("design:type", Number)
 ], Appointment.prototype, "estado_id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.ManyToOne)(() => doctor_model_1.Doctor, (doctor) => doctor.user_id),
+    (0, typeorm_1.JoinColumn)({ name: "doctor_id" }),
     __metadata("design:type", Number)
-], Appointment.prototype, "userId", void 0);
+], Appointment.prototype, "doctor_id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_model_1.User, (user) => user.appointments, { onDelete: 'CASCADE' }),
-    (0, typeorm_1.JoinColumn)({ name: "userId" }),
-    __metadata("design:type", user_model_1.User)
-], Appointment.prototype, "user", void 0);
+    (0, typeorm_1.ManyToOne)(() => patient_model_1.Patient, (patient) => patient.user_id),
+    (0, typeorm_1.JoinColumn)({ name: "patient_id" }),
+    __metadata("design:type", Number)
+], Appointment.prototype, "patient_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => appointment_status_model_1.AppointmentStatus, (status) => status.status),
     (0, typeorm_1.JoinColumn)({ name: "estado_id", referencedColumnName: "status_id" }),

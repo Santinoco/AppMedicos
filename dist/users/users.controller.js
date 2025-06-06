@@ -26,9 +26,6 @@ let UsersController = class UsersController {
     async getUserById(id) {
         return this.userService.getUserById(id);
     }
-    async createUser(userData) {
-        return this.userService.createUser(userData);
-    }
     async getUserAppoinments(id) {
         return this.userService.getUserAppoinments(id);
     }
@@ -53,13 +50,6 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getUserById", null);
-__decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], UsersController.prototype, "createUser", null);
 __decorate([
     (0, common_1.Get)(":id/appointments"),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),

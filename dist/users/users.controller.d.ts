@@ -4,7 +4,6 @@ export declare class UsersController {
     constructor(userService: UserService);
     getAllUsers(): Promise<import("./entities/user.model").User[]>;
     getUserById(id: number): Promise<import("./entities/user.model").User | null>;
-    createUser(userData: any): Promise<import("./entities/user.model").User>;
     getUserAppoinments(id: number): Promise<{
         user: import("./entities/user.model").User | null;
         message: string;

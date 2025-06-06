@@ -24,10 +24,10 @@ export class UsersController {
     return this.userService.getUserById(id);
   }
 
-  @Post()
+  /*@Post()
   async createUser(@Body() userData: any) {
     return this.userService.createUser(userData);
-  }
+  }*/
 
   @Get(":id/appointments")
   async getUserAppoinments(@Param("id", ParseIntPipe) id: number) {

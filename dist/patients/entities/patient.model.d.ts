@@ -1,4 +1,5 @@
 import { User } from "../../users/entities/user.model";
+import { Appointment } from "src/appointments/entities/appointment.model";
 export declare class Patient {
     user_id: number;
     user: User;
@@ -8,4 +9,5 @@ export declare class Patient {
     weight: number;
     height: number;
     blood_type: string;
+    appointments: Appointment[];
 }

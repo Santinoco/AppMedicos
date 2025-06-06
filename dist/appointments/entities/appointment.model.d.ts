@@ -1,4 +1,3 @@
-import { User } from "../../users/entities/user.model";
 import { AppointmentStatus } from "../../appointment-statuses/entities/appointment-status.model";
 export declare class Appointment {
     id: number;
@@ -6,7 +5,7 @@ export declare class Appointment {
     hora: string;
     motivo: string;
     estado_id: number;
-    userId: number;
-    user: User;
+    doctor_id: number;
+    patient_id: number;
     status: AppointmentStatus;
 }

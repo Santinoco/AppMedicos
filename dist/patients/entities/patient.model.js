@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Patient = void 0;
 const typeorm_1 = require("typeorm");
 const user_model_1 = require("../../users/entities/user.model");
+const appointment_model_1 = require("../../appointments/entities/appointment.model");
 let Patient = class Patient {
     user_id;
     user;
@@ -21,6 +22,7 @@ let Patient = class Patient {
     weight;
     height;
     blood_type;
+    appointments;
 };
 exports.Patient = Patient;
 __decorate([
@@ -56,6 +58,10 @@ __decorate([
     (0, typeorm_1.Column)({ length: 5, nullable: true }),
     __metadata("design:type", String)
 ], Patient.prototype, "blood_type", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => appointment_model_1.Appointment, (appointment) => appointment.patient_id),
+    __metadata("design:type", Array)
+], Patient.prototype, "appointments", void 0);
 exports.Patient = Patient = __decorate([
     (0, typeorm_1.Entity)()
 ], Patient);
