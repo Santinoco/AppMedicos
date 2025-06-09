@@ -50,10 +50,10 @@ export default function SignUp() {
 
       setSuccess('Registro exitoso! Redirigiendo...');
 
-      // 👉 Redirigir al dashboard correspondiente
+      // Redirige al dashboard correspondiente
       setTimeout(() => {
         router.push(role === 'paciente' ? '/paciente' : '/medico');
-      }, 1500); // opcional: esperar 1.5 segundos antes de redirigir
+      }, 1000); // Esperar 1 segundo antes de redirigir
 
     } catch (err) {
       setError('Error de conexión con el servidor.');
