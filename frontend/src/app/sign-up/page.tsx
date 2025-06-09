@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'; // 👉 importar router
 
 export default function SignUp() {
+  const router = useRouter(); // 👉 inicializar router
+
   const [role, setRole] = useState<'paciente' | 'medico'>('paciente');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
@@ -11,7 +14,7 @@ export default function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-//integracion con backend
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -31,7 +34,7 @@ export default function SignUp() {
     };
 
     try {
-      const res = await fetch('/api/signup', {//integracion con base de datos
+      const res = await fetch('/api/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,13 +48,13 @@ export default function SignUp() {
         return;
       }
 
-      setSuccess('Registro exitoso! Ahora podés iniciar sesión.');
-      // Limpiar formulario opcional:
-      setNombre('');
-      setApellido('');
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
+      setSuccess('Registro exitoso! Redirigiendo...');
+
+      // Redirige al dashboard correspondiente
+      setTimeout(() => {
+        router.push(role === 'paciente' ? '/paciente' : '/medico');
+      }, 1000); // Esperar 1 segundo antes de redirigir
+
     } catch (err) {
       setError('Error de conexión con el servidor.');
     }
@@ -64,10 +67,7 @@ export default function SignUp() {
       {error && <div className="mb-4 text-red-600">{error}</div>}
       {success && <div className="mb-4 text-green-600">{success}</div>}
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4 w-full max-w-md"
-      >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md">
         <label className="flex items-center gap-4">
           <input
             type="radio"
