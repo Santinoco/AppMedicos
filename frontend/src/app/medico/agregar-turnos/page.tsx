@@ -1,6 +1,6 @@
 "use client";
-
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 interface Turno {
   id: number;
@@ -42,6 +42,24 @@ export default function agregarTurnos() {
   const [nuevosTurnos, setNuevosTurnos] =
     useState<Turno[]>(nuevosTurnosInicial);
   const [turnosBase, setTurnosBase] = useState<Turno[]>(nuevosTurnosInicial);
+  const userId = 1; // Reemplazar con la lógica para obtener la ID del usuario logueado
+
+  //Funcion GET, MODIFICAR SI EL JSON NO ES EL MISMO QUE EL DE EJEMPLO
+  useEffect(() => {
+    const fetchTurnos = async () => {
+      try {
+        const response = await axios.get(`/id/${userId}`);
+        const turnos: Turno[] = response.data.map((turno: any) => ({
+          ...turno,
+          fechaTurno: new Date(turno.fechaTurno), // Convertir fecha a objeto Date
+        }));
+        setNuevosTurnos(turnos);
+      } catch (error) {
+        console.error("Error al obtener los turnos:", error);
+      }
+    };
+    fetchTurnos();
+  }, [userId]);
 
   const tomarTurno = (id: number) => {
     //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
