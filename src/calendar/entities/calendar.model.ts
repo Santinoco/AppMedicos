@@ -1,11 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
 
-@Entity('calendar_slots')
-@Unique(['slotDatetime'])
-export class CalendarSlot {
+@Entity()
+@Unique(['slot_datetime'])
+export class Calendar {
   @PrimaryGeneratedColumn()
-  slotId: number;
+  slot_id: number;
 
   @Column({ type: 'timestamp' })
-  slotDatetime: Date;
+  slot_datetime: Date;
 }

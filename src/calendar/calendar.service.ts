@@ -2,15 +2,15 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CalendarSlot } from './entities/calendar.model';
+import { Calendar } from './entities/calendar.model';
 import { Repository } from 'typeorm';
 import { addMinutes, isWeekend, setHours, setMinutes } from 'date-fns';
 
 @Injectable()
 export class CalendarService {
   constructor(
-    @InjectRepository(CalendarSlot)
-    private readonly slotRepository: Repository<CalendarSlot>,
+    @InjectRepository(Calendar)
+    private readonly slotRepository: Repository<Calendar>,
   ) {}
 
   async generateSlots(): Promise<void> {
@@ -48,12 +48,12 @@ export class CalendarService {
     }
 
     const slotEntities = slots.map((slotDate) => {
-      const slot = new CalendarSlot();
-      slot.slotDatetime = slotDate;
+      const slot = new Calendar();
+      slot.slot_datetime = slotDate;
       return slot;
     });
 
-    await this.slotRepository.upsert(slotEntities, ['slotDatetime']); // evita duplicados
+    await this.slotRepository.upsert(slotEntities, ['slot_datetime']); // evita duplicados
   }
 
 }

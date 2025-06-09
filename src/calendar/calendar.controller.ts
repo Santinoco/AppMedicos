@@ -1,4 +1,12 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
+import { CalendarService } from './calendar.service';
 
 @Controller('calendar')
-export class CalendarController {}
+export class CalendarController {
+    constructor(private readonly calendarService: CalendarService) {}
+
+    @Post("generateslots")
+    async generateSlots() {
+        return this.calendarService.generateSlots();
+    }
+}
