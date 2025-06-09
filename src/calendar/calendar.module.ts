@@ -2,7 +2,7 @@
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CalendarSlot } from './entities/calendar-slot.entity';
+import { CalendarSlot } from './entities/calendar.model';
 import { CalendarService } from './calendar.service';
 import { CalendarController  } from './calendar.controller';
 
