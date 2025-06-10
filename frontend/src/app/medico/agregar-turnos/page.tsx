@@ -1,6 +1,6 @@
 "use client";
-
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 interface Turno {
   id: number;
@@ -42,6 +42,24 @@ export default function agregarTurnos() {
   const [nuevosTurnos, setNuevosTurnos] =
     useState<Turno[]>(nuevosTurnosInicial);
   const [turnosBase, setTurnosBase] = useState<Turno[]>(nuevosTurnosInicial);
+  const userId = 1; // Reemplazar con la lógica para obtener la ID del usuario logueado
+
+  //Funcion GET, MODIFICAR SI EL JSON NO ES EL MISMO QUE EL DE EJEMPLO
+  useEffect(() => {
+    const fetchTurnos = async () => {
+      try {
+        const response = await axios.get(`/id/${userId}`);
+        const turnos: Turno[] = response.data.map((turno: any) => ({
+          ...turno,
+          fechaTurno: new Date(turno.fechaTurno), // Convertir fecha a objeto Date
+        }));
+        setNuevosTurnos(turnos);
+      } catch (error) {
+        console.error("Error al obtener los turnos:", error);
+      }
+    };
+    fetchTurnos();
+  }, [userId]);
 
   const tomarTurno = (id: number) => {
     //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
@@ -69,64 +87,72 @@ export default function agregarTurnos() {
   };
 
   return (
-    <section
-      id="nuevosTurnos"
-      className="flex-1 mx-2 flex flex-col items-center"
-    >
-      <h1 className="text-3xl">Nuevos Turnos</h1>
-      <div className="mb-4">
-        <label htmlFor="especialidad" className="mr-2">
-          Filtrar por Especialidad:
-        </label>
-        <select
-          id="especialidad"
-          onChange={(e) => filtrarLista(e.target.value)}
-          className="border border-gray-300 rounded p-2"
-        >
-          <option value="Todas">Todas</option>
-          <option value="Neurología">Neurología</option>
-          <option value="Pediatría">Pediatría</option>
-        </select>
-      </div>
-      <ul>
-        {nuevosTurnos.map((nuevoTurno) => (
-          <li key={nuevoTurno.id}>
-            <div className="container flex flex-col bg-white my-4 p-4 rounded-md">
-              <div>
-                <span className="font-bold">{nuevoTurno.nombre}</span>{" "}
-                <span className="text-gray-500 font-light">
-                  - {nuevoTurno.email}
-                </span>
-              </div>
-              <div className="my-2">
-                <span className="font-bold">Fecha:</span>
-                <span className="mx-1">
-                  {nuevoTurno.fechaTurno.getHours()}:
-                  {nuevoTurno.fechaTurno.getMinutes()}
-                </span>
-                <span className="mx-1">
-                  {nuevoTurno.fechaTurno.getDate()}/
-                  {nuevoTurno.fechaTurno.getMonth() + 1}
-                </span>
-              </div>
-              <div className="my-2">
-                <span className="font-bold">Especialidad: </span>
-                <span>{nuevoTurno.especialidad}</span>
-              </div>
-              <div className="mb-2">
-                <div className="font-bold">Motivo de consulta:</div>
-                <p>{nuevoTurno.motivo}</p>
-              </div>
-              <button
-                onClick={() => tomarTurno(nuevoTurno.id)}
-                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+    <div className="flex-1 p-10 space-y-6">
+      <section id="nuevosTurnos" className=" mx-2 flex flex-col items-center ">
+        <h1 className="text-3xl">Nuevos Turnos</h1>
+        <div className="mb-4">
+          <label htmlFor="especialidad" className="mr-2">
+            Filtrar por Especialidad:
+          </label>
+          <select
+            id="especialidad"
+            onChange={(e) => filtrarLista(e.target.value)}
+            className="border border-gray-300 rounded p-2"
+          >
+            <option value="Todas">Todas</option>
+            <option value="Neurología">Neurología</option>
+            <option value="Pediatría">Pediatría</option>
+          </select>
+        </div>
+      </section>
+      <section className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">📅 Turnos agendados</h2>
+        {nuevosTurnos.length === 0 ? (
+          <p className="text-gray-500">No tenés turnos agendados.</p>
+        ) : (
+          <ul className="space-y-4">
+            {nuevosTurnos.map((nuevoTurno) => (
+              <li
+                className="border p-4 rounded-lg flex justify-between items-start"
+                key={nuevoTurno.id}
               >
-                Tomar Turno
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </section>
+                <div>
+                  <div>
+                    <span className="font-bold">{nuevoTurno.nombre}</span>{" "}
+                    <span className="text-gray-500 font-light">
+                      - {nuevoTurno.email}
+                    </span>
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold mr-1">Fecha:</span>
+                    📅{" "}
+                    {new Intl.DateTimeFormat("es-ES", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }).format(nuevoTurno.fechaTurno)}
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold">Especialidad requerida: </span>
+                    <span>{nuevoTurno.especialidad}</span>
+                  </div>
+                  <div className="mb-1">
+                    <div className="font-bold">Motivo de consulta:</div>
+                    <p>{nuevoTurno.motivo}</p>
+                  </div>
+                </div>
+                <div className="flex gap-4 items-center">
+                  <button
+                    onClick={() => tomarTurno(nuevoTurno.id)}
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Tomar Turno
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
   );
 }
