@@ -53,11 +53,10 @@ export default function misTurnos() {
   }, [userId]);
 
   const cancelarTurno = (id: number) => {
+    const turnoCancelado = misTurnos.find((turno) => turno.id === id);
     //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
     //y la nueva lista de turnos a tomar
     //por ahora solo actualizo el estado local
-
-    const turnoCancelado = misTurnos.find((turno) => turno.id === id);
     if (turnoCancelado) {
       const nuevaLista = misTurnos.filter((turno) => turno.id !== id);
       setMisTurnos(nuevaLista);

@@ -18,7 +18,7 @@ const usuariosInicial: Usuario[] = [
     apellido: "Perez",
     email: "juan@mail.com",
     activo: true,
-    tipo: 0, // 0 = user, 1 = paciente
+    tipo: 0, // 0 = medico, 1 = paciente
   },
   {
     id: 2,
@@ -26,7 +26,7 @@ const usuariosInicial: Usuario[] = [
     apellido: "Perez",
     email: "maria@mail.com",
     activo: false,
-    tipo: 1, // 0 = user, 1 = paciente
+    tipo: 1, // 0 = medico, 1 = paciente
   },
 ];
 
