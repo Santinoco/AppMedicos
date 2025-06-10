@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface Turno {
@@ -62,7 +61,6 @@ export default function MedicoDashboard() {
         </p>
       </section>
       <button
-        //Elimina unicamente el turno proximo, modificar si se mostraran multiples turnos en section de "Proximo Turno"
         onClick={() => router.push("/medico/mis-turnos")}
         className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
       >
