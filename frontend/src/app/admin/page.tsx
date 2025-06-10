@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface Usuario {
@@ -11,34 +11,41 @@ interface Usuario {
   tipo: number;
 }
 
+const usuariosInicial: Usuario[] = [
+  {
+    id: 1,
+    nombre: "Juan",
+    apellido: "Perez",
+    email: "juan@mail.com",
+    activo: true,
+    tipo: 0, // 0 = user, 1 = paciente
+  },
+  {
+    id: 2,
+    nombre: "Maria",
+    apellido: "Perez",
+    email: "maria@mail.com",
+    activo: false,
+    tipo: 1, // 0 = user, 1 = paciente
+  },
+];
+
 export default function AdminDashboard() {
   const router = useRouter();
-  const usuarios: Usuario[] = [
-    {
-      id: 1,
-      nombre: "Juan",
-      apellido: "Perez",
-      email: "juan@mail.com",
-      activo: true,
-      tipo: 0, // 0 = user, 1 = paciente
-    },
-    {
-      id: 2,
-      nombre: "Maria",
-      apellido: "Perez",
-      email: "maria@mail.com",
-      activo: false,
-      tipo: 1, // 0 = user, 1 = paciente
-    },
-  ];
+  const [usuarios, setUsuarios] = useState<Usuario[]>(usuariosInicial);
 
   const eliminarUsuario = (idUsuario: number) => {
     // Implementar la lógica para eliminar el usuario.
     // Por ahora, solo mostramos un mensaje de confirmación.
     if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-      alert(`Usuario con ID ${idUsuario} eliminado.`);
       // Implementar llamada a la API para eliminar el usuario
-      // y luego actualizar el estado de lista usuarios.
+
+      // Modificacion visual de la lista de usuarios local
+      const nuevaListaUsuarios = usuarios.filter(
+        (usuario) => usuario.id !== idUsuario
+      );
+      setUsuarios(nuevaListaUsuarios);
+      alert(`Usuario con ID ${idUsuario} eliminado.`);
     }
   };
 
