@@ -1,13 +1,17 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Appointment } from "./entities/appointment.model";
+import { CreateAppointmentDto } from "./dto/calendar.dto";
+import { Calendar } from "./../calendar/entities/calendar.model"
 
 @Injectable()
 export class AppointmentsService {
   constructor(
     @InjectRepository(Appointment)
     private appointmentRepository: Repository<Appointment>,
+    @InjectRepository(Calendar)
+    private calendarRepository: Repository<Calendar>,
   ) {}
 
   // Obtener todas las citas
@@ -21,12 +25,23 @@ export class AppointmentsService {
   }
 
   // Crear una nueva cita
-  async createAppointment(appointmentData: any) {
-    const appointment = this.appointmentRepository.create(appointmentData);
-    return this.appointmentRepository.save(appointment);
+  async createAppointment(dto: CreateAppointmentDto) {
+    const slot = await this.calendarRepository.findOne({ where: { slot_datetime: dto.slot_datetime } });
+  
+    if (!slot) {
+      throw new BadRequestException("No existe un slot para esa fecha y hora."); // cambiar por NotFound
+    }
+  
+    const appointment = this.appointmentRepository.create({
+      motivo: dto.motivo,
+      slot_datetime: slot,
+      doctor_id: dto.doctor_id,
+      patient_id: dto.patient_id,
+    });
+  
+    return await this.appointmentRepository.save(appointment);
   }
 
-  // Actualizar estado de una cita
   async updateAppointmentStatus(id: number, newStatus: number) {
     await this.appointmentRepository.update(id, { estado_id: newStatus });
     return this.getAppointmentById(id);
