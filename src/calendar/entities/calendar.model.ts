@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Unique, OneToMany } from 'typeorm';
+import { Appointment } from '../../appointments/entities/appointment.model';
 
 @Entity()
 @Unique(['slot_datetime'])
@@ -8,4 +9,7 @@ export class Calendar {
 
   @Column({ type: 'timestamp' })
   slot_datetime: Date;
+
+  @OneToMany(() => Appointment, (appointment) => appointment.slot_datetime)
+  appointments: Appointment[];
 }

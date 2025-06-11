@@ -56,4 +56,8 @@ export class CalendarService {
     await this.slotRepository.upsert(slotEntities, ['slot_datetime']); // evita duplicados
   }
 
+  async getSlots(): Promise<Calendar[]> {
+    return this.slotRepository.find();
+  }
+
 }
