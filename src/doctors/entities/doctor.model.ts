@@ -14,6 +14,12 @@ export class Doctor {
   @Column({ length: 100 })
   specialty: string;
 
+  @Column({ type: 'time' })
+  shift_start: string;
+
+  @Column({ type: 'time' })
+  shift_end: string;
+
   @Column()
   license_number: number;
 
@@ -22,4 +28,5 @@ export class Doctor {
 
   @OneToMany(() => Appointment, (appointment) => appointment.doctor_id)
   appointments: Appointment[];
+
 }
