@@ -1,8 +1,8 @@
 import { AppointmentStatus } from "../../appointment-statuses/entities/appointment-status.model";
+import { Calendar } from "src/calendar/entities/calendar.model";
 export declare class Appointment {
     id: number;
-    fecha: Date;
-    hora: string;
+    slot_datetime: Calendar;
     motivo: string;
     estado_id: number;
     doctor_id: number;

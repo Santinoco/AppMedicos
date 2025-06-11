@@ -14,10 +14,10 @@ const typeorm_1 = require("typeorm");
 const appointment_status_model_1 = require("../../appointment-statuses/entities/appointment-status.model");
 const doctor_model_1 = require("../../doctors/entities/doctor.model");
 const patient_model_1 = require("../../patients/entities/patient.model");
+const calendar_model_1 = require("../../calendar/entities/calendar.model");
 let Appointment = class Appointment {
     id;
-    fecha;
-    hora;
+    slot_datetime;
     motivo;
     estado_id;
     doctor_id;
@@ -30,13 +30,10 @@ __decorate([
     __metadata("design:type", Number)
 ], Appointment.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", Date)
-], Appointment.prototype, "fecha", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Appointment.prototype, "hora", void 0);
+    (0, typeorm_1.ManyToOne)(() => calendar_model_1.Calendar, (calendar) => calendar.slot_datetime),
+    (0, typeorm_1.JoinColumn)({ name: "slot_id", referencedColumnName: "slot_id" }),
+    __metadata("design:type", calendar_model_1.Calendar)
+], Appointment.prototype, "slot_datetime", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)

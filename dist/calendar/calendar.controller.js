@@ -20,6 +20,9 @@ let CalendarController = class CalendarController {
     async generateSlots() {
         return this.calendarService.generateSlots();
     }
+    async getSlots() {
+        return this.calendarService.getSlots();
+    }
 };
 exports.CalendarController = CalendarController;
 __decorate([
@@ -28,6 +31,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], CalendarController.prototype, "generateSlots", null);
+__decorate([
+    (0, common_1.Get)("getslots"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], CalendarController.prototype, "getSlots", null);
 exports.CalendarController = CalendarController = __decorate([
     (0, common_1.Controller)('calendar'),
     __metadata("design:paramtypes", [calendar_service_1.CalendarService])

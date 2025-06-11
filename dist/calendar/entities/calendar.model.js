@@ -11,9 +11,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Calendar = void 0;
 const typeorm_1 = require("typeorm");
+const appointment_model_1 = require("../../appointments/entities/appointment.model");
 let Calendar = class Calendar {
     slot_id;
     slot_datetime;
+    appointments;
 };
 exports.Calendar = Calendar;
 __decorate([
@@ -24,6 +26,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp' }),
     __metadata("design:type", Date)
 ], Calendar.prototype, "slot_datetime", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => appointment_model_1.Appointment, (appointment) => appointment.slot_datetime),
+    __metadata("design:type", Array)
+], Calendar.prototype, "appointments", void 0);
 exports.Calendar = Calendar = __decorate([
     (0, typeorm_1.Entity)(),
     (0, typeorm_1.Unique)(['slot_datetime'])

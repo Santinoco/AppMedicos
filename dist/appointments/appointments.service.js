@@ -17,10 +17,13 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const appointment_model_1 = require("./entities/appointment.model");
+const calendar_model_1 = require("./../calendar/entities/calendar.model");
 let AppointmentsService = class AppointmentsService {
     appointmentRepository;
-    constructor(appointmentRepository) {
+    calendarRepository;
+    constructor(appointmentRepository, calendarRepository) {
         this.appointmentRepository = appointmentRepository;
+        this.calendarRepository = calendarRepository;
     }
     async getAllAppointments() {
         return this.appointmentRepository.find();
@@ -28,9 +31,18 @@ let AppointmentsService = class AppointmentsService {
     async getAppointmentById(id) {
         return this.appointmentRepository.findOne({ where: { id } });
     }
-    async createAppointment(appointmentData) {
-        const appointment = this.appointmentRepository.create(appointmentData);
-        return this.appointmentRepository.save(appointment);
+    async createAppointment(dto) {
+        const slot = await this.calendarRepository.findOne({ where: { slot_datetime: dto.slot_datetime } });
+        if (!slot) {
+            throw new common_1.BadRequestException("No existe un slot para esa fecha y hora.");
+        }
+        const appointment = this.appointmentRepository.create({
+            motivo: dto.motivo,
+            slot_datetime: slot,
+            doctor_id: dto.doctor_id,
+            patient_id: dto.patient_id,
+        });
+        return await this.appointmentRepository.save(appointment);
     }
     async updateAppointmentStatus(id, newStatus) {
         await this.appointmentRepository.update(id, { estado_id: newStatus });
@@ -41,6 +53,8 @@ exports.AppointmentsService = AppointmentsService;
 exports.AppointmentsService = AppointmentsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(appointment_model_1.Appointment)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(calendar_model_1.Calendar)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], AppointmentsService);
 //# sourceMappingURL=appointments.service.js.map

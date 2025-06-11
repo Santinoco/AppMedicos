@@ -17,6 +17,8 @@ let Doctor = class Doctor {
     user_id;
     user;
     specialty;
+    shift_start;
+    shift_end;
     license_number;
     active;
     appointments;
@@ -35,6 +37,14 @@ __decorate([
     (0, typeorm_1.Column)({ length: 100 }),
     __metadata("design:type", String)
 ], Doctor.prototype, "specialty", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'time' }),
+    __metadata("design:type", String)
+], Doctor.prototype, "shift_start", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'time' }),
+    __metadata("design:type", String)
+], Doctor.prototype, "shift_end", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)

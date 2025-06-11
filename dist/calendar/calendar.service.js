@@ -51,6 +51,9 @@ let CalendarService = class CalendarService {
         });
         await this.slotRepository.upsert(slotEntities, ['slot_datetime']);
     }
+    async getSlots() {
+        return this.slotRepository.find();
+    }
 };
 exports.CalendarService = CalendarService;
 exports.CalendarService = CalendarService = __decorate([
