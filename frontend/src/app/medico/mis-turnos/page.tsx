@@ -25,6 +25,34 @@ const misTurnosInicial: Turno[] = [
     motivo: "Control",
     fechaTurno: new Date("2025-05-29T11:00:00"),
   },
+  {
+    id: 3,
+    nombre: "Carlos Rodríguez",
+    email: "carlos@mail.com",
+    motivo: "Dolor de cabeza",
+    fechaTurno: new Date("2025-05-28T09:00:00"),
+  },
+  {
+    id: 4,
+    nombre: "Lucía Fernández",
+    email: "lucia@mail.com",
+    motivo: "Chequeo general",
+    fechaTurno: new Date("2025-05-30T14:00:00"),
+  },
+  {
+    id: 5,
+    nombre: "Diego López",
+    email: "diego@mail.com",
+    motivo: "Vacunación",
+    fechaTurno: new Date("2025-05-27T08:30:00"),
+  },
+  {
+    id: 6,
+    nombre: "Ana Torres",
+    email: "ana@mail.com",
+    motivo: "Consulta",
+    fechaTurno: new Date("2025-05-29T12:00:00"),
+  },
 ];
 
 export default function misTurnos() {
@@ -97,42 +125,45 @@ export default function misTurnos() {
           <p className="text-gray-500">No tenés turnos agendados.</p>
         ) : (
           <ul className="space-y-4">
-            {misTurnos.map((misTurnos) => (
-              <li
-                className="border p-4 rounded-lg flex justify-between items-start"
-                key={misTurnos.id}
-              >
-                <div>
+            {misTurnos
+              .slice() // Crear una copia del array para no modificar el estado original
+              .sort((a, b) => a.fechaTurno.getTime() - b.fechaTurno.getTime()) //Ordeno por fecha antes de mostrar
+              .map((misTurnos) => (
+                <li
+                  className="border p-4 rounded-lg flex justify-between items-start"
+                  key={misTurnos.id}
+                >
                   <div>
-                    <span className="font-bold">{misTurnos.nombre}</span>{" "}
-                    <span className="text-gray-500 font-light">
-                      - {misTurnos.email}
-                    </span>
-                  </div>
-                  <div className="mb-1">
-                    <span className="font-bold mr-1">Fecha:</span>
-                    📅{" "}
-                    {new Intl.DateTimeFormat("es-ES", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    }).format(misTurnos.fechaTurno)}
-                  </div>
+                    <div>
+                      <span className="font-bold">{misTurnos.nombre}</span>{" "}
+                      <span className="text-gray-500 font-light">
+                        - {misTurnos.email}
+                      </span>
+                    </div>
+                    <div className="mb-1">
+                      <span className="font-bold mr-1">Fecha:</span>
+                      📅{" "}
+                      {new Intl.DateTimeFormat("es-ES", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      }).format(misTurnos.fechaTurno)}
+                    </div>
 
-                  <div className="mb-1">
-                    <div className="font-bold">Motivo de consulta:</div>
-                    <p>{misTurnos.motivo}</p>
+                    <div className="mb-1">
+                      <div className="font-bold">Motivo de consulta:</div>
+                      <p>{misTurnos.motivo}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-4 items-center">
-                  <button
-                    onClick={() => cancelarTurno(misTurnos.id)}
-                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  >
-                    Cancelar Turno
-                  </button>
-                </div>
-              </li>
-            ))}
+                  <div className="flex gap-4 items-center">
+                    <button
+                      onClick={() => cancelarTurno(misTurnos.id)}
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                    >
+                      Cancelar Turno
+                    </button>
+                  </div>
+                </li>
+              ))}
           </ul>
         )}
       </section>
