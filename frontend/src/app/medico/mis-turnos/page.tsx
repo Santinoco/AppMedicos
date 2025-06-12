@@ -8,7 +8,6 @@ interface Turno {
   email: string;
   motivo: string;
   fechaTurno: Date;
-  especialidad: string;
 }
 
 const misTurnosInicial: Turno[] = [
@@ -18,7 +17,6 @@ const misTurnosInicial: Turno[] = [
     email: "juan@mail.com",
     motivo: "Fiebre",
     fechaTurno: new Date("2025-05-29T10:30:00"),
-    especialidad: "Neurología",
   },
   {
     id: 2,
@@ -26,7 +24,6 @@ const misTurnosInicial: Turno[] = [
     email: "maria@mail.com",
     motivo: "Control",
     fechaTurno: new Date("2025-05-29T11:00:00"),
-    especialidad: "Pediatría",
   },
 ];
 
@@ -66,12 +63,12 @@ export default function misTurnos() {
     }
   };
 
-  const filtrarLista = (especialidad: string) => {
-    if (especialidad === "Todas") {
+  const filtrarPorNombre = (nombre: string) => {
+    if (nombre.trim() === "") {
       setMisTurnos(turnosBase);
     } else {
-      const turnosFiltrados = turnosBase.filter(
-        (turno) => turno.especialidad === especialidad
+      const turnosFiltrados = turnosBase.filter((turno) =>
+        turno.nombre.toLowerCase().includes(nombre.toLowerCase().trim())
       );
       setMisTurnos(turnosFiltrados);
     }
@@ -80,20 +77,18 @@ export default function misTurnos() {
   return (
     <div className="flex-1 p-10 space-y-6">
       <section id="misTurnos" className=" mx-2 flex flex-col items-center ">
-        <h1 className="text-3xl">Tus Turnos</h1>
+        <h1 className="text-3xl">Mis Turnos</h1>
         <div className="mb-4">
-          <label htmlFor="especialidad" className="mr-2">
-            Filtrar por Especialidad:
+          <label htmlFor="nombre" className="mr-2">
+            Filtrar por Nombre:
           </label>
-          <select
-            id="especialidad"
-            onChange={(e) => filtrarLista(e.target.value)}
+          <input
+            type="text"
+            id="nombre"
+            placeholder="Ingrese un nombre"
+            onChange={(e) => filtrarPorNombre(e.target.value)}
             className="border border-gray-300 rounded p-2"
-          >
-            <option value="Todas">Todas</option>
-            <option value="Neurología">Neurología</option>
-            <option value="Pediatría">Pediatría</option>
-          </select>
+          />
         </div>
       </section>
       <section className="bg-white p-6 rounded-lg shadow-md">
@@ -122,10 +117,7 @@ export default function misTurnos() {
                       timeStyle: "short",
                     }).format(misTurnos.fechaTurno)}
                   </div>
-                  <div className="mb-1">
-                    <span className="font-bold">Especialidad requerida: </span>
-                    <span>{misTurnos.especialidad}</span>
-                  </div>
+
                   <div className="mb-1">
                     <div className="font-bold">Motivo de consulta:</div>
                     <p>{misTurnos.motivo}</p>

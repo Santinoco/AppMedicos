@@ -8,7 +8,6 @@ interface Turno {
   email: string;
   motivo: string;
   fechaTurno: Date;
-  especialidad: string;
 }
 
 const nuevosTurnosInicial: Turno[] = [
@@ -18,7 +17,6 @@ const nuevosTurnosInicial: Turno[] = [
     email: "carlos@mail.com",
     motivo: "Dolor de cabeza",
     fechaTurno: new Date("2025-05-29T11:30:00"),
-    especialidad: "Neurología",
   },
   {
     id: 4,
@@ -26,7 +24,6 @@ const nuevosTurnosInicial: Turno[] = [
     email: "lucia@mail.com",
     motivo: "Chequeo general",
     fechaTurno: new Date("2025-06-29T12:00:00"),
-    especialidad: "Pediatría",
   },
   {
     id: 5,
@@ -34,7 +31,6 @@ const nuevosTurnosInicial: Turno[] = [
     email: "diego@mail.com",
     motivo: "Vacunación",
     fechaTurno: new Date("2025-05-29T12:30:00"),
-    especialidad: "Pediatría",
   },
 ];
 
@@ -75,12 +71,12 @@ export default function agregarTurnos() {
     }
   };
 
-  const filtrarLista = (especialidad: string) => {
-    if (especialidad === "Todas") {
+  const filtrarPorNombre = (nombre: string) => {
+    if (nombre.trim() === "") {
       setNuevosTurnos(turnosBase);
     } else {
-      const turnosFiltrados = turnosBase.filter(
-        (turno) => turno.especialidad === especialidad
+      const turnosFiltrados = turnosBase.filter((turno) =>
+        turno.nombre.toLowerCase().includes(nombre.toLowerCase().trim())
       );
       setNuevosTurnos(turnosFiltrados);
     }
@@ -91,18 +87,16 @@ export default function agregarTurnos() {
       <section id="nuevosTurnos" className=" mx-2 flex flex-col items-center ">
         <h1 className="text-3xl">Nuevos Turnos</h1>
         <div className="mb-4">
-          <label htmlFor="especialidad" className="mr-2">
-            Filtrar por Especialidad:
+          <label htmlFor="nombre" className="mr-2">
+            Filtrar por Nombre:
           </label>
-          <select
-            id="especialidad"
-            onChange={(e) => filtrarLista(e.target.value)}
+          <input
+            type="text"
+            id="nombre"
+            placeholder="Ingrese un nombre"
+            onChange={(e) => filtrarPorNombre(e.target.value)}
             className="border border-gray-300 rounded p-2"
-          >
-            <option value="Todas">Todas</option>
-            <option value="Neurología">Neurología</option>
-            <option value="Pediatría">Pediatría</option>
-          </select>
+          />
         </div>
       </section>
       <section className="bg-white p-6 rounded-lg shadow-md">
@@ -130,10 +124,6 @@ export default function agregarTurnos() {
                       dateStyle: "medium",
                       timeStyle: "short",
                     }).format(nuevoTurno.fechaTurno)}
-                  </div>
-                  <div className="mb-1">
-                    <span className="font-bold">Especialidad requerida: </span>
-                    <span>{nuevoTurno.especialidad}</span>
                   </div>
                   <div className="mb-1">
                     <div className="font-bold">Motivo de consulta:</div>
