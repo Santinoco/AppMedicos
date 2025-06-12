@@ -106,7 +106,7 @@ export default function misTurnos() {
     <div className="flex-1 p-10 space-y-6">
       <section id="misTurnos" className=" mx-2 flex flex-col items-center ">
         <h1 className="text-3xl">Mis Turnos</h1>
-        <div className="mb-4">
+        <div className="my-4">
           <label htmlFor="nombre" className="mr-2">
             Filtrar por Nombre:
           </label>
