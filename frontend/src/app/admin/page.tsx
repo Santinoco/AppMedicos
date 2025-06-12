@@ -1,4 +1,6 @@
 "use client";
+
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -112,7 +114,14 @@ export default function AdminDashboard() {
         )}
       </section>
       <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
-        Ver mas usuarios
+        <Link
+          key={"/"}
+          href={"/"}
+          onClick={() => localStorage.removeItem("token")}
+          //invalidar token en backend ?
+        >
+          Cerrar sesion
+        </Link>
       </button>
     </main>
   );
