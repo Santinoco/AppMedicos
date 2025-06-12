@@ -13,7 +13,7 @@ interface Turno {
 
 interface Medico {
   nombre: String;
-  especialidad: String[];
+  especialidad: String;
   localidad: String;
   telefono: number;
   email: String;
@@ -32,7 +32,7 @@ export default function MedicoDashboard() {
 
   const medico: Medico = {
     nombre: "Dr. Juan Perez",
-    especialidad: ["Neurología", "Cardiología"],
+    especialidad: "Cardiología",
     localidad: "Buenos Aires",
     telefono: 123456789,
     email: "medico@mail.com",
@@ -43,7 +43,7 @@ export default function MedicoDashboard() {
       <h1 className="text-3xl font-bold text-green-800">
         Bienvenido, {medico.nombre}
       </h1>
-      <p>📌 Especialidad: {medico.especialidad.join(", ")}</p>
+      <p>📌 Especialidad: {medico.especialidad}</p>
       <p>📍 Localidad: {medico.localidad}</p>
       <p>Telefono: {medico.telefono}</p>
       <p>Email: {medico.email}</p>

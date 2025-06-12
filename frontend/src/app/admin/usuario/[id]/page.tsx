@@ -22,7 +22,7 @@ interface Turno {
 }
 
 interface Medico {
-  especialidad: string[];
+  especialidad: string;
   numeroMatricula: number;
   turnos: Turno[];
 }
@@ -47,7 +47,7 @@ const usuario: Usuario = {
 };
 
 const medico: Medico = {
-  especialidad: ["Neurología", "Cardiología"],
+  especialidad: "Neurología",
   numeroMatricula: 123456,
   turnos: [],
 };
@@ -125,7 +125,7 @@ export default function AdminUserView() {
         </p>
         {usuario.tipo === 0 ? (
           <div className="space-y-6">
-            <p>Especialidad: {medico.especialidad.join(", ")}</p>
+            <p>Especialidad: {medico.especialidad}</p>
             <p>Matricula: {medico.numeroMatricula}</p>
           </div>
         ) : (
