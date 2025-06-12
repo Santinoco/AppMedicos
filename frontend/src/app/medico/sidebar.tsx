@@ -31,6 +31,20 @@ export default function sidebar() {
             {label}
           </Link>
         ))}
+        <Link
+          key={"/"}
+          href={"/"}
+          className={clsx(
+            "py-2 px-3 rounded transition",
+            pathname === "/"
+              ? "bg-green-100 text-green-800 font-semibold"
+              : "text-green-700 hover:bg-green-200 hover:text-green-900"
+          )}
+          onClick={() => localStorage.removeItem("token")}
+          //invalidar token en backend ?
+        >
+          Cerrar sesion
+        </Link>
       </nav>
     </aside>
   );

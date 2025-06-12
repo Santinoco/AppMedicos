@@ -39,7 +39,7 @@ export default function misTurnos() {
   useEffect(() => {
     const fetchTurnos = async () => {
       try {
-        const response = await axios.get(`/id/${userId}`);
+        const response = await axios.get(`/id/${userId}`); // Modificar a ruta real
         const turnos: Turno[] = response.data.map((turno: any) => ({
           ...turno,
           fechaTurno: new Date(turno.fechaTurno), // Convertir fecha a objeto Date
