@@ -53,9 +53,21 @@ export default function AdminDashboard() {
 
   return (
     <main className="flex-1 p-10 space-y-6">
-      <h1 className="text-3xl font-bold text-green-800">
-        Bienvenido, Administrador
-      </h1>
+      <div className="flex">
+        <h1 className="text-3xl font-bold text-green-800">
+          Bienvenido, Administrador
+        </h1>
+        <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition ml-auto">
+          <Link
+            key={"/"}
+            href={"/"}
+            onClick={() => localStorage.removeItem("token")}
+            //invalidar token en backend ?
+          >
+            Cerrar sesion
+          </Link>
+        </button>
+      </div>
       <section className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold mb-4">Usuarios registrados</h2>
         {usuarios.length === 0 ? (
@@ -113,16 +125,6 @@ export default function AdminDashboard() {
           </ul>
         )}
       </section>
-      <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
-        <Link
-          key={"/"}
-          href={"/"}
-          onClick={() => localStorage.removeItem("token")}
-          //invalidar token en backend ?
-        >
-          Cerrar sesion
-        </Link>
-      </button>
     </main>
   );
 }

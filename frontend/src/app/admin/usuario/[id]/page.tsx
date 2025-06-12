@@ -100,15 +100,17 @@ export default function AdminUserView() {
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-800">
       <main className="flex-1 p-10 space-y-6">
-        <button
-          onClick={() => router.push("/admin")}
-          className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
-        >
-          Volver
-        </button>
-        <h1 className="text-3xl font-bold text-green-800">
-          Informacion del usuario
-        </h1>
+        <div className="flex">
+          <h1 className="text-3xl font-bold text-green-800">
+            Informacion del usuario
+          </h1>
+          <button
+            onClick={() => router.push("/admin")}
+            className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition ml-auto"
+          >
+            Volver
+          </button>
+        </div>
         <div>
           <span className="text-3xl font-bold text-black">
             {usuario.nombre} {usuario.apellido}
