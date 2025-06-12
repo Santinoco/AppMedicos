@@ -107,16 +107,24 @@ export default function AdminUserView() {
           Volver
         </button>
         <h1 className="text-3xl font-bold text-green-800">
-          Visualizando usuario {usuario.nombre} {usuario.apellido}{" "}
-          <span className="text-gray-500 font-light">- {usuario.email}</span>
+          Informacion del usuario
         </h1>
-        <p>Id: {usuario.id}</p>
+        <div>
+          <span className="text-3xl font-bold text-black">
+            {usuario.nombre} {usuario.apellido}
+          </span>
+          <span className="text-gray-500 font-light"> - {usuario.email}</span>
+        </div>
         <p>
-          Tipo de usuario:{" "}
+          <span className="font-bold mr-1">Id: </span>
+          {usuario.id}
+        </p>
+        <p>
+          <span className="font-bold mr-1">Tipo de usuario:</span>
           {usuario.tipo === 0 ? <span>Medico</span> : <span>Paciente</span>}
         </p>
         <p>
-          Actividad:
+          <span className="font-bold mr-1">Actividad:</span>
           {usuario.activo ? (
             <strong className="text-green-600 ml-1">Activo</strong>
           ) : (
@@ -125,17 +133,39 @@ export default function AdminUserView() {
         </p>
         {usuario.tipo === 0 ? (
           <div className="space-y-6">
-            <p>Especialidad: {medico.especialidad}</p>
-            <p>Matricula: {medico.numeroMatricula}</p>
+            <p>
+              <span className="font-bold mr-1">Especialidad:</span>
+              {medico.especialidad}
+            </p>
+            <p>
+              <span className="font-bold mr-1">Matricula:</span>
+              {medico.numeroMatricula}
+            </p>
           </div>
         ) : (
           <div className="space-y-6">
-            <p>Consultas completadas: {paciente.consultasCompletadas}</p>
-            <p>Seguro Medico: {paciente.seguroMedico}</p>
-            <p>Historial Medico: {paciente.historialMedico}</p>
-            <p>Peso: {paciente.peso}</p>
-            <p>Altura: {paciente.altura}</p>
-            <p>Tipo de sangre: {paciente.tipoSangre}</p>
+            <p>
+              <span className="font-bold mr-1">Consultas completadas:</span>
+              {paciente.consultasCompletadas}
+            </p>
+            <p>
+              <span className="font-bold mr-1">Seguro Medico:</span>
+              {paciente.seguroMedico}
+            </p>
+            <p>
+              <span className="font-bold mr-1">Historial Medico:</span>
+              {paciente.historialMedico}
+            </p>
+            <p>
+              <span className="font-bold mr-1">Peso:</span> {paciente.peso}
+            </p>
+            <p>
+              <span className="font-bold mr-1">Altura:</span> {paciente.altura}
+            </p>
+            <p>
+              <span className="font-bold mr-1">Tipo de sangre:</span>
+              {paciente.tipoSangre}
+            </p>
           </div>
         )}
 
