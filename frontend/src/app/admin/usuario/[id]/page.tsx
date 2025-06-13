@@ -25,6 +25,8 @@ interface Medico {
   especialidad: string;
   numeroMatricula: number;
   turnos: Turno[];
+  comienzoJornada: string;
+  finJornada: string;
 }
 
 interface Paciente {
@@ -50,6 +52,8 @@ const medico: Medico = {
   especialidad: "Neurología",
   numeroMatricula: 123456,
   turnos: [],
+  comienzoJornada: "12:00",
+  finJornada: "18:30",
 };
 
 const paciente: Paciente = {
@@ -142,6 +146,10 @@ export default function AdminUserView() {
             <p>
               <span className="font-bold mr-1">Matricula:</span>
               {medico.numeroMatricula}
+            </p>
+            <p>
+              <span className="font-bold mr-1">Jornada laboral:</span>
+              {medico.comienzoJornada} a {medico.finJornada}
             </p>
           </div>
         ) : (

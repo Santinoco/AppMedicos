@@ -16,8 +16,8 @@ interface Medico {
   especialidad: String;
   numeroMatricula: number;
   email: String;
-  comienzoJornada: number;
-  finJornada: number;
+  comienzoJornada: string;
+  finJornada: string;
 }
 
 export default function MedicoDashboard() {
@@ -30,8 +30,8 @@ export default function MedicoDashboard() {
     especialidad: "Cardiología",
     numeroMatricula: 123456,
     email: "medico@mail.com",
-    comienzoJornada: 1200,
-    finJornada: 1830,
+    comienzoJornada: "12:00",
+    finJornada: "18:30",
   });
   const turno: Turno = {
     id: 1,
@@ -57,8 +57,12 @@ export default function MedicoDashboard() {
     ) {
       setMedico((prevMedico) => ({
         ...prevMedico,
-        comienzoJornada,
-        finJornada,
+        comienzoJornada: `${String(comienzoJornada).slice(0, 2)}:${String(
+          comienzoJornada
+        ).slice(2)}`,
+        finJornada: `${String(finJornada).slice(0, 2)}:${String(
+          finJornada
+        ).slice(2)}`,
       }));
       alert(`Jornada actualizada: ${comienzoJornada} - ${finJornada}`);
       // Agregar lógica para enviar los datos al backend con post
@@ -75,7 +79,7 @@ export default function MedicoDashboard() {
       <p>Especialidad: {medico.especialidad}</p>
       <p>Numero de matricula: {medico.numeroMatricula}</p>
       <p>
-        Jornada laboral: De {medico.comienzoJornada} hasta {medico.finJornada}
+        Jornada laboral: {medico.comienzoJornada} a {medico.finJornada}
       </p>
       <p>Email: {medico.email}</p>
       <section className="bg-green-50 p-4 rounded-lg shadow">
