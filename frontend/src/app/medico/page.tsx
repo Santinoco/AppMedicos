@@ -23,8 +23,10 @@ interface Medico {
 export default function MedicoDashboard() {
   const router = useRouter();
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [comienzoJornada, setComienzoJornada] = useState<number | null>(null);
-  const [finJornada, setFinJornada] = useState<number | null>(null);
+  const [comienzoJornadaInput, setComienzoJornadaInput] = useState<
+    string | null
+  >(null);
+  const [finJornadaInput, setFinJornadaInput] = useState<string | null>(null);
   const [medico, setMedico] = useState<Medico>({
     nombre: "Dr. Juan Perez",
     especialidad: "Cardiología",
@@ -49,22 +51,25 @@ export default function MedicoDashboard() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (
-      comienzoJornada &&
-      finJornada &&
-      comienzoJornada >= 1000 &&
-      finJornada <= 1900 &&
-      comienzoJornada < finJornada
+      comienzoJornadaInput &&
+      finJornadaInput &&
+      parseInt(comienzoJornadaInput) >= 1000 &&
+      parseInt(finJornadaInput) <= 1900 &&
+      parseInt(comienzoJornadaInput) < parseInt(finJornadaInput)
     ) {
       setMedico((prevMedico) => ({
         ...prevMedico,
-        comienzoJornada: `${String(comienzoJornada).slice(0, 2)}:${String(
-          comienzoJornada
-        ).slice(2)}`,
-        finJornada: `${String(finJornada).slice(0, 2)}:${String(
-          finJornada
-        ).slice(2)}`,
+        comienzoJornada: `${comienzoJornadaInput.slice(
+          0,
+          2
+        )}:${comienzoJornadaInput.slice(2)}`,
+        finJornada: `${finJornadaInput.slice(0, 2)}:${finJornadaInput.slice(
+          2
+        )}`,
       }));
-      alert(`Jornada actualizada: ${comienzoJornada} - ${finJornada}`);
+      alert(
+        `Jornada actualizada: ${medico.comienzoJornada} - ${medico.finJornada}`
+      );
       // Agregar lógica para enviar los datos al backend con post
     } else {
       alert("Por favor, ingrese valores válidos.");
@@ -117,8 +122,8 @@ export default function MedicoDashboard() {
             <input
               type="number"
               id="comienzoJornada"
-              value={comienzoJornada || ""}
-              onChange={(e) => setComienzoJornada(Number(e.target.value))}
+              value={comienzoJornadaInput || ""}
+              onChange={(e) => setComienzoJornadaInput(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
               placeholder="Ingrese un número de 4 dígitos mayor o igual a 1000"
             />
@@ -130,8 +135,8 @@ export default function MedicoDashboard() {
             <input
               type="number"
               id="finJornada"
-              value={finJornada || ""}
-              onChange={(e) => setFinJornada(Number(e.target.value))}
+              value={finJornadaInput || ""}
+              onChange={(e) => setFinJornadaInput(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
               placeholder="Ingrese un número de 4 dígitos menor o igual a 1900"
             />
