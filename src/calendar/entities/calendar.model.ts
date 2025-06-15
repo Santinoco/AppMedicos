@@ -7,7 +7,7 @@ export class Calendar {
   @PrimaryGeneratedColumn()
   slot_id: number;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz' })
   slot_datetime: Date;
 
   @OneToMany(() => Appointment, (appointment) => appointment.slot_datetime)
