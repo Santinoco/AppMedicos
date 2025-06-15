@@ -23,7 +23,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Calendar.prototype, "slot_id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'timestamp' }),
+    (0, typeorm_1.Column)({ type: 'timestamptz' }),
     __metadata("design:type", Date)
 ], Calendar.prototype, "slot_datetime", void 0);
 __decorate([

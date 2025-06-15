@@ -6,6 +6,10 @@ export declare class Doctor {
     specialty: string;
     shift_start: string;
     shift_end: string;
+    getShiftStart(): string;
+    setShiftStart(value: string): void;
+    getShiftEnd(): string;
+    setShiftEnd(value: string): void;
     license_number: number;
     active: boolean;
     appointments: Appointment[];

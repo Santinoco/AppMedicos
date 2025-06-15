@@ -4,4 +4,6 @@ export declare class CalendarController {
     constructor(calendarService: CalendarService);
     generateSlots(): Promise<void>;
     getSlots(): Promise<import("./entities/calendar.model").Calendar[]>;
+    getDoctorAppointments(doctorUserId: number): Promise<import("../appointments/entities/appointment.model").Appointment[]>;
+    getDoctorAvailableSlots(doctorUserId: number): Promise<import("./entities/calendar.model").Calendar[]>;
 }

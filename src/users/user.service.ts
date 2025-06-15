@@ -2,12 +2,18 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.model";
+import { Doctor } from "src/doctors/entities/doctor.model";
+import { Patient } from "src/patients/entities/patient.model";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Doctor)
+    private doctorRepository: Repository<Doctor>,
+    @InjectRepository(Patient)
+    private patientRepository: Repository<Patient>,
   ) {}
 
   async getAllUsers() {
@@ -20,7 +26,20 @@ export class UserService {
 
   async createUser(userData: Partial<User>): Promise<User> {
     const user = this.userRepository.create(userData);
-    return this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+    // Asegúrate de que userData.type sea el id del tipo de usuario o carga el tipo si es necesario
+    const userTypeId = userData.type?.id || userData.type;
+    switch (userTypeId) {
+      case 2:
+        const doctor = this.doctorRepository.create({ user_id: savedUser.id });
+        await this.doctorRepository.save(doctor);
+        break;
+      case 5:
+        const patient = this.patientRepository.create({ user_id: savedUser.id });
+        await this.patientRepository.save(patient);
+        break;
+    }
+    return savedUser;
   }
 
   async getUserAppoinments(id: number) {

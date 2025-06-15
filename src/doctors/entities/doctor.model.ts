@@ -20,6 +20,22 @@ export class Doctor {
   @Column({ type: 'time' })
   shift_end: string;
 
+  getShiftStart(): string {
+    return this.shift_start;
+  }
+
+  setShiftStart(value: string): void {
+    this.shift_start = value;
+  }
+
+  getShiftEnd(): string {
+    return this.shift_end;
+  }
+
+  setShiftEnd(value: string): void {
+    this.shift_end = value;
+  }
+
   @Column()
   license_number: number;
 

@@ -19,6 +19,18 @@ let Doctor = class Doctor {
     specialty;
     shift_start;
     shift_end;
+    getShiftStart() {
+        return this.shift_start;
+    }
+    setShiftStart(value) {
+        this.shift_start = value;
+    }
+    getShiftEnd() {
+        return this.shift_end;
+    }
+    setShiftEnd(value) {
+        this.shift_end = value;
+    }
     license_number;
     active;
     appointments;
