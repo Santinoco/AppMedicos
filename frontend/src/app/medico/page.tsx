@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface Turno {
@@ -13,14 +13,28 @@ interface Turno {
 
 interface Medico {
   nombre: String;
-  especialidad: String[];
-  localidad: String;
-  telefono: number;
+  especialidad: String;
+  numeroMatricula: number;
   email: String;
+  comienzoJornada: string;
+  finJornada: string;
 }
 
 export default function MedicoDashboard() {
   const router = useRouter();
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [comienzoJornadaInput, setComienzoJornadaInput] = useState<
+    string | null
+  >(null);
+  const [finJornadaInput, setFinJornadaInput] = useState<string | null>(null);
+  const [medico, setMedico] = useState<Medico>({
+    nombre: "Dr. Juan Perez",
+    especialidad: "Cardiología",
+    numeroMatricula: 123456,
+    email: "medico@mail.com",
+    comienzoJornada: "12:00",
+    finJornada: "18:30",
+  });
   const turno: Turno = {
     id: 1,
     nombre: "Juan Perez",
@@ -30,12 +44,36 @@ export default function MedicoDashboard() {
     especialidad: "Neurología",
   };
 
-  const medico: Medico = {
-    nombre: "Dr. Juan Perez",
-    especialidad: ["Neurología", "Cardiología"],
-    localidad: "Buenos Aires",
-    telefono: 123456789,
-    email: "medico@mail.com",
+  const toggleFormulario = () => {
+    setMostrarFormulario(!mostrarFormulario);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      comienzoJornadaInput &&
+      finJornadaInput &&
+      parseInt(comienzoJornadaInput) >= 1000 &&
+      parseInt(finJornadaInput) <= 1900 &&
+      parseInt(comienzoJornadaInput) < parseInt(finJornadaInput)
+    ) {
+      setMedico((prevMedico) => ({
+        ...prevMedico,
+        comienzoJornada: `${comienzoJornadaInput.slice(
+          0,
+          2
+        )}:${comienzoJornadaInput.slice(2)}`,
+        finJornada: `${finJornadaInput.slice(0, 2)}:${finJornadaInput.slice(
+          2
+        )}`,
+      }));
+      alert(
+        `Jornada actualizada: ${medico.comienzoJornada} - ${medico.finJornada}`
+      );
+      // Agregar lógica para enviar los datos al backend con post
+    } else {
+      alert("Por favor, ingrese valores válidos.");
+    }
   };
 
   return (
@@ -43,9 +81,11 @@ export default function MedicoDashboard() {
       <h1 className="text-3xl font-bold text-green-800">
         Bienvenido, {medico.nombre}
       </h1>
-      <p>📌 Especialidad: {medico.especialidad.join(", ")}</p>
-      <p>📍 Localidad: {medico.localidad}</p>
-      <p>Telefono: {medico.telefono}</p>
+      <p>Especialidad: {medico.especialidad}</p>
+      <p>Numero de matricula: {medico.numeroMatricula}</p>
+      <p>
+        Jornada laboral: {medico.comienzoJornada} a {medico.finJornada}
+      </p>
       <p>Email: {medico.email}</p>
       <section className="bg-green-50 p-4 rounded-lg shadow">
         <h3 className="text-lg font-semibold text-green-800 mb-2">
@@ -62,10 +102,53 @@ export default function MedicoDashboard() {
       </section>
       <button
         onClick={() => router.push("/medico/mis-turnos")}
-        className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
+        className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition mr-8"
       >
         Ver mas turnos
       </button>
+      <button
+        onClick={toggleFormulario}
+        className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
+      >
+        {mostrarFormulario ? "Ocultar formulario" : "Editar jornada"}
+      </button>
+
+      {mostrarFormulario && (
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div>
+            <label htmlFor="comienzoJornada" className="block font-bold">
+              Comienzo Jornada:
+            </label>
+            <input
+              type="number"
+              id="comienzoJornada"
+              value={comienzoJornadaInput || ""}
+              onChange={(e) => setComienzoJornadaInput(e.target.value)}
+              className="border border-gray-300 rounded p-2 w-full"
+              placeholder="Ingrese un número de 4 dígitos mayor o igual a 1000"
+            />
+          </div>
+          <div>
+            <label htmlFor="finJornada" className="block font-bold">
+              Fin Jornada:
+            </label>
+            <input
+              type="number"
+              id="finJornada"
+              value={finJornadaInput || ""}
+              onChange={(e) => setFinJornadaInput(e.target.value)}
+              className="border border-gray-300 rounded p-2 w-full"
+              placeholder="Ingrese un número de 4 dígitos menor o igual a 1900"
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+          >
+            Guardar
+          </button>
+        </form>
+      )}
     </main>
   );
 }

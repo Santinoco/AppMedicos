@@ -1,4 +1,6 @@
 "use client";
+
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -18,7 +20,7 @@ const usuariosInicial: Usuario[] = [
     apellido: "Perez",
     email: "juan@mail.com",
     activo: true,
-    tipo: 0, // 0 = user, 1 = paciente
+    tipo: 0, // 0 = medico, 1 = paciente
   },
   {
     id: 2,
@@ -26,7 +28,7 @@ const usuariosInicial: Usuario[] = [
     apellido: "Perez",
     email: "maria@mail.com",
     activo: false,
-    tipo: 1, // 0 = user, 1 = paciente
+    tipo: 1, // 0 = medico, 1 = paciente
   },
 ];
 
@@ -51,9 +53,21 @@ export default function AdminDashboard() {
 
   return (
     <main className="flex-1 p-10 space-y-6">
-      <h1 className="text-3xl font-bold text-green-800">
-        Bienvenido, Administrador
-      </h1>
+      <div className="flex">
+        <h1 className="text-3xl font-bold text-green-800">
+          Bienvenido, Administrador
+        </h1>
+        <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition ml-auto">
+          <Link
+            key={"/"}
+            href={"/"}
+            onClick={() => localStorage.removeItem("token")}
+            //invalidar token en backend ?
+          >
+            Cerrar sesion
+          </Link>
+        </button>
+      </div>
       <section className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold mb-4">Usuarios registrados</h2>
         {usuarios.length === 0 ? (
@@ -111,9 +125,6 @@ export default function AdminDashboard() {
           </ul>
         )}
       </section>
-      <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
-        Ver mas usuarios
-      </button>
     </main>
   );
 }
