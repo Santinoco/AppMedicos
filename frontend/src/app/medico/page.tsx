@@ -1,6 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { BackUser } from "../../types/backUser";
+import { BackMedico } from "../../types/backMedico";
+import { BackPaciente } from "../../types/backPaciente";
 
 interface Turno {
   id: number;
@@ -28,21 +32,150 @@ export default function MedicoDashboard() {
   >(null);
   const [finJornadaInput, setFinJornadaInput] = useState<string | null>(null);
   const [medico, setMedico] = useState<Medico>({
-    nombre: "Dr. Juan Perez",
-    especialidad: "Cardiología",
-    numeroMatricula: 123456,
-    email: "medico@mail.com",
-    comienzoJornada: "12:00",
-    finJornada: "18:30",
+    nombre: "",
+    especialidad: "",
+    numeroMatricula: 0,
+    email: "",
+    comienzoJornada: "",
+    finJornada: "",
   });
-  const turno: Turno = {
+  const [turno, setTurno] = useState<Turno>({
     id: 1,
-    nombre: "Juan Perez",
-    email: "juan@mail.com",
-    motivo: "Fiebre",
+    nombre: "",
+    email: "",
+    motivo: "",
     fechaTurno: new Date("2025-05-29T10:30:00"),
-    especialidad: "Neurología",
+    especialidad: "",
+  });
+
+  // Función para decodificar el token JWT
+  const getUserId = () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1])); // Decodificar la parte del payload
+        return payload.id; // Retornar el ID del usuario
+      } catch (error) {
+        console.error("Error al decodificar el token:", error);
+        return null;
+      }
+    }
+    return null;
   };
+
+  // Obtener el ID del usuario logueado
+  const userId = 1; // REEMPLAZAR "1" POR getUserId();
+
+  useEffect(() => {
+    const fetchUserById = async () => {
+      if (!userId) return;
+
+      try {
+        // El backend retorna un objeto con los datos del médico
+        /* const responseMedico = await axios.get(
+          `http://localhost:3001/doctors/${userId}`
+        );
+        const medicoData: BackMedico = responseMedico.data;
+        */
+
+        // Simulación de datos del médico (reemplazar con la llamada al backend)
+        // AGREGO JWT DE PRUEBA
+        const userData: BackUser = {
+          id: 1,
+          nombre: "TEST",
+          apellido: "Medico",
+          email: "test@mail.com",
+          password: "test123",
+          activo: true,
+          user_type_id: 1, // 1 = medico
+        };
+        // AGREGO JWT DE PRUEBA
+        const medicoData: BackMedico = {
+          user_id: 1,
+          user: userData,
+          specialty: "Cardiología",
+          shift_start: "08:00",
+          shift_end: "16:00",
+          license_number: 123456,
+          active: true,
+          appointments: [
+            {
+              id: 1,
+              slot_datetime: {
+                slot_id: 1,
+                slot_datetime: new Date("2025-05-29T10:30:00"),
+                appointments: [],
+              },
+              motivo: "Consulta general",
+              estado_id: 1,
+              doctor_id: 1,
+              patient_id: 1,
+              status: 1,
+            },
+          ],
+        };
+
+        setMedico({
+          nombre: `${medicoData.user.nombre} ${medicoData.user.apellido}`,
+          especialidad: medicoData.specialty,
+          numeroMatricula: medicoData.license_number,
+          email: medicoData.user.email,
+          comienzoJornada: medicoData.shift_start,
+          finJornada: medicoData.shift_end,
+        });
+        const turnosOrdenados = medicoData.appointments.sort(
+          (a, b) =>
+            a.slot_datetime.slot_datetime.getTime() -
+            b.slot_datetime.slot_datetime.getTime()
+        );
+
+        try {
+          // Obtener datos del paciente del primer turno
+          /* const responsePaciente = await axios.get(
+            `http://localhost:3001/patients/${turnosOrdenados[0].patient_id}` 
+          );
+          const pacienteData: BackPaciente = responsePaciente.data;
+          */
+          // AGREGO JWT DE PRUEBA
+          const pacienteData: BackPaciente = {
+            user_id: 2,
+            user: {
+              id: 2,
+              nombre: "Paciente",
+              apellido: "Test",
+              email: "paciente@mail.com",
+              password: "test123",
+              activo: true,
+              user_type_id: 5, // 5 = paciente
+            },
+            completed_consultations: 5,
+            health_insurance: "Salud S.A.",
+            medical_history: "Historia médica del paciente",
+            weight: 70,
+            height: 170,
+            blood_type: "O+",
+            appointments: [],
+          };
+
+          // Asignar el primer turno como "próximo turno"
+          setTurno({
+            id: turnosOrdenados[0].id,
+            nombre: `${pacienteData.user.nombre} ${pacienteData.user.apellido}`,
+            email: pacienteData.user.email,
+            motivo: turnosOrdenados[0].motivo,
+            fechaTurno: turnosOrdenados[0].slot_datetime.slot_datetime,
+            especialidad: medicoData.specialty,
+          });
+        } catch (error) {
+          console.error("Error al obtener los datos del paciente:", error);
+        }
+      } catch (error) {
+        console.error("Error al obtener los datos del usuario:", error);
+      }
+    };
+
+    fetchUserById();
+  }, [userId]);
 
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
