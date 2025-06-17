@@ -45,7 +45,7 @@ const usuario: Usuario = {
   apellido: "Perez",
   email: "juan@mail.com",
   activo: true,
-  tipo: 0, // 0 = medico, 1 = paciente
+  tipo: 2, // 1 = admin, 2 = medico, 5 = paciente
 };
 
 const medico: Medico = {
@@ -79,7 +79,7 @@ export default function AdminUserView() {
       email: "juan@mail.com",
       motivo: "Fiebre",
       fechaTurno: new Date("2025-05-29T10:30:00"),
-      estado: 0, // 0 = pendiente, 1 = confirmado, 2 = cancelado
+      estado: 1, // 1 Pendiente, 2 Completado, 3 Cancelado, 4 Reprogramado
     },
     {
       id: 2,
@@ -87,7 +87,7 @@ export default function AdminUserView() {
       email: "maria@mail.com",
       motivo: "Control",
       fechaTurno: new Date("2025-05-29T11:00:00"),
-      estado: 1, // 0 = pendiente, 1 = confirmado, 2 = cancelado
+      estado: 2, // 1 Pendiente, 2 Completado, 3 Cancelado, 4 Reprogramado
     },
   ]);
 
@@ -127,7 +127,13 @@ export default function AdminUserView() {
         </p>
         <p>
           <span className="font-bold mr-1">Tipo de usuario:</span>
-          {usuario.tipo === 0 ? <span>Medico</span> : <span>Paciente</span>}
+          {usuario.tipo === 2 ? (
+            <span>Medico</span>
+          ) : usuario.tipo === 5 ? (
+            <span>Paciente</span>
+          ) : (
+            <span></span>
+          )}
         </p>
         <p>
           <span className="font-bold mr-1">Actividad:</span>
@@ -137,7 +143,7 @@ export default function AdminUserView() {
             <strong className="text-red-700 ml-1">Inactivo</strong>
           )}
         </p>
-        {usuario.tipo === 0 ? (
+        {usuario.tipo === 2 ? (
           <div className="space-y-6">
             <p>
               <span className="font-bold mr-1">Especialidad:</span>
@@ -152,7 +158,7 @@ export default function AdminUserView() {
               {medico.comienzoJornada} a {medico.finJornada}
             </p>
           </div>
-        ) : (
+        ) : usuario.tipo === 5 ? (
           <div className="space-y-6">
             <p>
               <span className="font-bold mr-1">Consultas completadas:</span>
@@ -177,6 +183,8 @@ export default function AdminUserView() {
               {paciente.tipoSangre}
             </p>
           </div>
+        ) : (
+          <span></span>
         )}
 
         <section className="bg-white p-6 rounded-lg shadow-md">
@@ -207,12 +215,16 @@ export default function AdminUserView() {
                     </div>
                     <div className="mb-1">
                       <span className="font-bold">Estado: </span>
-                      {turno.estado === 0 ? (
+                      {turno.estado === 1 ? (
                         <span>Pendiente</span>
-                      ) : turno.estado === 1 ? (
-                        <span>Confirmado</span>
-                      ) : (
+                      ) : turno.estado === 2 ? (
+                        <span>Completado</span>
+                      ) : turno.estado === 3 ? (
                         <span>Cancelado</span>
+                      ) : turno.estado === 4 ? (
+                        <span>Reprogramado</span>
+                      ) : (
+                        <span></span>
                       )}
                     </div>
                     <div className="mb-1">

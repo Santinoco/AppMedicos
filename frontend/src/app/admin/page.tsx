@@ -20,7 +20,7 @@ const usuariosInicial: Usuario[] = [
     apellido: "Perez",
     email: "juan@mail.com",
     activo: true,
-    tipo: 0, // 0 = medico, 1 = paciente
+    tipo: 2, // 1 = admin, 2 = medico, 5 = paciente
   },
   {
     id: 2,
@@ -28,7 +28,7 @@ const usuariosInicial: Usuario[] = [
     apellido: "Perez",
     email: "maria@mail.com",
     activo: false,
-    tipo: 1, // 0 = medico, 1 = paciente
+    tipo: 5, // 1 = admin, 2 = medico, 5 = paciente
   },
 ];
 
@@ -90,10 +90,12 @@ export default function AdminDashboard() {
                   </div>
                   <div className="mb-1">
                     <span className="font-bold mr-2">Tipo de usuario:</span>
-                    {usuario.tipo === 0 ? (
+                    {usuario.tipo === 2 ? (
                       <span>Medico</span>
-                    ) : (
+                    ) : usuario.tipo === 5 ? (
                       <span>Paciente</span>
+                    ) : (
+                      <span></span>
                     )}
                   </div>
                   <div className="mb-1">
