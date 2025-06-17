@@ -1,6 +1,8 @@
 "use client";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { getUserId } from "../../../services/userIdService";
+import { BackTurno } from "../../../types/backTurno";
 
 interface Turno {
   id: number;
@@ -12,64 +14,86 @@ interface Turno {
 
 const misTurnosInicial: Turno[] = [
   {
-    id: 1,
-    nombre: "Juan Perez",
-    email: "juan@mail.com",
-    motivo: "Fiebre",
-    fechaTurno: new Date("2025-05-29T10:30:00"),
-  },
-  {
-    id: 2,
-    nombre: "Maria Gomez",
-    email: "maria@mail.com",
-    motivo: "Control",
-    fechaTurno: new Date("2025-05-29T11:00:00"),
-  },
-  {
-    id: 3,
-    nombre: "Carlos Rodríguez",
-    email: "carlos@mail.com",
-    motivo: "Dolor de cabeza",
-    fechaTurno: new Date("2025-05-28T09:00:00"),
-  },
-  {
-    id: 4,
-    nombre: "Lucía Fernández",
-    email: "lucia@mail.com",
-    motivo: "Chequeo general",
-    fechaTurno: new Date("2025-05-30T14:00:00"),
-  },
-  {
-    id: 5,
-    nombre: "Diego López",
-    email: "diego@mail.com",
-    motivo: "Vacunación",
-    fechaTurno: new Date("2025-05-27T08:30:00"),
-  },
-  {
-    id: 6,
-    nombre: "Ana Torres",
-    email: "ana@mail.com",
-    motivo: "Consulta",
-    fechaTurno: new Date("2025-05-29T12:00:00"),
+    id: 0,
+    nombre: "",
+    email: "",
+    motivo: "",
+    fechaTurno: new Date("0001-01-01T10:00:00"),
   },
 ];
 
 export default function misTurnos() {
   const [misTurnos, setMisTurnos] = useState<Turno[]>(misTurnosInicial);
   const [turnosBase, setTurnosBase] = useState<Turno[]>(misTurnosInicial);
-  const userId = 1; // Reemplazar con la lógica para obtener la ID del usuario logueado
+  // Obtener el ID del usuario logueado
+  // REEMPLAZAR con getUserId() cuando esté implementado el back
+  // const userId = getUserId();
+  const userId = 1;
 
-  //Funcion GET, MODIFICAR SI EL JSON NO ES EL MISMO QUE EL DE EJEMPLO
   useEffect(() => {
     const fetchTurnos = async () => {
       try {
-        const response = await axios.get(`/id/${userId}`); // Modificar a ruta real
-        const turnos: Turno[] = response.data.map((turno: any) => ({
-          ...turno,
-          fechaTurno: new Date(turno.fechaTurno), // Convertir fecha a objeto Date
-        }));
-        setTurnosBase(turnos);
+        /*
+        const responseTurnos = await axios.get(
+          `http://localhost:3001/appointments/doctor/${userId}`
+        );
+        const turnosData: Turno[] = responseTurnos.data.map(
+          (turno: BackTurno) => ({
+            id: turno.id,
+            nombre: turno.patient?.user?.nombre || "Paciente Anónimo",
+            email: turno.patient?.user?.email || "No disponible",
+            motivo: turno.motivo,
+            fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+          })
+        );
+        */
+        // Simulación de datos de turnos (reemplazar con la llamada al backend)
+        const turnosData: Turno[] = [
+          {
+            id: 1,
+            nombre: "Juan Perez",
+            email: "juan@mail.com",
+            motivo: "Fiebre",
+            fechaTurno: new Date("2025-05-29T10:30:00"),
+          },
+          {
+            id: 2,
+            nombre: "Maria Gomez",
+            email: "maria@mail.com",
+            motivo: "Control",
+            fechaTurno: new Date("2025-05-29T11:00:00"),
+          },
+          {
+            id: 3,
+            nombre: "Carlos Rodríguez",
+            email: "carlos@mail.com",
+            motivo: "Dolor de cabeza",
+            fechaTurno: new Date("2025-05-28T09:00:00"),
+          },
+          {
+            id: 4,
+            nombre: "Lucía Fernández",
+            email: "lucia@mail.com",
+            motivo: "Chequeo general",
+            fechaTurno: new Date("2025-05-30T14:00:00"),
+          },
+          {
+            id: 5,
+            nombre: "Diego López",
+            email: "diego@mail.com",
+            motivo: "Vacunación",
+            fechaTurno: new Date("2025-05-27T08:30:00"),
+          },
+          {
+            id: 6,
+            nombre: "Ana Torres",
+            email: "ana@mail.com",
+            motivo: "Consulta",
+            fechaTurno: new Date("2025-05-29T12:00:00"),
+          },
+        ];
+        setMisTurnos(turnosData);
+        setTurnosBase(turnosData);
       } catch (error) {
         console.error("Error al obtener los turnos:", error);
       }
