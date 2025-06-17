@@ -134,7 +134,7 @@ export default function misTurnos() {
                   key={misTurnos.id}
                 >
                   <div>
-                    <div>
+                    <div className="mb-1">
                       <span className="font-bold">{misTurnos.nombre}</span>{" "}
                       <span className="text-gray-500 font-light">
                         - {misTurnos.email}

@@ -5,6 +5,7 @@ import axios from "axios";
 import { BackUser } from "../../types/backUser";
 import { BackMedico } from "../../types/backMedico";
 import { BackPaciente } from "../../types/backPaciente";
+import { BackTurno } from "../../types/backTurno";
 
 interface Turno {
   id: number;
@@ -12,7 +13,6 @@ interface Turno {
   email: string;
   motivo: string;
   fechaTurno: Date;
-  especialidad: string;
 }
 
 interface Medico {
@@ -45,7 +45,6 @@ export default function MedicoDashboard() {
     email: "",
     motivo: "",
     fechaTurno: new Date("2025-05-29T10:30:00"),
-    especialidad: "",
   });
 
   // Función para decodificar el token JWT
@@ -87,7 +86,7 @@ export default function MedicoDashboard() {
           email: "test@mail.com",
           password: "test123",
           activo: true,
-          user_type_id: 1, // 1 = medico
+          user_type_id: 2, // 2 = medico
         };
         // AGREGO JWT DE PRUEBA
         const medicoData: BackMedico = {
@@ -98,7 +97,26 @@ export default function MedicoDashboard() {
           shift_end: "16:00",
           license_number: 123456,
           active: true,
-          appointments: [
+        };
+
+        setMedico({
+          nombre: `${medicoData.user.nombre} ${medicoData.user.apellido}`,
+          especialidad: medicoData.specialty,
+          numeroMatricula: medicoData.license_number,
+          email: medicoData.user.email,
+          comienzoJornada: medicoData.shift_start,
+          finJornada: medicoData.shift_end,
+        });
+
+        try {
+          // El backend retorna un objeto con los datos del médico
+          /* const responseTurno = await axios.get(
+            `http://localhost:3001/appointment/doctor/${userId}`
+            );
+            const turnoData: BackTurno = responseTurno.data;
+            */
+          // AGREGO JWT DE PRUEBA
+          const turnoData: BackTurno[] = [
             {
               id: 1,
               slot_datetime: {
@@ -112,62 +130,55 @@ export default function MedicoDashboard() {
               patient_id: 1,
               status: 1,
             },
-          ],
-        };
+          ];
 
-        setMedico({
-          nombre: `${medicoData.user.nombre} ${medicoData.user.apellido}`,
-          especialidad: medicoData.specialty,
-          numeroMatricula: medicoData.license_number,
-          email: medicoData.user.email,
-          comienzoJornada: medicoData.shift_start,
-          finJornada: medicoData.shift_end,
-        });
-        const turnosOrdenados = medicoData.appointments.sort(
-          (a, b) =>
-            a.slot_datetime.slot_datetime.getTime() -
-            b.slot_datetime.slot_datetime.getTime()
-        );
-
-        try {
-          // Obtener datos del paciente del primer turno
-          /* const responsePaciente = await axios.get(
-            `http://localhost:3001/patients/${turnosOrdenados[0].patient_id}` 
+          const turnosOrdenados = turnoData.sort(
+            (a, b) =>
+              a.slot_datetime.slot_datetime.getTime() -
+              b.slot_datetime.slot_datetime.getTime()
           );
-          const pacienteData: BackPaciente = responsePaciente.data;
-          */
-          // AGREGO JWT DE PRUEBA
-          const pacienteData: BackPaciente = {
-            user_id: 2,
-            user: {
-              id: 2,
-              nombre: "Paciente",
-              apellido: "Test",
-              email: "paciente@mail.com",
-              password: "test123",
-              activo: true,
-              user_type_id: 5, // 5 = paciente
-            },
-            completed_consultations: 5,
-            health_insurance: "Salud S.A.",
-            medical_history: "Historia médica del paciente",
-            weight: 70,
-            height: 170,
-            blood_type: "O+",
-            appointments: [],
-          };
 
-          // Asignar el primer turno como "próximo turno"
-          setTurno({
-            id: turnosOrdenados[0].id,
-            nombre: `${pacienteData.user.nombre} ${pacienteData.user.apellido}`,
-            email: pacienteData.user.email,
-            motivo: turnosOrdenados[0].motivo,
-            fechaTurno: turnosOrdenados[0].slot_datetime.slot_datetime,
-            especialidad: medicoData.specialty,
-          });
+          try {
+            // Obtener datos del paciente del primer turno
+            /* const responsePaciente = await axios.get(
+              `http://localhost:3001/patients/${turnosOrdenados[0].patient_id}` 
+            );
+            const pacienteData: BackPaciente = responsePaciente.data;
+            */
+            // AGREGO JWT DE PRUEBA
+            const pacienteData: BackPaciente = {
+              user_id: 2,
+              user: {
+                id: 2,
+                nombre: "Paciente",
+                apellido: "Test",
+                email: "paciente@mail.com",
+                password: "test123",
+                activo: true,
+                user_type_id: 5, // 5 = paciente
+              },
+              completed_consultations: 5,
+              health_insurance: "Salud S.A.",
+              medical_history: "Historia médica del paciente",
+              weight: 70,
+              height: 170,
+              blood_type: "O+",
+              appointments: [],
+            };
+
+            // Asignar el primer turno como "próximo turno"
+            setTurno({
+              id: turnosOrdenados[0].id,
+              nombre: `${pacienteData.user.nombre} ${pacienteData.user.apellido}`,
+              email: pacienteData.user.email,
+              motivo: turnosOrdenados[0].motivo,
+              fechaTurno: turnosOrdenados[0].slot_datetime.slot_datetime,
+            });
+          } catch (error) {
+            console.error("Error al obtener los datos del paciente:", error);
+          }
         } catch (error) {
-          console.error("Error al obtener los datos del paciente:", error);
+          console.error("Error al obtener los datos del turno:", error);
         }
       } catch (error) {
         console.error("Error al obtener los datos del usuario:", error);
@@ -224,14 +235,24 @@ export default function MedicoDashboard() {
         <h3 className="text-lg font-semibold text-green-800 mb-2">
           📌 Próximo turno
         </h3>
-        <p>
-          <strong>{turno.nombre}</strong> ({turno.especialidad})<br />
-          📅{" "}
-          {new Intl.DateTimeFormat("es-ES", {
-            dateStyle: "medium",
-            timeStyle: "short",
-          }).format(turno.fechaTurno)}
-        </p>
+        <div>
+          <div className="mb-1">
+            <span className="font-bold">{turno.nombre}</span>{" "}
+            <span className="text-gray-500 font-light">- {turno.email}</span>
+          </div>
+          <div className="mb-1">
+            <span className="font-bold mr-1">Fecha:</span>
+            📅{" "}
+            {new Intl.DateTimeFormat("es-ES", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            }).format(turno.fechaTurno)}
+          </div>
+        </div>
+        <div className="mb-1">
+          <div className="font-bold">Motivo de consulta:</div>
+          <p>{turno.motivo}</p>
+        </div>
       </section>
       <button
         onClick={() => router.push("/medico/mis-turnos")}

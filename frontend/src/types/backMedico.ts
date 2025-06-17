@@ -9,5 +9,4 @@ export interface BackMedico {
   shift_end: string;
   license_number: number;
   active: boolean;
-  appointments: BackTurno[];
 }
