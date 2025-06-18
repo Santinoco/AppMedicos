@@ -97,7 +97,7 @@ export default function MedicoDashboard() {
         });
 
         try {
-          // El backend retorna un objeto con los datos del médico
+          // El backend retorna un objeto con los datos de los turnos del medico
           /* const responseTurno = await axios.get(
             `http://localhost:3001/appointments/doctor/${userId}`
             );
@@ -114,9 +114,63 @@ export default function MedicoDashboard() {
               },
               motivo: "Consulta general",
               estado_id: 1,
-              doctor_id: 1,
-              patient_id: 1,
-              status: 1,
+              doctor_id: {
+                user_id: 1,
+                user: {
+                  id: 1,
+                  nombre: "TEST",
+                  apellido: "Medico",
+                  email: "test@mail.com",
+                  password: "test123",
+                  activo: true,
+                  user_type_id: 2,
+                },
+                specialty: "Cardiología",
+                shift_start: "08:00",
+                shift_end: "16:00",
+                license_number: 123456,
+                active: true,
+              },
+              doctor: {
+                id: 1,
+                nombre: "TEST",
+                apellido: "Medico",
+                email: "test@mail.com",
+                password: "test123",
+                activo: true,
+                user_type_id: 2,
+              },
+              patient_id: {
+                user_id: 2,
+                user: {
+                  id: 2,
+                  nombre: "Paciente",
+                  apellido: "Test",
+                  email: "paciente@mail.com",
+                  password: "test123",
+                  activo: true,
+                  user_type_id: 5, // 5 = paciente
+                },
+                completed_consultations: 5,
+                health_insurance: "Salud S.A.",
+                medical_history: "Historia médica del paciente",
+                weight: 70,
+                height: 170,
+                blood_type: "O+",
+              },
+              patient: {
+                id: 2,
+                nombre: "Paciente",
+                apellido: "Test",
+                email: "paciente@mail.com",
+                password: "test123",
+                activo: true,
+                user_type_id: 5, // 5 = paciente
+              },
+              status: {
+                status_id: 1,
+                status: "Pendiente",
+              },
             },
           ];
 
@@ -151,7 +205,6 @@ export default function MedicoDashboard() {
               weight: 70,
               height: 170,
               blood_type: "O+",
-              appointments: [],
             };
 
             // Asignar el primer turno como "próximo turno"

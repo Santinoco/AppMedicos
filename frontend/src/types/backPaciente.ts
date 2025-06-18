@@ -10,5 +10,4 @@ export interface BackPaciente {
   weight: number;
   height: number;
   blood_type: string;
-  appointments: BackTurno[];
 }

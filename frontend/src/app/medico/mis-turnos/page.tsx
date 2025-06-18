@@ -40,13 +40,16 @@ export default function misTurnos() {
         const turnosData: Turno[] = responseTurnos.data.map(
           (turno: BackTurno) => ({
             id: turno.id,
-            nombre: turno.patient?.user?.nombre || "Paciente Anónimo",
-            email: turno.patient?.user?.email || "No disponible",
+            nombre:
+              `${turno.patient.nombre} ${turno.patient.apellido}` ||
+              "Paciente Anónimo",
+            email: turno.patient.email || "No disponible",
             motivo: turno.motivo,
             fechaTurno: new Date(turno.slot_datetime.slot_datetime),
           })
         );
         */
+
         // Simulación de datos de turnos (reemplazar con la llamada al backend)
         const turnosData: Turno[] = [
           {
@@ -108,7 +111,8 @@ export default function misTurnos() {
         // DESCOMENTAR AL IMPLEMENTAR CON BACK
         /*
         await axios.patch(`http://localhost:3001/appointments/${id}/status`, {
-          estado: 3, // Cambiar el estado del turno a cancelado
+          id: 3, // Cambiar el estado del turno a cancelado
+          newStatus: "cancelado"
         });
         */
 
