@@ -6,11 +6,14 @@ import {
     Param,
     ParseIntPipe,
     Delete,
-    Patch
+    Patch,
+    UseGuards
   } from "@nestjs/common";
   import { LocationService } from "./locations.service";
+  import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
   
   @Controller("locations")
+  @UseGuards(JwtAuthGuard)
   export class LocationController {
     constructor(private readonly locationService: LocationService) {}
   
