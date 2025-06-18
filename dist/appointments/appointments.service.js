@@ -51,7 +51,7 @@ let AppointmentsService = class AppointmentsService {
     async createAppointment(dto) {
         const slot = await this.calendarRepository.findOne({ where: { slot_datetime: dto.slot_datetime } });
         if (!slot) {
-            throw new common_1.BadRequestException("No existe un slot para esa fecha y hora.");
+            throw new common_1.NotFoundException("No existe un slot para esa fecha y hora.");
         }
         const appointment = this.appointmentRepository.create({
             motivo: dto.motivo,

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Appointment } from "./entities/appointment.model";
@@ -44,7 +44,7 @@ export class AppointmentsService {
     const slot = await this.calendarRepository.findOne({ where: { slot_datetime: dto.slot_datetime } });
   
     if (!slot) {
-      throw new BadRequestException("No existe un slot para esa fecha y hora."); // cambiar por NotFound
+      throw new NotFoundException("No existe un slot para esa fecha y hora.");
     }
   
     const appointment = this.appointmentRepository.create({
@@ -94,15 +94,3 @@ export class AppointmentsService {
     });
   }
 }
-
-
-
-/*
-  // Obtener citas de un usuario específico
-  async getUserAppointments(userId: number) {
-    return this.appointmentRepository.find({ 
-      where: { user: { id: userId } },
-      relations: ["user"],
-    });
-  }
-*/
