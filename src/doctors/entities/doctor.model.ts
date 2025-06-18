@@ -11,13 +11,13 @@ export class Doctor {
   @JoinColumn({ name: "user_id" })
   user: User;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   specialty: string;
 
-  @Column({ type: 'time' })
+  @Column({ type: 'time', nullable: true })
   shift_start: string;
 
-  @Column({ type: 'time' })
+  @Column({ type: 'time', nullable: true })
   shift_end: string;
 
   getShiftStart(): string {
@@ -36,10 +36,10 @@ export class Doctor {
     this.shift_end = value;
   }
 
-  @Column()
+  @Column({ nullable: true })
   license_number: number;
 
-  @Column({ default: true })
+  @Column({ default: true, nullable: true })
   active: boolean;
 
   @OneToMany(() => Appointment, (appointment) => appointment.doctor_id)
