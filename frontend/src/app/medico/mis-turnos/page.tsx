@@ -41,9 +41,8 @@ export default function misTurnos() {
           (turno: BackTurno) => ({
             id: turno.id,
             nombre:
-              `${turno.patient.nombre} ${turno.patient.apellido}` ||
-              "Paciente Anónimo",
-            email: turno.patient.email || "No disponible",
+              `${turno.patient.nombre} ${turno.patient.apellido}`,
+            email: turno.patient.email,
             motivo: turno.motivo,
             fechaTurno: new Date(turno.slot_datetime.slot_datetime),
           })
@@ -111,8 +110,7 @@ export default function misTurnos() {
         // DESCOMENTAR AL IMPLEMENTAR CON BACK
         /*
         await axios.patch(`http://localhost:3001/appointments/${id}/status`, {
-          id: 3, // Cambiar el estado del turno a cancelado
-          newStatus: "cancelado"
+          estado: 3, // Cambiar el estado del turno a cancelado
         });
         */
 
