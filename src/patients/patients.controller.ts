@@ -5,10 +5,15 @@ import {
     Body,
     Param,
     ParseIntPipe,
+    Patch,
+    Delete,
+    UseGuards,
   } from "@nestjs/common";
   import { PatientService } from "./patients.service";
+  import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
   
   @Controller("patients")
+  @UseGuards(JwtAuthGuard)
   export class PatientController {
     constructor(private readonly patientService: PatientService) {}
   
@@ -26,4 +31,19 @@ import {
     async createPatient(@Body() patientData: any) {
       return this.patientService.createPatient(patientData);
     }
+
+    @Patch(":user_id")
+    async updatePatient(
+    @Param("user_id", ParseIntPipe) user_id: number,
+    @Body() updateData: any
+    ) {
+      return this.patientService.updatePatient(user_id, updateData);
+    }
+
+
+    @Delete(":user_id")
+    async deletePatient(@Param("user_id", ParseIntPipe) user_id: number) {
+      return this.patientService.deletePatient(user_id);
+    }
+
   }

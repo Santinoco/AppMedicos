@@ -11,10 +11,10 @@ export class Patient {
   @JoinColumn({ name: "user_id" })
   user: User;
 
-  @Column()
+  @Column({ nullable: true })
   completed_consultations: number;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   health_insurance: string;
 
   @Column({ type: "text", nullable: true })
