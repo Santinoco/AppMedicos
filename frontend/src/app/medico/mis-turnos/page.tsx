@@ -101,17 +101,24 @@ export default function misTurnos() {
     fetchTurnos();
   }, [userId]);
 
-  const cancelarTurno = (id: number) => {
+  const cancelarTurno = async (id: number) => {
     const turnoCancelado = misTurnos.find((turno) => turno.id === id);
-    //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
-    //y la nueva lista de turnos a tomar
-    //por ahora solo actualizo el estado local
-    if (turnoCancelado) {
-      const nuevaLista = misTurnos.filter((turno) => turno.id !== id);
-      setMisTurnos(nuevaLista);
+    if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
+      if (turnoCancelado) {
+        // DESCOMENTAR AL IMPLEMENTAR CON BACK
+        /*
+        await axios.patch(`http://localhost:3001/appointments/${id}/status`, {
+          estado: 3, // Cambiar el estado del turno a cancelado
+        });
+        */
 
-      const nuevaBase = turnosBase.filter((turno) => turno.id !== id);
-      setTurnosBase(nuevaBase);
+        const nuevaLista = misTurnos.filter((turno) => turno.id !== id);
+        setMisTurnos(nuevaLista);
+
+        const nuevaBase = turnosBase.filter((turno) => turno.id !== id);
+        setTurnosBase(nuevaBase);
+        alert(`Turno con ID ${id} cancelado.`);
+      }
     }
   };
 
