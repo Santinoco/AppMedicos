@@ -14,12 +14,13 @@ const calendar_service_1 = require("./calendar.service");
 const calendar_controller_1 = require("./calendar.controller");
 const appointment_model_1 = require("../appointments/entities/appointment.model");
 const doctor_model_1 = require("../doctors/entities/doctor.model");
+const auth_module_1 = require("../auth/auth.module");
 let CalendarModule = class CalendarModule {
 };
 exports.CalendarModule = CalendarModule;
 exports.CalendarModule = CalendarModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([calendar_model_1.Calendar, appointment_model_1.Appointment, doctor_model_1.Doctor])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([calendar_model_1.Calendar, appointment_model_1.Appointment, doctor_model_1.Doctor]), auth_module_1.AuthModule],
         providers: [calendar_service_1.CalendarService],
         controllers: [calendar_controller_1.CalendarController],
     })

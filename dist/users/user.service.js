@@ -17,16 +17,16 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_model_1 = require("./entities/user.model");
-const doctor_model_1 = require("../doctors/entities/doctor.model");
-const patient_model_1 = require("../patients/entities/patient.model");
+const doctors_service_1 = require("../doctors/doctors.service");
+const patients_service_1 = require("../patients/patients.service");
 let UserService = class UserService {
     userRepository;
-    doctorRepository;
-    patientRepository;
-    constructor(userRepository, doctorRepository, patientRepository) {
+    doctorService;
+    patientService;
+    constructor(userRepository, doctorService, patientService) {
         this.userRepository = userRepository;
-        this.doctorRepository = doctorRepository;
-        this.patientRepository = patientRepository;
+        this.doctorService = doctorService;
+        this.patientService = patientService;
     }
     async getAllUsers() {
         return this.userRepository.find();
@@ -40,12 +40,10 @@ let UserService = class UserService {
         const userTypeId = userData.type?.id || userData.type;
         switch (userTypeId) {
             case 2:
-                const doctor = this.doctorRepository.create({ user_id: savedUser.id });
-                await this.doctorRepository.save(doctor);
+                await this.doctorService.createDoctor({ user_id: savedUser.id });
                 break;
             case 5:
-                const patient = this.patientRepository.create({ user_id: savedUser.id });
-                await this.patientRepository.save(patient);
+                await this.patientService.createPatient({ user_id: savedUser.id });
                 break;
         }
         return savedUser;
@@ -79,10 +77,8 @@ exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_model_1.User)),
-    __param(1, (0, typeorm_1.InjectRepository)(doctor_model_1.Doctor)),
-    __param(2, (0, typeorm_1.InjectRepository)(patient_model_1.Patient)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository,
-        typeorm_2.Repository])
+        doctors_service_1.DoctorsService,
+        patients_service_1.PatientService])
 ], UserService);
 //# sourceMappingURL=user.service.js.map

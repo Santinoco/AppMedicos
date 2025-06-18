@@ -12,12 +12,13 @@ const locations_controller_1 = require("./locations.controller");
 const locations_service_1 = require("./locations.service");
 const typeorm_1 = require("@nestjs/typeorm");
 const location_model_1 = require("./entities/location.model");
+const auth_module_1 = require("../auth/auth.module");
 let LocationModule = class LocationModule {
 };
 exports.LocationModule = LocationModule;
 exports.LocationModule = LocationModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([location_model_1.Location])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([location_model_1.Location]), auth_module_1.AuthModule],
         controllers: [locations_controller_1.LocationController],
         providers: [locations_service_1.LocationService],
         exports: [locations_service_1.LocationService],

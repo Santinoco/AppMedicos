@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PatientController = void 0;
 const common_1 = require("@nestjs/common");
 const patients_service_1 = require("./patients.service");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 let PatientController = class PatientController {
     patientService;
     constructor(patientService) {
@@ -28,6 +29,12 @@ let PatientController = class PatientController {
     }
     async createPatient(patientData) {
         return this.patientService.createPatient(patientData);
+    }
+    async updatePatient(user_id, updateData) {
+        return this.patientService.updatePatient(user_id, updateData);
+    }
+    async deletePatient(user_id) {
+        return this.patientService.deletePatient(user_id);
     }
 };
 exports.PatientController = PatientController;
@@ -51,8 +58,24 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], PatientController.prototype, "createPatient", null);
+__decorate([
+    (0, common_1.Patch)(":user_id"),
+    __param(0, (0, common_1.Param)("user_id", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], PatientController.prototype, "updatePatient", null);
+__decorate([
+    (0, common_1.Delete)(":user_id"),
+    __param(0, (0, common_1.Param)("user_id", common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], PatientController.prototype, "deletePatient", null);
 exports.PatientController = PatientController = __decorate([
     (0, common_1.Controller)("patients"),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [patients_service_1.PatientService])
 ], PatientController);
 //# sourceMappingURL=patients.controller.js.map

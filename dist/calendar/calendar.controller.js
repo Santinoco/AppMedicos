@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CalendarController = void 0;
 const common_1 = require("@nestjs/common");
 const calendar_service_1 = require("./calendar.service");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 let CalendarController = class CalendarController {
     calendarService;
     constructor(calendarService) {
@@ -62,6 +63,7 @@ __decorate([
 ], CalendarController.prototype, "getDoctorAvailableSlots", null);
 exports.CalendarController = CalendarController = __decorate([
     (0, common_1.Controller)('calendar'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [calendar_service_1.CalendarService])
 ], CalendarController);
 //# sourceMappingURL=calendar.controller.js.map

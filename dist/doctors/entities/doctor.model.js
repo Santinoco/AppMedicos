@@ -46,23 +46,23 @@ __decorate([
     __metadata("design:type", user_model_1.User)
 ], Doctor.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 100 }),
+    (0, typeorm_1.Column)({ length: 100, nullable: true }),
     __metadata("design:type", String)
 ], Doctor.prototype, "specialty", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'time' }),
+    (0, typeorm_1.Column)({ type: 'time', nullable: true }),
     __metadata("design:type", String)
 ], Doctor.prototype, "shift_start", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'time' }),
+    (0, typeorm_1.Column)({ type: 'time', nullable: true }),
     __metadata("design:type", String)
 ], Doctor.prototype, "shift_end", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Doctor.prototype, "license_number", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: true }),
+    (0, typeorm_1.Column)({ default: true, nullable: true }),
     __metadata("design:type", Boolean)
 ], Doctor.prototype, "active", void 0);
 __decorate([

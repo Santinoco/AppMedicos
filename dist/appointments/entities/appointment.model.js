@@ -21,7 +21,9 @@ let Appointment = class Appointment {
     motivo;
     estado_id;
     doctor_id;
+    doctor;
     patient_id;
+    patient;
     status;
 };
 exports.Appointment = Appointment;
@@ -48,10 +50,20 @@ __decorate([
     __metadata("design:type", Number)
 ], Appointment.prototype, "doctor_id", void 0);
 __decorate([
+    (0, typeorm_1.ManyToOne)(() => doctor_model_1.Doctor, doctor => doctor.appointments),
+    (0, typeorm_1.JoinColumn)({ name: 'doctor_id' }),
+    __metadata("design:type", doctor_model_1.Doctor)
+], Appointment.prototype, "doctor", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => patient_model_1.Patient, (patient) => patient.user_id),
     (0, typeorm_1.JoinColumn)({ name: "patient_id" }),
     __metadata("design:type", Number)
 ], Appointment.prototype, "patient_id", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => patient_model_1.Patient, patient => patient.appointments),
+    (0, typeorm_1.JoinColumn)({ name: 'patient_id' }),
+    __metadata("design:type", patient_model_1.Patient)
+], Appointment.prototype, "patient", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => appointment_status_model_1.AppointmentStatus, (status) => status.status),
     (0, typeorm_1.JoinColumn)({ name: "estado_id", referencedColumnName: "status_id" }),

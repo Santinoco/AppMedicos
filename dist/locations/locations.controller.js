@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LocationController = void 0;
 const common_1 = require("@nestjs/common");
 const locations_service_1 = require("./locations.service");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 let LocationController = class LocationController {
     locationService;
     constructor(locationService) {
@@ -74,6 +75,7 @@ __decorate([
 ], LocationController.prototype, "updateLocation", null);
 exports.LocationController = LocationController = __decorate([
     (0, common_1.Controller)("locations"),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [locations_service_1.LocationService])
 ], LocationController);
 //# sourceMappingURL=locations.controller.js.map

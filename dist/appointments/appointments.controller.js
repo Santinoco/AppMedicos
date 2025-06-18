@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppointmentsController = void 0;
 const common_1 = require("@nestjs/common");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const appointments_service_1 = require("./appointments.service");
 let AppointmentsController = class AppointmentsController {
     appointmentsService;
@@ -31,6 +32,12 @@ let AppointmentsController = class AppointmentsController {
     }
     async updateStatus(id, newStatus) {
         return this.appointmentsService.updateAppointmentStatus(id, newStatus);
+    }
+    async getAppointmentsByDoctorId(doctor_id) {
+        return this.appointmentsService.findByDoctorId(doctor_id);
+    }
+    async getAppointmentsByPatientId(patient_id) {
+        return this.appointmentsService.findByPatientId(patient_id);
     }
 };
 exports.AppointmentsController = AppointmentsController;
@@ -62,8 +69,23 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "updateStatus", null);
+__decorate([
+    (0, common_1.Get)('doctor/:doctor_id'),
+    __param(0, (0, common_1.Param)('doctor_id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AppointmentsController.prototype, "getAppointmentsByDoctorId", null);
+__decorate([
+    (0, common_1.Get)('patient/:patient_id'),
+    __param(0, (0, common_1.Param)('patient_id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AppointmentsController.prototype, "getAppointmentsByPatientId", null);
 exports.AppointmentsController = AppointmentsController = __decorate([
     (0, common_1.Controller)("appointments"),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [appointments_service_1.AppointmentsService])
 ], AppointmentsController);
 //# sourceMappingURL=appointments.controller.js.map

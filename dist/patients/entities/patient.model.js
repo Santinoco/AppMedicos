@@ -35,11 +35,11 @@ __decorate([
     __metadata("design:type", user_model_1.User)
 ], Patient.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Patient.prototype, "completed_consultations", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 100 }),
+    (0, typeorm_1.Column)({ length: 100, nullable: true }),
     __metadata("design:type", String)
 ], Patient.prototype, "health_insurance", void 0);
 __decorate([

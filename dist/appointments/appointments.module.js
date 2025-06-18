@@ -13,14 +13,17 @@ const appointments_controller_1 = require("./appointments.controller");
 const appointments_service_1 = require("./appointments.service");
 const appointment_model_1 = require("./entities/appointment.model");
 const calendar_model_1 = require("../calendar/entities/calendar.model");
+const auth_module_1 = require("../auth/auth.module");
+const calendar_service_1 = require("../calendar/calendar.service");
+const doctor_model_1 = require("../doctors/entities/doctor.model");
 let AppointmentsModule = class AppointmentsModule {
 };
 exports.AppointmentsModule = AppointmentsModule;
 exports.AppointmentsModule = AppointmentsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([appointment_model_1.Appointment, calendar_model_1.Calendar])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([appointment_model_1.Appointment, calendar_model_1.Calendar, doctor_model_1.Doctor]), auth_module_1.AuthModule],
         controllers: [appointments_controller_1.AppointmentsController],
-        providers: [appointments_service_1.AppointmentsService],
+        providers: [appointments_service_1.AppointmentsService, calendar_service_1.CalendarService],
     })
 ], AppointmentsModule);
 //# sourceMappingURL=appointments.module.js.map

@@ -1,12 +1,12 @@
 import { Repository } from "typeorm";
 import { User } from "./entities/user.model";
-import { Doctor } from "src/doctors/entities/doctor.model";
-import { Patient } from "src/patients/entities/patient.model";
+import { DoctorsService } from "src/doctors/doctors.service";
+import { PatientService } from "src/patients/patients.service";
 export declare class UserService {
     private userRepository;
-    private doctorRepository;
-    private patientRepository;
-    constructor(userRepository: Repository<User>, doctorRepository: Repository<Doctor>, patientRepository: Repository<Patient>);
+    private doctorService;
+    private patientService;
+    constructor(userRepository: Repository<User>, doctorService: DoctorsService, patientService: PatientService);
     getAllUsers(): Promise<User[]>;
     getUserById(id: number): Promise<User | null>;
     createUser(userData: Partial<User>): Promise<User>;

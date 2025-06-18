@@ -20,6 +20,7 @@ export declare class AuthController {
             nombre: string;
             apellido: string;
             email: string;
+            type: import("../user-type/entities/user-type.model").UserType;
         };
         access_token: string;
     }>;

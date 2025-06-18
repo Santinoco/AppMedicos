@@ -6,4 +6,8 @@ export declare class PatientService {
     getAllPatients(): Promise<Patient[]>;
     getPatientById(user_id: number): Promise<Patient | null>;
     createPatient(patientData: any): Promise<Patient[]>;
+    updatePatient(user_id: number, updateData: Partial<Patient>): Promise<Patient>;
+    deletePatient(user_id: number): Promise<{
+        message: string;
+    }>;
 }
