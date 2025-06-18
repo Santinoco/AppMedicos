@@ -6,10 +6,13 @@ import {
     Param,
     ParseIntPipe,
     Patch,
+    UseGuards,
   } from "@nestjs/common";
-import { AppointmentsService } from "./appointments.service";
+  import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+  import { AppointmentsService } from "./appointments.service";
 
 @Controller("appointments")
+@UseGuards(JwtAuthGuard)
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
@@ -34,6 +37,16 @@ export class AppointmentsController {
     @Body('estado') newStatus: number,
   ) {
     return this.appointmentsService.updateAppointmentStatus(id, newStatus);
+  }
+
+  @Get('doctor/:doctor_id')
+  async getAppointmentsByDoctorId(@Param('doctor_id', ParseIntPipe) doctor_id: number) {
+    return this.appointmentsService.findByDoctorId(doctor_id);
+  }
+
+  @Get('patient/:patient_id')
+  async getAppointmentsByPatientId(@Param('patient_id', ParseIntPipe) patient_id: number) {
+    return this.appointmentsService.findByPatientId(patient_id);
   }
   
 }

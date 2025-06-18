@@ -22,4 +22,6 @@ export class AppointmentStatusService {
     const status = this.appointmentStatusRepository.create(statusData);
     return this.appointmentStatusRepository.save(status);
   }
+
+  
 }

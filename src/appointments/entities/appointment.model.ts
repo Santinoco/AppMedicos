@@ -5,6 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
   ManyToMany,
+  OneToOne,
 } from "typeorm";
 import { User } from "../../users/entities/user.model";
 import { AppointmentStatus } from "../../appointment-statuses/entities/appointment-status.model";
@@ -31,9 +32,17 @@ export class Appointment {
   @JoinColumn({ name: "doctor_id"})
   doctor_id: number;
 
+  @ManyToOne(() => Doctor, doctor => doctor.appointments)
+  @JoinColumn({ name: 'doctor_id' })
+  doctor: Doctor;
+
   @ManyToOne(() => Patient, (patient) => patient.user_id)
   @JoinColumn({ name: "patient_id" })
   patient_id: number;
+
+  @ManyToOne(() => Patient, patient => patient.appointments)
+  @JoinColumn({ name: 'patient_id' })
+  patient: Patient;
 
   @ManyToOne(() => AppointmentStatus, (status) => status.status)
   @JoinColumn({ name: "estado_id", referencedColumnName: "status_id" })

@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { Appointment } from "./entities/appointment.model";
 import { CreateAppointmentDto } from "./dto/calendar.dto";
 import { Calendar } from "./../calendar/entities/calendar.model"
+import { CalendarService } from "src/calendar/calendar.service";
 
 @Injectable()
 export class AppointmentsService {
@@ -12,16 +13,30 @@ export class AppointmentsService {
     private appointmentRepository: Repository<Appointment>,
     @InjectRepository(Calendar)
     private calendarRepository: Repository<Calendar>,
+    private calendarService: CalendarService
   ) {}
 
   // Obtener todas las citas
   async getAllAppointments() {
-    return this.appointmentRepository.find();
+    return this.appointmentRepository.find({
+      relations: [
+        'patient_id',
+        'patient.user',
+        'doctor_id',
+        'doctor.user',
+        'status',
+      ]})
   }
 
   // Obtener una cita por ID
   async getAppointmentById(id: number) {
-    return this.appointmentRepository.findOne({ where: { id } });
+    return this.appointmentRepository.findOne({ relations: [
+      'patient_id',
+      'patient.user',
+      'doctor_id',
+      'doctor.user',
+      'status',
+    ], where: { id } });
   }
 
   // Crear una nueva cita
@@ -45,6 +60,38 @@ export class AppointmentsService {
   async updateAppointmentStatus(id: number, newStatus: number) {
     await this.appointmentRepository.update(id, { estado_id: newStatus });
     return this.getAppointmentById(id);
+  }
+
+  async findByDoctorId(doctorUserId: number) {
+    return this.appointmentRepository.find({
+      where: {
+        doctor: { user_id: doctorUserId },
+      },
+      relations: [
+        'doctor', 'doctor.user',
+        'patient', 'patient.user',
+        'status',
+      ],
+      order: {
+        id: 'ASC',
+      },
+    });
+  }
+  
+  async findByPatientId(patientUserId: number) {
+    return this.appointmentRepository.find({
+      where: {
+        patient: { user_id: patientUserId },
+      },
+      relations: [
+        'doctor', 'doctor.user',
+        'patient', 'patient.user',
+        'status',
+      ],
+      order: {
+        id: 'ASC',
+      },
+    });
   }
 }
 
