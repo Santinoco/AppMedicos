@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy'; 
+
 @Module({
   imports: [
-    UsersModule, 
+    forwardRef(() => UsersModule), 
     PassportModule,
     JwtModule.register({
       secret: 'Santinoco123',
@@ -16,6 +17,6 @@ import { JwtStrategy } from './jwt.strategy';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy], 
-  exports: [AuthService] // Agregar esta línea para exportar AuthService en el módulo AuthModule en app.module.ts
+  exports: [AuthService, JwtModule] // Agregar esta línea para exportar AuthService en el módulo AuthModule en app.module.ts
 })
 export class AuthModule {}

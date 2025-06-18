@@ -27,7 +27,7 @@ export class AuthService {
             ...registerDto,
             password: hashedPassword
         });
-        const payload = { email: newUser.email, sub: newUser.id };
+        const payload = { email: newUser.email, sub: newUser.id, role: newUser.type.name };
         return {
             user: {
                 id: newUser.id,
@@ -50,13 +50,14 @@ export class AuthService {
         if(!isPasswordValid) {
             throw new UnauthorizedException('Credenciales invalidas');
         }
-        const payload = { email: user.email, sub: user.id };
+        const payload = { email: user.email, sub: user.id, role: user.type.name };
         return {
             user: {
                 id: user.id,
                 nombre: user.nombre,
                 apellido: user.apellido,
-                email: user.email
+                email: user.email,
+                type: user.type
             },
             access_token: await this.jwtService.sign(payload)
         }
