@@ -26,74 +26,24 @@ export default function misTurnos() {
   const [misTurnos, setMisTurnos] = useState<Turno[]>(misTurnosInicial);
   const [turnosBase, setTurnosBase] = useState<Turno[]>(misTurnosInicial);
   // Obtener el ID del usuario logueado
-  // REEMPLAZAR con getUserId() cuando esté implementado el back
-  // const userId = getUserId();
-  const userId = 1;
+  const userId = getUserId();
 
   useEffect(() => {
     const fetchTurnos = async () => {
       try {
-        /*
         const responseTurnos = await axios.get(
           `http://localhost:3001/appointments/doctor/${userId}`
         );
         const turnosData: Turno[] = responseTurnos.data.map(
           (turno: BackTurno) => ({
             id: turno.id,
-            nombre:
-              `${turno.patient.nombre} ${turno.patient.apellido}`,
+            nombre: `${turno.patient.nombre} ${turno.patient.apellido}`,
             email: turno.patient.email,
             motivo: turno.motivo,
             fechaTurno: new Date(turno.slot_datetime.slot_datetime),
           })
         );
-        */
 
-        // Simulación de datos de turnos (reemplazar con la llamada al backend)
-        const turnosData: Turno[] = [
-          {
-            id: 1,
-            nombre: "Juan Perez",
-            email: "juan@mail.com",
-            motivo: "Fiebre",
-            fechaTurno: new Date("2025-05-29T10:30:00"),
-          },
-          {
-            id: 2,
-            nombre: "Maria Gomez",
-            email: "maria@mail.com",
-            motivo: "Control",
-            fechaTurno: new Date("2025-05-29T11:00:00"),
-          },
-          {
-            id: 3,
-            nombre: "Carlos Rodríguez",
-            email: "carlos@mail.com",
-            motivo: "Dolor de cabeza",
-            fechaTurno: new Date("2025-05-28T09:00:00"),
-          },
-          {
-            id: 4,
-            nombre: "Lucía Fernández",
-            email: "lucia@mail.com",
-            motivo: "Chequeo general",
-            fechaTurno: new Date("2025-05-30T14:00:00"),
-          },
-          {
-            id: 5,
-            nombre: "Diego López",
-            email: "diego@mail.com",
-            motivo: "Vacunación",
-            fechaTurno: new Date("2025-05-27T08:30:00"),
-          },
-          {
-            id: 6,
-            nombre: "Ana Torres",
-            email: "ana@mail.com",
-            motivo: "Consulta",
-            fechaTurno: new Date("2025-05-29T12:00:00"),
-          },
-        ];
         setMisTurnos(turnosData);
         setTurnosBase(turnosData);
       } catch (error) {
@@ -107,12 +57,9 @@ export default function misTurnos() {
     const turnoCancelado = misTurnos.find((turno) => turno.id === id);
     if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
       if (turnoCancelado) {
-        // DESCOMENTAR AL IMPLEMENTAR CON BACK
-        /*
         await axios.patch(`http://localhost:3001/appointments/${id}/status`, {
           estado: 3, // Cambiar el estado del turno a cancelado
         });
-        */
 
         const nuevaLista = misTurnos.filter((turno) => turno.id !== id);
         setMisTurnos(nuevaLista);

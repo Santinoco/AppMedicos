@@ -1,15 +1,23 @@
-# Usa Node.js base image
-FROM node:18
+# Usamos Node 18 en versión ligera
+FROM node:18-alpine
 
-# Crea directorio de trabajo
+# Crear directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos y instala dependencias
+# Copiar package.json y package-lock.json (si existe)
 COPY package*.json ./
+
+# Instalar dependencias
 RUN npm install
 
+# Copiar todo el código al contenedor
 COPY . .
 
-# Expone el puerto y corre la app
-EXPOSE 3001
-CMD ["npm", "run", "start"]
+# Construir la app (opcional, para producción)
+# RUN npm run build
+
+# Exponer el puerto 3000
+EXPOSE 3000
+
+# Comando para arrancar en modo desarrollo
+CMD ["npm", "run", "dev"]

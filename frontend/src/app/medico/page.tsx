@@ -49,9 +49,7 @@ export default function MedicoDashboard() {
   });
 
   // Obtener el ID del usuario logueado
-  // REEMPLAZAR con getUserId() cuando esté implementado el back
-  // const userId = getUserId();
-  const userId = 1;
+  const userId = getUserId();
 
   useEffect(() => {
     const fetchUserById = async () => {
@@ -59,33 +57,10 @@ export default function MedicoDashboard() {
 
       try {
         // El backend retorna un objeto con los datos del médico
-        /* const responseMedico = await axios.get(
+        const responseMedico = await axios.get(
           `http://localhost:3001/doctors/${userId}`
         );
         const medicoData: BackMedico = responseMedico.data;
-        */
-
-        // Simulación de datos del médico (reemplazar con la llamada al backend)
-        // AGREGO JWT DE PRUEBA
-        const userData: BackUser = {
-          id: 1,
-          nombre: "TEST",
-          apellido: "Medico",
-          email: "test@mail.com",
-          password: "test123",
-          activo: true,
-          user_type_id: 2, // 2 = medico
-        };
-        // AGREGO JWT DE PRUEBA
-        const medicoData: BackMedico = {
-          user_id: 1,
-          user: userData,
-          specialty: "Cardiología",
-          shift_start: "08:00",
-          shift_end: "16:00",
-          license_number: 123456,
-          active: true,
-        };
 
         setMedico({
           nombre: `${medicoData.user.nombre} ${medicoData.user.apellido}`,
@@ -98,81 +73,10 @@ export default function MedicoDashboard() {
 
         try {
           // El backend retorna un objeto con los datos de los turnos del medico
-          /* const responseTurno = await axios.get(
+          const responseTurno = await axios.get(
             `http://localhost:3001/appointments/doctor/${userId}`
-            );
-            const turnoData: BackTurno = responseTurno.data;
-            */
-          // AGREGO JWT DE PRUEBA
-          const turnoData: BackTurno[] = [
-            {
-              id: 1,
-              slot_datetime: {
-                slot_id: 1,
-                slot_datetime: new Date("2025-05-29T10:30:00"),
-                appointments: [],
-              },
-              motivo: "Consulta general",
-              estado_id: 1,
-              doctor_id: {
-                user_id: 1,
-                user: {
-                  id: 1,
-                  nombre: "TEST",
-                  apellido: "Medico",
-                  email: "test@mail.com",
-                  password: "test123",
-                  activo: true,
-                  user_type_id: 2,
-                },
-                specialty: "Cardiología",
-                shift_start: "08:00",
-                shift_end: "16:00",
-                license_number: 123456,
-                active: true,
-              },
-              doctor: {
-                id: 1,
-                nombre: "TEST",
-                apellido: "Medico",
-                email: "test@mail.com",
-                password: "test123",
-                activo: true,
-                user_type_id: 2,
-              },
-              patient_id: {
-                user_id: 2,
-                user: {
-                  id: 2,
-                  nombre: "Paciente",
-                  apellido: "Test",
-                  email: "paciente@mail.com",
-                  password: "test123",
-                  activo: true,
-                  user_type_id: 5, // 5 = paciente
-                },
-                completed_consultations: 5,
-                health_insurance: "Salud S.A.",
-                medical_history: "Historia médica del paciente",
-                weight: 70,
-                height: 170,
-                blood_type: "O+",
-              },
-              patient: {
-                id: 2,
-                nombre: "Paciente",
-                apellido: "Test",
-                email: "paciente@mail.com",
-                password: "test123",
-                activo: true,
-                user_type_id: 5, // 5 = paciente
-              },
-              status: {
-                status_id: 1,
-                status: "Pendiente",
-              },
-            },
-          ];
+          );
+          const turnoData: BackTurno[] = responseTurno.data;
 
           const turnosOrdenados = turnoData.sort(
             (a, b) =>
@@ -182,30 +86,10 @@ export default function MedicoDashboard() {
 
           try {
             // Obtener datos del paciente del primer turno
-            /* const responsePaciente = await axios.get(
-              `http://localhost:3001/patients/${turnosOrdenados[0].patient_id}` 
+            const responsePaciente = await axios.get(
+              `http://localhost:3001/patients/${turnosOrdenados[0].patient_id}`
             );
             const pacienteData: BackPaciente = responsePaciente.data;
-            */
-            // AGREGO JWT DE PRUEBA
-            const pacienteData: BackPaciente = {
-              user_id: 2,
-              user: {
-                id: 2,
-                nombre: "Paciente",
-                apellido: "Test",
-                email: "paciente@mail.com",
-                password: "test123",
-                activo: true,
-                user_type_id: 5, // 5 = paciente
-              },
-              completed_consultations: 5,
-              health_insurance: "Salud S.A.",
-              medical_history: "Historia médica del paciente",
-              weight: 70,
-              height: 170,
-              blood_type: "O+",
-            };
 
             // Asignar el primer turno como "próximo turno"
             setTurno({

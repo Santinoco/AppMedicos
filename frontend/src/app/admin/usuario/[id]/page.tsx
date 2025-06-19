@@ -95,20 +95,10 @@ export default function AdminUserView() {
       try {
         // Obtener los datos del usuario por id
 
-        /*
         const usuarioResponse = await axios.get(
-          `http://localhost:3001/users/${idUsuario}`)
+          `http://localhost:3001/users/${idUsuario}`
+        );
         const usuarioData: BackUser = usuarioResponse.data;
-        */
-        const usuarioData: BackUser = {
-          id: 1,
-          nombre: "Juan",
-          apellido: "Perez",
-          email: "juan@mail.com",
-          password: "password123",
-          activo: true,
-          user_type_id: 2, // 1 = admin, 2 = medico, 5 = paciente
-        };
 
         setUsuario({
           id: usuarioData.id,
@@ -123,29 +113,10 @@ export default function AdminUserView() {
 
         if (usuarioData.user_type_id == 2) {
           try {
-            /*
             const medicoResponse = await axios.get(
               `http://localhost:3001/doctors/${usuarioData.id}`
             );
             const medicoData: BackMedico = medicoResponse.data;
-            */
-            const medicoData: BackMedico = {
-              user_id: 1,
-              user: {
-                id: 1,
-                nombre: "Juan",
-                apellido: "Perez",
-                email: "juan@mail.com",
-                password: "password123",
-                activo: true,
-                user_type_id: 2, // 1 = admin, 2 = medico, 5 = paciente
-              },
-              specialty: "Neurología",
-              shift_start: "12:00",
-              shift_end: "18:30",
-              license_number: 123456,
-              active: true,
-            };
 
             setMedico({
               especialidad: medicoData.specialty,
@@ -158,31 +129,10 @@ export default function AdminUserView() {
           }
         } else if (usuarioData.user_type_id == 5) {
           try {
-            /*
             const pacienteResponse = await axios.get(
               `http://localhost:3001/patients/${usuarioData.id}`
             );
             const pacienteData: BackPaciente = pacienteResponse.data;
-            */
-
-            const pacienteData: BackPaciente = {
-              user_id: 1,
-              user: {
-                id: 1,
-                nombre: "Juan",
-                apellido: "Perez",
-                email: "juan@mail.com",
-                password: "password123",
-                activo: true,
-                user_type_id: 2, // 1 = admin, 2 = medico, 5 = paciente
-              },
-              completed_consultations: 5,
-              health_insurance: "OSDE",
-              medical_history: "Sin antecedentes relevantes",
-              weight: 70,
-              height: 175,
-              blood_type: "O+",
-            };
 
             setPaciente({
               consultasCompletadas: pacienteData.completed_consultations,
@@ -205,7 +155,7 @@ export default function AdminUserView() {
           } else if (usuarioData.user_type_id === 5) {
             rutaUsuario = "patient";
           }
-          /*
+
           const turnosResponse = await axios.get(
             `http://localhost:3001/appointments/${rutaUsuario}/${idUsuario}`
           );
@@ -219,25 +169,6 @@ export default function AdminUserView() {
               estado: turno.status.status_id,
             })
           );
-          */
-          const turnosData: Turno[] = [
-            {
-              id: 1,
-              nombre: "Juan Perez",
-              email: "juan@mail.com",
-              motivo: "Fiebre",
-              fechaTurno: new Date("2025-05-29T10:30:00"),
-              estado: 1, // 1 Pendiente, 2 Completado, 3 Cancelado, 4 Reprogramado
-            },
-            {
-              id: 2,
-              nombre: "Maria Gomez",
-              email: "maria@mail.com",
-              motivo: "Control",
-              fechaTurno: new Date("2025-05-29T11:00:00"),
-              estado: 2, // 1 Pendiente, 2 Completado, 3 Cancelado, 4 Reprogramado
-            },
-          ];
 
           setTurnos(turnosData);
         } catch (error) {
@@ -250,15 +181,12 @@ export default function AdminUserView() {
     fetchTurnos();
   }, [idUsuario]);
 
-  const cancelarTurno = (id: number) => {
+  const cancelarTurno = async (id: number) => {
     const turnoCancelado = turnos.find((turno) => turno.id === id);
     if (turnoCancelado) {
-      // DESCOMENTAR AL IMPLEMENTAR CON BACK
-      /*
-        await axios.patch(`http://localhost:3001/appointments/${id}/status`, {
-          estado: 3, // Cambiar el estado del turno a cancelado
-        });
-        */
+      await axios.patch(`http://localhost:3001/appointments/${id}/status`, {
+        estado: 3, // Cambiar el estado del turno a cancelado
+      });
 
       const nuevaLista = turnos.filter((turno) => turno.id !== id);
       setTurnos(nuevaLista);
