@@ -62,6 +62,23 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-green-100 to-white p-8 font-sans">
+      {/* Botón para regresar */}
+      <button
+        onClick={() => router.push('/')}
+        className="self-start mb-6 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Volver al inicio
+      </button>
       <h1 className="text-3xl font-bold mb-6">Crear una cuenta</h1>
 
       {error && <div className="mb-4 text-red-600">{error}</div>}
