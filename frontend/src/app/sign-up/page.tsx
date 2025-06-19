@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // 👉 importar router
+import { useRouter } from 'next/navigation';
 
 export default function SignUp() {
-  const router = useRouter(); // 👉 inicializar router
+  const router = useRouter();
 
   const [role, setRole] = useState<'paciente' | 'medico'>('paciente');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
+  const [matricula, setMatricula] = useState(''); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -25,20 +26,25 @@ export default function SignUp() {
       return;
     }
 
+    // Validación extra: si es médico, debe ingresar matrícula
+    if (role === 'medico' && matricula.trim() === '') {
+      setError('Ingrese una matricula valida');
+      return;
+    }
+
     const data = {
       role,
       nombre,
       apellido,
       email,
       password,
+      ...(role === 'medico' && { matricula }), // solo incluir matrícula si es médico
     };
 
     try {
       const res = await fetch('/api/signup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
@@ -49,12 +55,9 @@ export default function SignUp() {
       }
 
       setSuccess('Registro exitoso! Redirigiendo...');
-
-      // Redirige al dashboard correspondiente
       setTimeout(() => {
         router.push(role === 'paciente' ? '/paciente' : '/medico');
-      }, 1000); // Esperar 1 segundo antes de redirigir
-
+      }, 1000);
     } catch (err) {
       setError('Error de conexión con el servidor.');
     }
@@ -62,6 +65,23 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-green-100 to-white p-8 font-sans">
+      <button
+        onClick={() => router.push('/')}
+        className="self-start mb-6 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Volver al inicio
+      </button>
+
       <h1 className="text-3xl font-bold mb-6">Crear una cuenta</h1>
 
       {error && <div className="mb-4 text-red-600">{error}</div>}
@@ -105,6 +125,19 @@ export default function SignUp() {
           required
           className="p-2 rounded border border-gray-300"
         />
+
+        {/* Mostrar solo si es médico */}
+        {role === 'medico' && (
+          <input
+            type="text"
+            placeholder="Matrícula"
+            value={matricula}
+            onChange={(e) => setMatricula(e.target.value)}
+            required
+            className="p-2 rounded border border-gray-300"
+          />
+        )}
+
         <input
           type="email"
           placeholder="Correo electrónico"

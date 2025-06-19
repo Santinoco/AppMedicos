@@ -9,7 +9,7 @@ export default function PacienteLayout({ children }: { children: React.ReactNode
   const pathname = usePathname();
 
   const links = [
-    { href: '/paciente', label: 'Inicio' },
+    { href: '/paciente', label: 'Inicio', exact: true },
     { href: '/paciente/mis-turnos', label: 'Mis turnos' },
     { href: '/paciente/listado-medicos', label: 'Cartilla de médicos' },
   ];
@@ -19,20 +19,36 @@ export default function PacienteLayout({ children }: { children: React.ReactNode
       <aside className="w-64 bg-white shadow-md p-6">
         <h2 className="text-2xl font-bold text-green-600 mb-6">Paciente</h2>
         <nav className="flex flex-col gap-2">
-          {links.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={clsx(
-                'py-2 px-3 rounded transition',
-                pathname === href
-                  ? 'bg-green-100 text-green-800 font-semibold'
-                  : 'text-green-700 hover:bg-green-200 hover:text-green-900'
-              )}
-            >
-              {label}
-            </Link>
-          ))}
+          {links.map(({ href, label, exact }) => {
+            const isActive = exact ? pathname === href : pathname.startsWith(`${href}`);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={clsx(
+                  'py-2 px-3 rounded transition',
+                  isActive
+                    ? 'bg-green-100 text-green-800 font-semibold'
+                    : 'text-green-700 hover:bg-green-200 hover:text-green-900'
+                )}
+              >
+                {label}
+              </Link>
+            );
+          })}
+
+          <Link
+            href="/"
+            className={clsx(
+              'py-2 px-3 rounded transition',
+              pathname === '/'
+                ? 'bg-green-100 text-green-800 font-semibold'
+                : 'text-green-700 hover:bg-green-200 hover:text-green-900'
+            )}
+            onClick={() => localStorage.removeItem('token')}
+          >
+            Cerrar sesión
+          </Link>
         </nav>
       </aside>
 
