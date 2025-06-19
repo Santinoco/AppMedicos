@@ -19,7 +19,7 @@ import { Calendar } from "src/calendar/entities/calendar.model";
       password: "admin",
       database: "appmedicos",
       entities: [User, Appointment, Doctor, Patient, Location, AppointmentStatus, UserType, Calendar], // Agregar cada nueva entidad acá
-      synchronize: true, // Tener cuidado con esto en producción porque puede borrar la info de la base de datos
+      synchronize: false, // Tener cuidado con esto en producción porque puede borrar la info de la base de datos
     }),
   ],
   exports: [TypeOrmModule],

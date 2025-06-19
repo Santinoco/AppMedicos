@@ -11,9 +11,11 @@ import {
   } from "@nestjs/common";
   import { PatientService } from "./patients.service";
   import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+  import { RolesGuard } from "src/auth/roles/roles.guard";
+import { Roles } from "src/auth/roles/roles.decorator";
   
   @Controller("patients")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   export class PatientController {
     constructor(private readonly patientService: PatientService) {}
   
@@ -42,6 +44,7 @@ import {
 
 
     @Delete(":user_id")
+    @Roles("administrator")
     async deletePatient(@Param("user_id", ParseIntPipe) user_id: number) {
       return this.patientService.deletePatient(user_id);
     }

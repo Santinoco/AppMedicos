@@ -64,4 +64,11 @@ export class UserService {
     return { message: `User deleted succesfully` };
   }
 
+  async findByEmailWithType(email: string) {
+    return this.userRepository.findOne({
+        where: { email },
+        relations: ['type'],
+    });
+}
+
 }
