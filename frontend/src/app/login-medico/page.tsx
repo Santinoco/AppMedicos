@@ -48,8 +48,26 @@ export default function LoginMedico() {
   };
 
   return (
-    <div className="flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+    <div className="relative min-h-screen flex items-center justify-center px-4 bg-gray-50">
+      <button
+        onClick={() => router.push('/')}
+        className="absolute top-4 left-4 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Volver al inicio
+      </button>
+
+  {/*caja inicio de sesion*/}
+      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md z-10">
         <h1 className="text-2xl font-bold text-center mb-4">Iniciar sesión</h1>
         <p className="text-center mb-6">Ingresá para administrar tu agenda y pacientes</p>
 
@@ -72,7 +90,7 @@ export default function LoginMedico() {
             onChange={(e) => setPassword(e.target.value)}
             className="p-3 rounded border border-gray-300 text-base"
           />
-          <button
+          <button onClick={() => router.push('/medico')}
             type="submit"
             className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded text-lg"
           >
