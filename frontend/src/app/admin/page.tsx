@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getUserId } from "../../services/userIdService";
+import axios from "axios";
+import { BackUser } from "../../types/backUser";
 
 interface Usuario {
   id: number;
@@ -15,33 +18,69 @@ interface Usuario {
 
 const usuariosInicial: Usuario[] = [
   {
-    id: 1,
-    nombre: "Juan",
-    apellido: "Perez",
-    email: "juan@mail.com",
-    activo: true,
-    tipo: 2, // 1 = admin, 2 = medico, 5 = paciente
-  },
-  {
-    id: 2,
-    nombre: "Maria",
-    apellido: "Perez",
-    email: "maria@mail.com",
+    id: 0,
+    nombre: "",
+    apellido: "",
+    email: "",
     activo: false,
-    tipo: 5, // 1 = admin, 2 = medico, 5 = paciente
+    tipo: 0, // 1 = admin, 2 = medico, 5 = paciente
   },
 ];
 
 export default function AdminDashboard() {
   const router = useRouter();
   const [usuarios, setUsuarios] = useState<Usuario[]>(usuariosInicial);
+  // REEMPLAZAR con getUserId() cuando esté implementado el back
+  // const userId = getUserId();
+  const userId = 1;
 
-  const eliminarUsuario = (idUsuario: number) => {
+  useEffect(() => {
+    const fetchUsuarios = async () => {
+      try {
+        /*
+        const responseUsuarios = await axios.get(`http://localhost:3001/users`);
+        const usuariosData: Usuario[] = responseUsuarios.data.map(
+          (usuario: BackUser) => ({
+            id: usuario.id,
+            nombre: usuario.nombre,
+            apellido: usuario.apellido,
+            email: usuario.email,
+            activo: usuario.activo,
+            tipo: usuario.user_type_id,
+          })
+        );
+        */
+        // Simulacion de datos de turnos (reemplazar con la llamada al backend)
+        const usuariosData: Usuario[] = [
+          {
+            id: 1,
+            nombre: "Juan",
+            apellido: "Perez",
+            email: "juan@mail.com",
+            activo: true,
+            tipo: 2, // 1 = admin, 2 = medico, 5 = paciente
+          },
+          {
+            id: 2,
+            nombre: "Maria",
+            apellido: "Perez",
+            email: "maria@mail.com",
+            activo: false,
+            tipo: 5, // 1 = admin, 2 = medico, 5 = paciente
+          },
+        ];
+        setUsuarios(usuariosData);
+      } catch (error) {
+        console.error("Error al obtener los usuarios:", error);
+      }
+    };
+    fetchUsuarios();
+  }, [userId]);
+  const eliminarUsuario = async (idUsuario: number) => {
     // Implementar la lógica para eliminar el usuario.
     // Por ahora, solo mostramos un mensaje de confirmación.
     if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-      // Implementar llamada a la API para eliminar el usuario
-
+      await axios.delete(`http://localhost:3001/users/${idUsuario}`);
       // Modificacion visual de la lista de usuarios local
       const nuevaListaUsuarios = usuarios.filter(
         (usuario) => usuario.id !== idUsuario
