@@ -41,8 +41,7 @@ export class AuthService {
     }
 
     async login(loginDto: LoginAuthDto) {
-        const users = await this.usersService.getAllUsers();
-        const user = users.find(user => user.email === loginDto.email);
+        const user = await this.usersService.findByEmailWithType(loginDto.email);
         if(!user) {
             throw new UnauthorizedException('Credenciales invalidas');
         }
