@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
+import { BackUser } from "../../../../types/backUser";
+import { BackMedico } from "../../../../types/backMedico";
+import { BackPaciente } from "../../../../types/backPaciente";
+import { BackTurno } from "../../../../types/backTurno";
 
 interface Usuario {
   id: number;
@@ -24,7 +29,7 @@ interface Turno {
 interface Medico {
   especialidad: string;
   numeroMatricula: number;
-  turnos: Turno[];
+
   comienzoJornada: string;
   finJornada: string;
 }
@@ -36,35 +41,43 @@ interface Paciente {
   peso: number;
   altura: number;
   tipoSangre: String;
-  turnos: Turno[];
 }
 
-const usuario: Usuario = {
-  id: 1,
-  nombre: "Juan",
-  apellido: "Perez",
-  email: "juan@mail.com",
-  activo: true,
-  tipo: 2, // 1 = admin, 2 = medico, 5 = paciente
+const usuarioInicial: Usuario = {
+  id: 0,
+  nombre: "",
+  apellido: "",
+  email: "",
+  activo: false,
+  tipo: 0, // 1 = admin, 2 = medico, 5 = paciente
 };
 
-const medico: Medico = {
-  especialidad: "Neurología",
-  numeroMatricula: 123456,
-  turnos: [],
-  comienzoJornada: "12:00",
-  finJornada: "18:30",
+const medicoInicial: Medico = {
+  especialidad: "",
+  numeroMatricula: 0,
+  comienzoJornada: "",
+  finJornada: "",
 };
 
-const paciente: Paciente = {
-  consultasCompletadas: 5,
-  seguroMedico: "OSDE",
-  historialMedico: "Sin antecedentes relevantes",
-  peso: 70,
-  altura: 175,
-  tipoSangre: "O+",
-  turnos: [],
+const pacienteInicial: Paciente = {
+  consultasCompletadas: 0,
+  seguroMedico: "",
+  historialMedico: "",
+  peso: 0,
+  altura: 0,
+  tipoSangre: "",
 };
+
+const turnosInicial: Turno[] = [
+  {
+    id: 2,
+    nombre: "",
+    email: "",
+    motivo: "",
+    fechaTurno: new Date("1000-01-01T11:00:00"),
+    estado: 0, // 1 Pendiente, 2 Completado, 3 Cancelado, 4 Reprogramado
+  },
+];
 
 export default function AdminUserView() {
   const router = useRouter();
@@ -72,30 +85,181 @@ export default function AdminUserView() {
   const params = useParams();
   const idUsuario = params.id;
 
-  const [turnos, setTurnos] = useState<Turno[]>([
-    {
-      id: 1,
-      nombre: "Juan Perez",
-      email: "juan@mail.com",
-      motivo: "Fiebre",
-      fechaTurno: new Date("2025-05-29T10:30:00"),
-      estado: 1, // 1 Pendiente, 2 Completado, 3 Cancelado, 4 Reprogramado
-    },
-    {
-      id: 2,
-      nombre: "Maria Gomez",
-      email: "maria@mail.com",
-      motivo: "Control",
-      fechaTurno: new Date("2025-05-29T11:00:00"),
-      estado: 2, // 1 Pendiente, 2 Completado, 3 Cancelado, 4 Reprogramado
-    },
-  ]);
+  const [usuario, setUsuario] = useState<Usuario>(usuarioInicial);
+  const [medico, setMedico] = useState<Medico>(medicoInicial);
+  const [paciente, setPaciente] = useState<Paciente>(pacienteInicial);
+  const [turnos, setTurnos] = useState<Turno[]>(turnosInicial);
+
+  useEffect(() => {
+    const fetchTurnos = async () => {
+      try {
+        // Obtener los datos del usuario por id
+
+        /*
+        const usuarioResponse = await axios.get(
+          `http://localhost:3001/users/${idUsuario}`)
+        const usuarioData: BackUser = usuarioResponse.data;
+        */
+        const usuarioData: BackUser = {
+          id: 1,
+          nombre: "Juan",
+          apellido: "Perez",
+          email: "juan@mail.com",
+          password: "password123",
+          activo: true,
+          user_type_id: 2, // 1 = admin, 2 = medico, 5 = paciente
+        };
+
+        setUsuario({
+          id: usuarioData.id,
+          nombre: usuarioData.nombre,
+          apellido: usuarioData.apellido,
+          email: usuarioData.email,
+          activo: usuarioData.activo,
+          tipo: usuarioData.user_type_id,
+        });
+
+        // Obtener los datos del médico o paciente según el tipo de usuario
+
+        if (usuarioData.user_type_id == 2) {
+          try {
+            /*
+            const medicoResponse = await axios.get(
+              `http://localhost:3001/doctors/${usuarioData.id}`
+            );
+            const medicoData: BackMedico = medicoResponse.data;
+            */
+            const medicoData: BackMedico = {
+              user_id: 1,
+              user: {
+                id: 1,
+                nombre: "Juan",
+                apellido: "Perez",
+                email: "juan@mail.com",
+                password: "password123",
+                activo: true,
+                user_type_id: 2, // 1 = admin, 2 = medico, 5 = paciente
+              },
+              specialty: "Neurología",
+              shift_start: "12:00",
+              shift_end: "18:30",
+              license_number: 123456,
+              active: true,
+            };
+
+            setMedico({
+              especialidad: medicoData.specialty,
+              numeroMatricula: medicoData.license_number,
+              comienzoJornada: medicoData.shift_start,
+              finJornada: medicoData.shift_end,
+            });
+          } catch (error) {
+            console.error("Error al obtener los datos del médico:", error);
+          }
+        } else if (usuarioData.user_type_id == 5) {
+          try {
+            /*
+            const pacienteResponse = await axios.get(
+              `http://localhost:3001/patients/${usuarioData.id}`
+            );
+            const pacienteData: BackPaciente = pacienteResponse.data;
+            */
+
+            const pacienteData: BackPaciente = {
+              user_id: 1,
+              user: {
+                id: 1,
+                nombre: "Juan",
+                apellido: "Perez",
+                email: "juan@mail.com",
+                password: "password123",
+                activo: true,
+                user_type_id: 2, // 1 = admin, 2 = medico, 5 = paciente
+              },
+              completed_consultations: 5,
+              health_insurance: "OSDE",
+              medical_history: "Sin antecedentes relevantes",
+              weight: 70,
+              height: 175,
+              blood_type: "O+",
+            };
+
+            setPaciente({
+              consultasCompletadas: pacienteData.completed_consultations,
+              seguroMedico: pacienteData.health_insurance,
+              historialMedico: pacienteData.medical_history,
+              peso: pacienteData.weight,
+              altura: pacienteData.height,
+              tipoSangre: pacienteData.blood_type,
+            });
+          } catch (error) {
+            console.error("Error al obtener los datos del paciente:", error);
+          }
+        }
+
+        // Obtener los turnos del usuario
+        try {
+          let rutaUsuario: string = "";
+          if (usuarioData.user_type_id === 2) {
+            rutaUsuario = "doctor";
+          } else if (usuarioData.user_type_id === 5) {
+            rutaUsuario = "patient";
+          }
+          /*
+          const turnosResponse = await axios.get(
+            `http://localhost:3001/appointments/${rutaUsuario}/${idUsuario}`
+          );
+          const turnosData: Turno[] = turnosResponse.data.map(
+            (turno: BackTurno) => ({
+              id: turno.id,
+              nombre: `${turno.patient.nombre} ${turno.patient.apellido}`,
+              email: turno.patient.email,
+              motivo: turno.motivo,
+              fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+              estado: turno.status.status_id,
+            })
+          );
+          */
+          const turnosData: Turno[] = [
+            {
+              id: 1,
+              nombre: "Juan Perez",
+              email: "juan@mail.com",
+              motivo: "Fiebre",
+              fechaTurno: new Date("2025-05-29T10:30:00"),
+              estado: 1, // 1 Pendiente, 2 Completado, 3 Cancelado, 4 Reprogramado
+            },
+            {
+              id: 2,
+              nombre: "Maria Gomez",
+              email: "maria@mail.com",
+              motivo: "Control",
+              fechaTurno: new Date("2025-05-29T11:00:00"),
+              estado: 2, // 1 Pendiente, 2 Completado, 3 Cancelado, 4 Reprogramado
+            },
+          ];
+
+          setTurnos(turnosData);
+        } catch (error) {
+          console.error("Error al obtener los turnos del usuario:", error);
+        }
+      } catch (error) {
+        console.error("Error al obtener los turnos:", error);
+      }
+    };
+    fetchTurnos();
+  }, [idUsuario]);
 
   const cancelarTurno = (id: number) => {
     const turnoCancelado = turnos.find((turno) => turno.id === id);
-    //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del usuario
-    //por ahora solo actualizo el estado local
     if (turnoCancelado) {
+      // DESCOMENTAR AL IMPLEMENTAR CON BACK
+      /*
+        await axios.patch(`http://localhost:3001/appointments/${id}/status`, {
+          estado: 3, // Cambiar el estado del turno a cancelado
+        });
+        */
+
       const nuevaLista = turnos.filter((turno) => turno.id !== id);
       setTurnos(nuevaLista);
     }
