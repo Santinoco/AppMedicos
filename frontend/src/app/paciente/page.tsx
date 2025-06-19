@@ -58,7 +58,7 @@ export default function PacienteInicio() {
 
         {/* Botón sacar turno */}
         <button
-          onClick={() => window.location.href = '/paciente/nuevo-turno'}
+          onClick={() => window.location.href = '/paciente/mis-turnos/nuevo-turno'}
           className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
         >
           + Sacar nuevo turno

@@ -9,7 +9,7 @@ export default function SignUp() {
   const [role, setRole] = useState<'paciente' | 'medico'>('paciente');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
-  const [matricula, setMatricula] = useState(''); // 🆕 nuevo campo
+  const [matricula, setMatricula] = useState(''); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -28,7 +28,7 @@ export default function SignUp() {
 
     // Validación extra: si es médico, debe ingresar matrícula
     if (role === 'medico' && matricula.trim() === '') {
-      setError('La matrícula es obligatoria para médicos');
+      setError('Ingrese una matricula valida');
       return;
     }
 
