@@ -72,6 +72,12 @@ let UserService = class UserService {
         }
         return { message: `User deleted succesfully` };
     }
+    async findByEmailWithType(email) {
+        return this.userRepository.findOne({
+            where: { email },
+            relations: ['type'],
+        });
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

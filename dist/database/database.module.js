@@ -31,7 +31,7 @@ exports.DatabaseModule = DatabaseModule = __decorate([
                 password: "admin",
                 database: "appmedicos",
                 entities: [user_model_1.User, appointment_model_1.Appointment, doctor_model_1.Doctor, patient_model_1.Patient, location_model_1.Location, appointment_status_model_1.AppointmentStatus, user_type_model_1.UserType, calendar_model_1.Calendar],
-                synchronize: true,
+                synchronize: false,
             }),
         ],
         exports: [typeorm_1.TypeOrmModule],

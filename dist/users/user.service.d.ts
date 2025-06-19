@@ -18,4 +18,5 @@ export declare class UserService {
     deleteUser(id: number): Promise<{
         message: string;
     }>;
+    findByEmailWithType(email: string): Promise<User | null>;
 }

@@ -16,6 +16,8 @@ exports.PatientController = void 0;
 const common_1 = require("@nestjs/common");
 const patients_service_1 = require("./patients.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/roles/roles.guard");
+const roles_decorator_1 = require("../auth/roles/roles.decorator");
 let PatientController = class PatientController {
     patientService;
     constructor(patientService) {
@@ -68,6 +70,7 @@ __decorate([
 ], PatientController.prototype, "updatePatient", null);
 __decorate([
     (0, common_1.Delete)(":user_id"),
+    (0, roles_decorator_1.Roles)("administrator"),
     __param(0, (0, common_1.Param)("user_id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -75,7 +78,7 @@ __decorate([
 ], PatientController.prototype, "deletePatient", null);
 exports.PatientController = PatientController = __decorate([
     (0, common_1.Controller)("patients"),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [patients_service_1.PatientService])
 ], PatientController);
 //# sourceMappingURL=patients.controller.js.map
