@@ -8,4 +8,5 @@ export declare class AppointmentsController {
     updateStatus(id: number, newStatus: number): Promise<import("./entities/appointment.model").Appointment | null>;
     getAppointmentsByDoctorId(doctor_id: number): Promise<import("./entities/appointment.model").Appointment[]>;
     getAppointmentsByPatientId(patient_id: number): Promise<import("./entities/appointment.model").Appointment[]>;
+    deleteAppointment(id: number): Promise<string>;
 }

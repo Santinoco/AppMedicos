@@ -17,12 +17,13 @@ const patient_model_1 = require("../patients/entities/patient.model");
 const doctors_service_1 = require("../doctors/doctors.service");
 const patients_service_1 = require("../patients/patients.service");
 const auth_module_1 = require("../auth/auth.module");
+const appointment_model_1 = require("../appointments/entities/appointment.model");
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
 exports.UsersModule = UsersModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([user_model_1.User, doctor_model_1.Doctor, patient_model_1.Patient]), (0, common_1.forwardRef)(() => auth_module_1.AuthModule)],
+        imports: [typeorm_1.TypeOrmModule.forFeature([user_model_1.User, doctor_model_1.Doctor, patient_model_1.Patient, appointment_model_1.Appointment]), (0, common_1.forwardRef)(() => auth_module_1.AuthModule)],
         controllers: [users_controller_1.UsersController],
         providers: [user_service_1.UserService, doctors_service_1.DoctorsService, patients_service_1.PatientService],
         exports: [user_service_1.UserService],

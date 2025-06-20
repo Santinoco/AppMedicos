@@ -15,6 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserTypeController = void 0;
 const common_1 = require("@nestjs/common");
 const user_type_service_1 = require("./user-type.service");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/roles/roles.guard");
+const roles_decorator_1 = require("../auth/roles/roles.decorator");
 let UserTypeController = class UserTypeController {
     userTypeService;
     constructor(userTypeService) {
@@ -74,6 +77,8 @@ __decorate([
 ], UserTypeController.prototype, "remove", null);
 exports.UserTypeController = UserTypeController = __decorate([
     (0, common_1.Controller)('user-type'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('administrator'),
     __metadata("design:paramtypes", [user_type_service_1.UserTypeService])
 ], UserTypeController);
 //# sourceMappingURL=user-type.controller.js.map

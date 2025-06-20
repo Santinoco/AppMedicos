@@ -15,6 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppointmentStatusController = void 0;
 const common_1 = require("@nestjs/common");
 const appointment_status_service_1 = require("./appointment-status.service");
+const roles_guard_1 = require("../auth/roles/roles.guard");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_decorator_1 = require("../auth/roles/roles.decorator");
 let AppointmentStatusController = class AppointmentStatusController {
     statusService;
     constructor(statusService) {
@@ -53,6 +56,8 @@ __decorate([
 ], AppointmentStatusController.prototype, "createStatus", null);
 exports.AppointmentStatusController = AppointmentStatusController = __decorate([
     (0, common_1.Controller)("appointment-statuses"),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)("administrator"),
     __metadata("design:paramtypes", [appointment_status_service_1.AppointmentStatusService])
 ], AppointmentStatusController);
 //# sourceMappingURL=appointment-status.controller.js.map

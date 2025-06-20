@@ -95,6 +95,14 @@ let AppointmentsService = class AppointmentsService {
             },
         });
     }
+    async deleteAppointment(id) {
+        const appointment = await this.appointmentRepository.findOne({ where: { id } });
+        if (!appointment) {
+            throw new common_1.NotFoundException(`Cita con ID ${id} no encontrada`);
+        }
+        await this.appointmentRepository.remove(appointment);
+        return "Turno eliminado correctamente";
+    }
 };
 exports.AppointmentsService = AppointmentsService;
 exports.AppointmentsService = AppointmentsService = __decorate([

@@ -14,12 +14,13 @@ const typeorm_1 = require("@nestjs/typeorm");
 const doctor_model_1 = require("./entities/doctor.model");
 const user_model_1 = require("../users/entities/user.model");
 const auth_module_1 = require("../auth/auth.module");
+const appointment_model_1 = require("../appointments/entities/appointment.model");
 let DoctorModule = class DoctorModule {
 };
 exports.DoctorModule = DoctorModule;
 exports.DoctorModule = DoctorModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([doctor_model_1.Doctor, user_model_1.User]), auth_module_1.AuthModule],
+        imports: [typeorm_1.TypeOrmModule.forFeature([doctor_model_1.Doctor, user_model_1.User, appointment_model_1.Appointment]), auth_module_1.AuthModule],
         controllers: [doctors_controller_1.DoctorsController],
         providers: [doctors_service_1.DoctorsService],
         exports: [doctors_service_1.DoctorsService],

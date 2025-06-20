@@ -1,8 +1,10 @@
 import { Repository } from "typeorm";
 import { Patient } from "./entities/patient.model";
+import { Appointment } from "src/appointments/entities/appointment.model";
 export declare class PatientService {
     private patientRepository;
-    constructor(patientRepository: Repository<Patient>);
+    private appointmentRepository;
+    constructor(patientRepository: Repository<Patient>, appointmentRepository: Repository<Appointment>);
     getAllPatients(): Promise<Patient[]>;
     getPatientById(user_id: number): Promise<Patient | null>;
     createPatient(patientData: any): Promise<Patient[]>;

@@ -12,12 +12,13 @@ const typeorm_1 = require("@nestjs/typeorm");
 const appointment_status_model_1 = require("./entities/appointment-status.model");
 const appointment_status_controller_1 = require("./appointment-status.controller");
 const appointment_status_service_1 = require("./appointment-status.service");
+const auth_module_1 = require("../auth/auth.module");
 let AppointmentStatusModule = class AppointmentStatusModule {
 };
 exports.AppointmentStatusModule = AppointmentStatusModule;
 exports.AppointmentStatusModule = AppointmentStatusModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([appointment_status_model_1.AppointmentStatus])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([appointment_status_model_1.AppointmentStatus]), auth_module_1.AuthModule],
         controllers: [appointment_status_controller_1.AppointmentStatusController],
         providers: [appointment_status_service_1.AppointmentStatusService],
         exports: [appointment_status_service_1.AppointmentStatusService],

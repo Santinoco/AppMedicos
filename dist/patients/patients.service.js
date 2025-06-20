@@ -17,10 +17,13 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const patient_model_1 = require("./entities/patient.model");
+const appointment_model_1 = require("../appointments/entities/appointment.model");
 let PatientService = class PatientService {
     patientRepository;
-    constructor(patientRepository) {
+    appointmentRepository;
+    constructor(patientRepository, appointmentRepository) {
         this.patientRepository = patientRepository;
+        this.appointmentRepository = appointmentRepository;
     }
     async getAllPatients() {
         return this.patientRepository.find({ relations: ["user"] });
@@ -48,14 +51,17 @@ let PatientService = class PatientService {
         if (!patient) {
             throw new common_1.NotFoundException(`Patient with user_id ${user_id} not found`);
         }
-        await this.patientRepository.delete(user_id);
-        return { message: "Patient deleted successfully" };
+        await this.appointmentRepository.delete({ patient: { user_id } });
+        await this.patientRepository.delete({ user_id });
+        return { message: "Patient and related appointments deleted successfully" };
     }
 };
 exports.PatientService = PatientService;
 exports.PatientService = PatientService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(patient_model_1.Patient)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(appointment_model_1.Appointment)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], PatientService);
 //# sourceMappingURL=patients.service.js.map

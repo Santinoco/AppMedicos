@@ -16,6 +16,8 @@ exports.AppointmentsController = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const appointments_service_1 = require("./appointments.service");
+const roles_guard_1 = require("../auth/roles/roles.guard");
+const roles_decorator_1 = require("../auth/roles/roles.decorator");
 let AppointmentsController = class AppointmentsController {
     appointmentsService;
     constructor(appointmentsService) {
@@ -38,6 +40,9 @@ let AppointmentsController = class AppointmentsController {
     }
     async getAppointmentsByPatientId(patient_id) {
         return this.appointmentsService.findByPatientId(patient_id);
+    }
+    async deleteAppointment(id) {
+        return this.appointmentsService.deleteAppointment(id);
     }
 };
 exports.AppointmentsController = AppointmentsController;
@@ -83,9 +88,17 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "getAppointmentsByPatientId", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, roles_decorator_1.Roles)("administrator"),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AppointmentsController.prototype, "deleteAppointment", null);
 exports.AppointmentsController = AppointmentsController = __decorate([
     (0, common_1.Controller)("appointments"),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [appointments_service_1.AppointmentsService])
 ], AppointmentsController);
 //# sourceMappingURL=appointments.controller.js.map

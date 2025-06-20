@@ -16,6 +16,8 @@ exports.LocationController = void 0;
 const common_1 = require("@nestjs/common");
 const locations_service_1 = require("./locations.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../auth/roles/roles.guard");
+const roles_decorator_1 = require("../auth/roles/roles.decorator");
 let LocationController = class LocationController {
     locationService;
     constructor(locationService) {
@@ -60,6 +62,7 @@ __decorate([
 ], LocationController.prototype, "createLocation", null);
 __decorate([
     (0, common_1.Delete)(':location_id'),
+    (0, roles_decorator_1.Roles)("administrator"),
     __param(0, (0, common_1.Param)('location_id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -75,7 +78,7 @@ __decorate([
 ], LocationController.prototype, "updateLocation", null);
 exports.LocationController = LocationController = __decorate([
     (0, common_1.Controller)("locations"),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [locations_service_1.LocationService])
 ], LocationController);
 //# sourceMappingURL=locations.controller.js.map

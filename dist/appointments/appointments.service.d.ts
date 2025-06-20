@@ -14,4 +14,5 @@ export declare class AppointmentsService {
     updateAppointmentStatus(id: number, newStatus: number): Promise<Appointment | null>;
     findByDoctorId(doctorUserId: number): Promise<Appointment[]>;
     findByPatientId(patientUserId: number): Promise<Appointment[]>;
+    deleteAppointment(id: number): Promise<string>;
 }
