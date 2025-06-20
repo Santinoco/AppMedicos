@@ -23,7 +23,7 @@ let AppointmentStatusService = class AppointmentStatusService {
         this.appointmentStatusRepository = appointmentStatusRepository;
     }
     async getAllStatuses() {
-        return this.appointmentStatusRepository.find();
+        return this.appointmentStatusRepository.find({ order: { status_id: "ASC" } });
     }
     async getStatusById(status_id) {
         return this.appointmentStatusRepository.findOne({ where: { status_id } });

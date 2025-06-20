@@ -24,8 +24,8 @@ export class CalendarService {
     const endDate = new Date();
     endDate.setMonth(endDate.getMonth() + 3);
 
-    const startHour = 7;
-    const endHour = 16;
+    const startHour = 10;
+    const endHour = 20;
     const intervalMinutes = 30;
 
     const slots: Date[] = [];
@@ -59,7 +59,7 @@ export class CalendarService {
       return slot;
     });
 
-    await this.slotRepository.upsert(slotEntities, ['slot_datetime']); // evita duplicados
+    await this.slotRepository.upsert(slotEntities, ['slot_datetime']); 
   }
 
   async getSlots(): Promise<Calendar[]> {
@@ -83,8 +83,8 @@ export class CalendarService {
     const doctor = await this.doctorRepository.findOne({ where: { user_id: doctorUserId } });
     if (!doctor) throw new NotFoundException('Doctor not found');
   
-    const shiftStart = doctor.shift_start; // "10:00"
-    const shiftEnd = doctor.shift_end;     // "19:00"
+    const shiftStart = doctor.shift_start; 
+    const shiftEnd = doctor.shift_end;     
     const notIn = occupiedSlotIds.length > 0 ? occupiedSlotIds : [0];
   
     const qb = this.slotRepository

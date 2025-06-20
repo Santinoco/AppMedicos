@@ -36,7 +36,7 @@ let AppointmentsService = class AppointmentsService {
                 'doctor_id',
                 'doctor.user',
                 'status',
-            ]
+            ], order: { id: "ASC" }
         });
     }
     async getAppointmentById(id) {

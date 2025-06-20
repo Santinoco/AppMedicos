@@ -26,7 +26,7 @@ let DoctorsService = class DoctorsService {
         this.appointmentRepository = appointmentRepository;
     }
     async getAllDoctors() {
-        return this.doctorRepository.find({ relations: ["user"] });
+        return this.doctorRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
     }
     async getDoctorById(user_id) {
         return this.doctorRepository.findOne({
