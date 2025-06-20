@@ -35,7 +35,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        const responseUsuarios = await axios.get(`http://localhost:3001/users`);
+        const responseUsuarios = await axios.get(`http://localhost:3000/users`);
         const usuariosData: Usuario[] = responseUsuarios.data.map(
           (usuario: BackUser) => ({
             id: usuario.id,
@@ -56,7 +56,7 @@ export default function AdminDashboard() {
   }, [userId]);
   const eliminarUsuario = async (idUsuario: number) => {
     if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-      await axios.delete(`http://localhost:3001/users/${idUsuario}`);
+      await axios.delete(`http://localhost:3000/users/${idUsuario}`);
       // Modificacion visual de la lista de usuarios local
       const nuevaListaUsuarios = usuarios.filter(
         (usuario) => usuario.id !== idUsuario

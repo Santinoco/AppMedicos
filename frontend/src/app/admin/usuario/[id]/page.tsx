@@ -96,7 +96,7 @@ export default function AdminUserView() {
         // Obtener los datos del usuario por id
 
         const usuarioResponse = await axios.get(
-          `http://localhost:3001/users/${idUsuario}`
+          `http://localhost:3000/users/${idUsuario}`
         );
         const usuarioData: BackUser = usuarioResponse.data;
 
@@ -114,7 +114,7 @@ export default function AdminUserView() {
         if (usuarioData.user_type_id == 2) {
           try {
             const medicoResponse = await axios.get(
-              `http://localhost:3001/doctors/${usuarioData.id}`
+              `http://localhost:3000/doctors/${usuarioData.id}`
             );
             const medicoData: BackMedico = medicoResponse.data;
 
@@ -130,7 +130,7 @@ export default function AdminUserView() {
         } else if (usuarioData.user_type_id == 5) {
           try {
             const pacienteResponse = await axios.get(
-              `http://localhost:3001/patients/${usuarioData.id}`
+              `http://localhost:3000/patients/${usuarioData.id}`
             );
             const pacienteData: BackPaciente = pacienteResponse.data;
 
@@ -157,7 +157,7 @@ export default function AdminUserView() {
           }
 
           const turnosResponse = await axios.get(
-            `http://localhost:3001/appointments/${rutaUsuario}/${idUsuario}`
+            `http://localhost:3000/appointments/${rutaUsuario}/${idUsuario}`
           );
           const turnosData: Turno[] = turnosResponse.data.map(
             (turno: BackTurno) => ({
@@ -184,7 +184,7 @@ export default function AdminUserView() {
   const cancelarTurno = async (id: number) => {
     const turnoCancelado = turnos.find((turno) => turno.id === id);
     if (turnoCancelado) {
-      await axios.patch(`http://localhost:3001/appointments/${id}/status`, {
+      await axios.patch(`http://localhost:3000/appointments/${id}/status`, {
         estado: 3, // Cambiar el estado del turno a cancelado
       });
 
