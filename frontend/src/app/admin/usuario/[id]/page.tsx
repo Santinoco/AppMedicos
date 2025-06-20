@@ -7,15 +7,7 @@ import { BackUser } from "../../../../types/backUser";
 import { BackMedico } from "../../../../types/backMedico";
 import { BackPaciente } from "../../../../types/backPaciente";
 import { BackTurno } from "../../../../types/backTurno";
-
-interface Usuario {
-  id: number;
-  nombre: string;
-  apellido: string;
-  email: string;
-  activo: boolean;
-  tipo: number;
-}
+import { Usuario } from "../../../../types/Usuario";
 
 interface Turno {
   id: number;
@@ -29,7 +21,6 @@ interface Turno {
 interface Medico {
   especialidad: string;
   numeroMatricula: number;
-
   comienzoJornada: string;
   finJornada: string;
 }
@@ -92,11 +83,15 @@ export default function AdminUserView() {
 
   useEffect(() => {
     const fetchTurnos = async () => {
+      const token = localStorage.getItem("access_token");
       try {
         // Obtener los datos del usuario por id
 
         const usuarioResponse = await axios.get(
-          `http://localhost:3001/users/${idUsuario}`
+          `http://localhost:3000/users/${idUsuario}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
         const usuarioData: BackUser = usuarioResponse.data;
 
@@ -114,7 +109,10 @@ export default function AdminUserView() {
         if (usuarioData.user_type_id == 2) {
           try {
             const medicoResponse = await axios.get(
-              `http://localhost:3001/doctors/${usuarioData.id}`
+              `http://localhost:3000/doctors/${usuarioData.id}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
             );
             const medicoData: BackMedico = medicoResponse.data;
 
@@ -130,7 +128,10 @@ export default function AdminUserView() {
         } else if (usuarioData.user_type_id == 5) {
           try {
             const pacienteResponse = await axios.get(
-              `http://localhost:3001/patients/${usuarioData.id}`
+              `http://localhost:3000/patients/${usuarioData.id}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
             );
             const pacienteData: BackPaciente = pacienteResponse.data;
 
@@ -157,7 +158,10 @@ export default function AdminUserView() {
           }
 
           const turnosResponse = await axios.get(
-            `http://localhost:3001/appointments/${rutaUsuario}/${idUsuario}`
+            `http://localhost:3000/appointments/${rutaUsuario}/${idUsuario}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
           );
           const turnosData: Turno[] = turnosResponse.data.map(
             (turno: BackTurno) => ({
@@ -175,7 +179,7 @@ export default function AdminUserView() {
           console.error("Error al obtener los turnos del usuario:", error);
         }
       } catch (error) {
-        console.error("Error al obtener los turnos:", error);
+        console.error("Error al obtener los datos del usuario:", error);
       }
     };
     fetchTurnos();
@@ -183,13 +187,28 @@ export default function AdminUserView() {
 
   const cancelarTurno = async (id: number) => {
     const turnoCancelado = turnos.find((turno) => turno.id === id);
-    if (turnoCancelado) {
-      await axios.patch(`http://localhost:3001/appointments/${id}/status`, {
-        estado: 3, // Cambiar el estado del turno a cancelado
-      });
+    if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
+      if (turnoCancelado) {
+        const token = localStorage.getItem("access_token");
+        try {
+          await axios.patch(
+            `http://localhost:3000/appointments/${id}/status`,
+            {
+              estado: 3, // Cambiar el estado del turno a cancelado
+            },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-      const nuevaLista = turnos.filter((turno) => turno.id !== id);
-      setTurnos(nuevaLista);
+          const nuevaLista = turnos.filter((turno) => turno.id !== id);
+          setTurnos(nuevaLista);
+          alert(`Turno con ID ${id} cancelado.`);
+        } catch (error) {
+          console.error("Error al cancelar el turno:", error);
+          alert("No se pudo cancelar el turno. Inténtalo más tarde.");
+        }
+      }
     }
   };
 

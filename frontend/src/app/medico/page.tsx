@@ -2,19 +2,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { BackUser } from "../../types/backUser";
 import { BackMedico } from "../../types/backMedico";
 import { BackPaciente } from "../../types/backPaciente";
 import { BackTurno } from "../../types/backTurno";
 import { getUserId } from "../../services/userIdService";
-
-interface Turno {
-  id: number;
-  nombre: string;
-  email: string;
-  motivo: string;
-  fechaTurno: Date;
-}
+import { Turno } from "../../types/Turno";
 
 interface Medico {
   nombre: String;
@@ -55,14 +47,14 @@ export default function MedicoDashboard() {
     const fetchUserById = async () => {
       if (!userId) return;
 
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem("access_token");
 
       try {
         // El backend retorna un objeto con los datos del médico
         const responseMedico = await axios.get(
-          `http://localhost:3000/doctors/${userId}`, 
+          `http://localhost:3000/doctors/${userId}`,
           {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
         const medicoData: BackMedico = responseMedico.data;
@@ -81,7 +73,7 @@ export default function MedicoDashboard() {
           const responseTurno = await axios.get(
             `http://localhost:3000/appointments/doctor/${userId}`,
             {
-              headers: { Authorization: `Bearer ${token}` }
+              headers: { Authorization: `Bearer ${token}` },
             }
           );
           const turnoData: BackTurno[] = responseTurno.data;
@@ -97,7 +89,7 @@ export default function MedicoDashboard() {
             const responsePaciente = await axios.get(
               `http://localhost:3000/patients/${turnosOrdenados[0].patient_id}`,
               {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
               }
             );
             const pacienteData: BackPaciente = responsePaciente.data;

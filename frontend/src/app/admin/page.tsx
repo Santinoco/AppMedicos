@@ -6,15 +6,7 @@ import { useRouter } from "next/navigation";
 import { getUserId } from "../../services/userIdService";
 import axios from "axios";
 import { BackUser } from "../../types/backUser";
-
-interface Usuario {
-  id: number;
-  nombre: string;
-  apellido: string;
-  email: string;
-  activo: boolean;
-  tipo: number;
-}
+import { Usuario } from "../../types/Usuario";
 
 const usuariosInicial: Usuario[] = [
   {
@@ -34,8 +26,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchUsuarios = async () => {
+      const token = localStorage.getItem("access_token");
       try {
-        const responseUsuarios = await axios.get(`http://localhost:3001/users`);
+        const responseUsuarios = await axios.get(
+          `http://localhost:3000/users`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const usuariosData: Usuario[] = responseUsuarios.data.map(
           (usuario: BackUser) => ({
             id: usuario.id,
@@ -54,9 +52,20 @@ export default function AdminDashboard() {
     };
     fetchUsuarios();
   }, [userId]);
+
   const eliminarUsuario = async (idUsuario: number) => {
     if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-      await axios.delete(`http://localhost:3001/users/${idUsuario}`);
+      const token = localStorage.getItem("access_token");
+      // Realiza la solicitud DELETE al backend para eliminar el usuario
+      try {
+        await axios.delete(`http://localhost:3000/users/${idUsuario}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (error) {
+        console.error("Error al eliminar el usuario:", error);
+        alert("No se pudo eliminar el usuario. Inténtalo más tarde.");
+        return;
+      }
       // Modificacion visual de la lista de usuarios local
       const nuevaListaUsuarios = usuarios.filter(
         (usuario) => usuario.id !== idUsuario
@@ -77,7 +86,6 @@ export default function AdminDashboard() {
             key={"/"}
             href={"/"}
             onClick={() => localStorage.removeItem("token")}
-            //invalidar token en backend ?
           >
             Cerrar sesion
           </Link>
