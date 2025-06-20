@@ -16,7 +16,7 @@ export class UserService {
   ) {}
 
   async getAllUsers() {
-    return this.userRepository.find({ order: { id: "ASC" }  });
+    return this.userRepository.find({ order: { id: "ASC" }});
   }
 
   async getUserById(id: number) {

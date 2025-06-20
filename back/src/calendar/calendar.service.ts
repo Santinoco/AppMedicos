@@ -63,7 +63,7 @@ export class CalendarService {
   }
 
   async getSlots(): Promise<Calendar[]> {
-    return this.slotRepository.find();
+    return this.slotRepository.find({ order: { slot_id: "ASC" } });
   }
 
   async getAppointmentsForDoctor(doctorUserId: number) {

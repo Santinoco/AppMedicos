@@ -16,7 +16,7 @@ export class UserTypeService {
   }
 
   async findAll(): Promise<UserType[]> {
-    return this.userTypeRepository.find();
+    return this.userTypeRepository.find({ order: { id: "ASC" }});
   }
 
   async findOne(id: number): Promise<UserType> {
