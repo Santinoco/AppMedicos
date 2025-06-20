@@ -11,9 +11,11 @@ import {
   } from "@nestjs/common";
   import { DoctorsService } from "./doctors.service";
   import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+import { RolesGuard } from "src/auth/roles/roles.guard";
+import { Roles } from "src/auth/roles/roles.decorator";
   
   @Controller("doctors")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   export class DoctorsController {
     constructor(private readonly doctorService: DoctorsService) {}
   
@@ -41,6 +43,7 @@ import {
     }
 
     @Delete(":user_id")
+    @Roles("administrator")
     async deleteDoctor(
       @Param('user_id', ParseIntPipe) user_id: number
     ) {
