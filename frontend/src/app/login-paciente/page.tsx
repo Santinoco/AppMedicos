@@ -20,7 +20,7 @@ export default function LoginPaciente() {
     setError('');
 
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch('http://localhost:3000/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -32,16 +32,28 @@ export default function LoginPaciente() {
         return;
       }
 
-      const user: User = await res.json();
+      const data = await res.json();
 
-      if (user.rol !== 'paciente') {
-        setError('Solo los usuarios con rol de paciente pueden ingresar aquí');
+      const userRol =
+        data.user?.type?.name ||
+        data.user?.role ||
+        data.user?.rol ||
+        '';
+
+      if (
+        userRol.toLowerCase() !== 'paciente' &&
+        userRol.toLowerCase() !== 'patient'
+      ) {
+        setError(
+          'Solo los usuarios con rol de paciente pueden ingresar aquí'
+        );
         return;
       }
 
-      localStorage.setItem('user', JSON.stringify(user));
-      router.push('/paciente');
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('access_token', data.access_token);
 
+      router.push('/paciente');
     } catch (error) {
       setError('Error al conectar con el servidor');
     }
