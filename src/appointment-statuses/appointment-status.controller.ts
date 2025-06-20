@@ -5,10 +5,16 @@ import {
     Body,
     Param,
     ParseIntPipe,
+    UseGuards,
   } from "@nestjs/common";
   import { AppointmentStatusService } from "./appointment-status.service";
-  
+  import { RolesGuard } from "src/auth/roles/roles.guard";
+  import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+  import { Roles } from "src/auth/roles/roles.decorator";
+    
   @Controller("appointment-statuses")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("administrator")
   export class AppointmentStatusController {
     constructor(private readonly statusService: AppointmentStatusService) {}
   
