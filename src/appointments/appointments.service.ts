@@ -93,4 +93,13 @@ export class AppointmentsService {
       },
     });
   }
+
+  async deleteAppointment(id: number) {
+    const appointment = await this.appointmentRepository.findOne({ where: { id } });
+    if (!appointment) {
+      throw new NotFoundException(`Cita con ID ${id} no encontrada`);
+    }
+    await this.appointmentRepository.remove(appointment);
+    return "Turno eliminado correctamente";
+  }
 }

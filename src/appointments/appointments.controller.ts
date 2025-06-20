@@ -7,12 +7,15 @@ import {
     ParseIntPipe,
     Patch,
     UseGuards,
+    Delete,
   } from "@nestjs/common";
   import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
   import { AppointmentsService } from "./appointments.service";
+import { RolesGuard } from "src/auth/roles/roles.guard";
+import { Roles } from "src/auth/roles/roles.decorator";
 
 @Controller("appointments")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
@@ -47,6 +50,12 @@ export class AppointmentsController {
   @Get('patient/:patient_id')
   async getAppointmentsByPatientId(@Param('patient_id', ParseIntPipe) patient_id: number) {
     return this.appointmentsService.findByPatientId(patient_id);
+  }
+
+  @Delete(':id')
+  @Roles("administrator")
+  async deleteAppointment(@Param('id', ParseIntPipe) id: number) {
+    return this.appointmentsService.deleteAppointment(id);
   }
   
 }
