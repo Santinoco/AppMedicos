@@ -2,12 +2,15 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Patient } from "./entities/patient.model";
+import { Appointment } from "src/appointments/entities/appointment.model";
 
 @Injectable()
 export class PatientService {
   constructor(
     @InjectRepository(Patient)
     private patientRepository: Repository<Patient>,
+    @InjectRepository(Appointment)
+    private appointmentRepository: Repository<Appointment>
   ) {}
 
   async getAllPatients() {
@@ -37,7 +40,7 @@ export class PatientService {
     return this.patientRepository.save(patient);
   }
 
-  async deletePatient(user_id: number) {
+  /*async deletePatient(user_id: number) {
     const patient = await this.patientRepository.findOne({ where: { user_id } });
 
     if (!patient) {
@@ -46,5 +49,19 @@ export class PatientService {
 
     await this.patientRepository.delete(user_id);
     return { message: "Patient deleted successfully" };
-  }
+  }*/
+
+  async deletePatient(user_id: number) {
+    const patient = await this.patientRepository.findOne({ where: { user_id } });
+  
+    if (!patient) {
+      throw new NotFoundException(`Patient with user_id ${user_id} not found`);
+    }
+  
+    await this.appointmentRepository.delete({ patient: { user_id } });
+  
+    await this.patientRepository.delete({ user_id });
+  
+    return { message: "Patient and related appointments deleted successfully" };
+  } 
 }
