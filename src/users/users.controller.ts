@@ -11,9 +11,11 @@ import {
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+import { RolesGuard } from "src/auth/roles/roles.guard";
+import { Roles } from "src/auth/roles/roles.decorator";
 
 @Controller("users")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
   constructor(private readonly userService: UserService) {}
 
@@ -38,6 +40,7 @@ export class UsersController {
   }
 
   @Patch(":id")
+  @Roles("administrator")
   async updateUser(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateData: any,
@@ -46,6 +49,7 @@ export class UsersController {
   }
 
   @Delete(":id")
+  @Roles("administrator")
   async deleteUser(
     @Param("id", ParseIntPipe) id: number,
   ) {
