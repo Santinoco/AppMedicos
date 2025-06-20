@@ -1,8 +1,13 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards } from '@nestjs/common';
 import { UserTypeService } from './user-type.service';
 import { UserType } from './entities/user-type.model';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles/roles.guard';
+import { Roles } from 'src/auth/roles/roles.decorator';
 
 @Controller('user-type')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('administrator')
 export class UserTypeController {
   constructor(private readonly userTypeService: UserTypeService) {}
 
