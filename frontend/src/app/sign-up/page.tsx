@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 export default function SignUp() {
   const router = useRouter();
 
-  const [role, setRole] = useState<'paciente' | 'medico'>('paciente');
+  const [type, settype] = useState<'patient' | 'doctor'>('patient');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [matricula, setMatricula] = useState(''); 
@@ -27,22 +27,22 @@ export default function SignUp() {
     }
 
     // Validación extra: si es médico, debe ingresar matrícula
-    if (role === 'medico' && matricula.trim() === '') {
+    if (type === 'doctor' && matricula.trim() === '') {
       setError('Ingrese una matricula valida');
       return;
     }
 
     const data = {
-      role,
+      type,
       nombre,
       apellido,
       email,
       password,
-      ...(role === 'medico' && { matricula }), // solo incluir matrícula si es médico
+      ...(type === 'doctor' && { matricula }), // solo incluir matrícula si es médico
     };
 
     try {
-      const res = await fetch('/api/signup', {
+      const res = await fetch('http://localhost:3000/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -56,7 +56,7 @@ export default function SignUp() {
 
       setSuccess('Registro exitoso! Redirigiendo...');
       setTimeout(() => {
-        router.push(role === 'paciente' ? '/paciente' : '/medico');
+        router.push(type === 'patient' ? '/patient' : '/doctor');
       }, 1000);
     } catch (err) {
       setError('Error de conexión con el servidor.');
@@ -91,19 +91,19 @@ export default function SignUp() {
         <label className="flex items-center gap-4">
           <input
             type="radio"
-            name="role"
-            value="paciente"
-            checked={role === 'paciente'}
-            onChange={() => setRole('paciente')}
+            name="type"
+            value="patient"
+            checked={type === 'patient'}
+            onChange={() => settype('patient')}
             className="accent-green-500"
           />
           Paciente
           <input
             type="radio"
-            name="role"
-            value="medico"
-            checked={role === 'medico'}
-            onChange={() => setRole('medico')}
+            name="type"
+            value="doctor"
+            checked={type === 'doctor'}
+            onChange={() => settype('doctor')}
             className="accent-green-500 ml-6"
           />
           Médico
@@ -127,7 +127,7 @@ export default function SignUp() {
         />
 
         {/* Mostrar solo si es médico */}
-        {role === 'medico' && (
+        {type === 'doctor' && (
           <input
             type="text"
             placeholder="Matrícula"
