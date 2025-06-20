@@ -11,9 +11,11 @@ import {
   } from "@nestjs/common";
   import { LocationService } from "./locations.service";
   import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+import { RolesGuard } from "src/auth/roles/roles.guard";
+import { Roles } from "src/auth/roles/roles.decorator";
   
   @Controller("locations")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   export class LocationController {
     constructor(private readonly locationService: LocationService) {}
   
@@ -33,6 +35,7 @@ import {
     }
 
     @Delete(':location_id')
+    @Roles("administrator")
     async deleteLocation(
       @Param('location_id', ParseIntPipe) location_id: number
     ) {
