@@ -14,7 +14,7 @@ export class PatientService {
   ) {}
 
   async getAllPatients() {
-    return this.patientRepository.find({ relations: ["user"] });
+    return this.patientRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
   }
 
   async getPatientById(user_id: number) {

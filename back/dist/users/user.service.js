@@ -29,7 +29,7 @@ let UserService = class UserService {
         this.patientService = patientService;
     }
     async getAllUsers() {
-        return this.userRepository.find();
+        return this.userRepository.find({ order: { id: "ASC" } });
     }
     async getUserById(id) {
         return this.userRepository.findOne({ where: { id } });

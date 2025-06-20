@@ -27,7 +27,7 @@ let UserTypeService = class UserTypeService {
         return this.userTypeRepository.save(userType);
     }
     async findAll() {
-        return this.userTypeRepository.find();
+        return this.userTypeRepository.find({ order: { id: "ASC" } });
     }
     async findOne(id) {
         const userType = await this.userTypeRepository.findOne({ where: { id } });

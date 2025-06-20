@@ -27,12 +27,16 @@ export default function misTurnos() {
   const [turnosBase, setTurnosBase] = useState<Turno[]>(misTurnosInicial);
   // Obtener el ID del usuario logueado
   const userId = getUserId();
+  const token = localStorage.getItem('access_token');
 
   useEffect(() => {
     const fetchTurnos = async () => {
       try {
         const responseTurnos = await axios.get(
-          `http://localhost:3001/appointments/doctor/${userId}`
+          `http://localhost:3000/appointments/doctor/${userId}`, 
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
         );
         const turnosData: Turno[] = responseTurnos.data.map(
           (turno: BackTurno) => ({
@@ -57,7 +61,7 @@ export default function misTurnos() {
     const turnoCancelado = misTurnos.find((turno) => turno.id === id);
     if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
       if (turnoCancelado) {
-        await axios.patch(`http://localhost:3001/appointments/${id}/status`, {
+        await axios.patch(`http://localhost:3000/appointments/${id}/status`, {
           estado: 3, // Cambiar el estado del turno a cancelado
         });
 
