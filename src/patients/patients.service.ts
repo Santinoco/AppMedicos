@@ -40,17 +40,6 @@ export class PatientService {
     return this.patientRepository.save(patient);
   }
 
-  /*async deletePatient(user_id: number) {
-    const patient = await this.patientRepository.findOne({ where: { user_id } });
-
-    if (!patient) {
-      throw new NotFoundException(`Patient with user_id ${user_id} not found`);
-    }
-
-    await this.patientRepository.delete(user_id);
-    return { message: "Patient deleted successfully" };
-  }*/
-
   async deletePatient(user_id: number) {
     const patient = await this.patientRepository.findOne({ where: { user_id } });
   
