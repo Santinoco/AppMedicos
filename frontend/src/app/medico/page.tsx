@@ -55,10 +55,15 @@ export default function MedicoDashboard() {
     const fetchUserById = async () => {
       if (!userId) return;
 
+      const token = localStorage.getItem('access_token');
+
       try {
         // El backend retorna un objeto con los datos del médico
         const responseMedico = await axios.get(
-          `http://localhost:3001/doctors/${userId}`
+          `http://localhost:3000/doctors/${userId}`, 
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
         );
         const medicoData: BackMedico = responseMedico.data;
 
@@ -74,7 +79,10 @@ export default function MedicoDashboard() {
         try {
           // El backend retorna un objeto con los datos de los turnos del medico
           const responseTurno = await axios.get(
-            `http://localhost:3001/appointments/doctor/${userId}`
+            `http://localhost:3000/appointments/doctor/${userId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` }
+            }
           );
           const turnoData: BackTurno[] = responseTurno.data;
 
@@ -87,7 +95,10 @@ export default function MedicoDashboard() {
           try {
             // Obtener datos del paciente del primer turno
             const responsePaciente = await axios.get(
-              `http://localhost:3001/patients/${turnosOrdenados[0].patient_id}`
+              `http://localhost:3000/patients/${turnosOrdenados[0].patient_id}`,
+              {
+                headers: { Authorization: `Bearer ${token}` }
+              }
             );
             const pacienteData: BackPaciente = responsePaciente.data;
 
