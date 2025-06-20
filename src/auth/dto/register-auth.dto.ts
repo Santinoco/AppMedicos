@@ -7,4 +7,7 @@ export class RegisterAuthDto extends LoginAuthDto {
 
     @IsNotEmpty()
     apellido: string;
+
+    @IsNotEmpty()
+    type: string;
 }

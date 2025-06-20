@@ -5,11 +5,15 @@ import { UsersModule } from 'src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy'; 
+import { UserType } from 'src/user-type/entities/user-type.model';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 
 @Module({
   imports: [
     forwardRef(() => UsersModule), 
     PassportModule,
+    TypeOrmModule.forFeature([UserType]), 
     JwtModule.register({
       secret: 'Santinoco123',
       signOptions: { expiresIn: '1h' }

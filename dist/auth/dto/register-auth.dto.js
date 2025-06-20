@@ -15,6 +15,7 @@ const login_auth_dto_1 = require("./login-auth.dto");
 class RegisterAuthDto extends login_auth_dto_1.LoginAuthDto {
     nombre;
     apellido;
+    type;
 }
 exports.RegisterAuthDto = RegisterAuthDto;
 __decorate([
@@ -25,4 +26,8 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], RegisterAuthDto.prototype, "apellido", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], RegisterAuthDto.prototype, "type", void 0);
 //# sourceMappingURL=register-auth.dto.js.map
