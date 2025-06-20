@@ -1,26 +1,29 @@
-import { Column, Model, Table, HasMany } from 'sequelize-typescript';
-import { Appointment } from '../../models/appointment.model';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from "typeorm";
+import { Appointment } from "../../appointments/entities/appointment.model";
+import { UserType } from "../../user-type/entities/user-type.model";
 
-@Table
-export class User extends Model {
-  @Column({ primaryKey: true, autoIncrement: true })
-  declare id: number;
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column
+  @Column()
   nombre: string;
 
-  @Column
+  @Column()
   apellido: string;
 
   @Column({ unique: true })
   email: string;
 
-  @Column
+  @Column()
   password: string;
 
-  @Column({ defaultValue: true })
+  @Column({ default: true })
   activo: boolean;
 
-  @HasMany(() => Appointment)
-  appointments: Appointment[];
+  @ManyToOne(() => UserType, (type) => type.users)
+  @JoinColumn({ name: "user_type_id" })
+  type: UserType;
+
 }
