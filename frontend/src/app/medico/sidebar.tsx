@@ -10,7 +10,6 @@ export default function sidebar() {
   const links = [
     { href: "/medico", label: "Inicio" },
     { href: "/medico/mis-turnos", label: "Mis turnos" },
-    { href: "/medico/agregar-turnos", label: "Agregar Turnos" },
   ];
 
   return (
@@ -40,8 +39,7 @@ export default function sidebar() {
               ? "bg-green-100 text-green-800 font-semibold"
               : "text-green-700 hover:bg-green-200 hover:text-green-900"
           )}
-          onClick={() => localStorage.removeItem("token")}
-          //invalidar token en backend ?
+          onClick={() => localStorage.removeItem("user")}
         >
           Cerrar sesion
         </Link>

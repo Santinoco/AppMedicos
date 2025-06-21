@@ -3,14 +3,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { getUserId } from "../../../services/userIdService";
 import { BackTurno } from "../../../types/backTurno";
-
-interface Turno {
-  id: number;
-  nombre: string;
-  email: string;
-  motivo: string;
-  fechaTurno: Date;
-}
+import { Turno } from "../../../types/Turno";
+import { useRouter } from "next/navigation";
+import { verificarTipoUsuario } from "../../../services/guardService";
 
 const misTurnosInicial: Turno[] = [
   {
@@ -23,19 +18,35 @@ const misTurnosInicial: Turno[] = [
 ];
 
 export default function misTurnos() {
+  const router = useRouter();
   const [misTurnos, setMisTurnos] = useState<Turno[]>(misTurnosInicial);
   const [turnosBase, setTurnosBase] = useState<Turno[]>(misTurnosInicial);
-  // Obtener el ID del usuario logueado
-  const userId = getUserId();
-  const token = localStorage.getItem('access_token');
+  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
   useEffect(() => {
+    const verificarAcceso = async () => {
+      const esMedico = verificarTipoUsuario("doctor");
+      if (!esMedico) {
+        // Redirige al usuario si no es medico
+        router.push("/");
+      } else {
+        setIsVerified(true); // Marca como verificado si es medico
+      }
+    };
+
+    verificarAcceso();
+  }, [router]);
+
+  useEffect(() => {
+    // Obtener el ID del usuario logueado
+    const userId = getUserId();
     const fetchTurnos = async () => {
+      const token = localStorage.getItem("access_token");
       try {
         const responseTurnos = await axios.get(
-          `http://localhost:3000/appointments/doctor/${userId}`, 
+          `http://localhost:3000/appointments/doctor/${userId}`,
           {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
         const turnosData: Turno[] = responseTurnos.data.map(
@@ -55,22 +66,34 @@ export default function misTurnos() {
       }
     };
     fetchTurnos();
-  }, [userId]);
+  }, [isVerified]);
 
   const cancelarTurno = async (id: number) => {
+    const token = localStorage.getItem("access_token");
     const turnoCancelado = misTurnos.find((turno) => turno.id === id);
     if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
       if (turnoCancelado) {
-        await axios.patch(`http://localhost:3000/appointments/${id}/status`, {
-          estado: 3, // Cambiar el estado del turno a cancelado
-        });
+        try {
+          await axios.patch(
+            `http://localhost:3000/appointments/${id}/status`,
+            {
+              estado: 3, // Cambiar el estado del turno a cancelado
+            },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-        const nuevaLista = misTurnos.filter((turno) => turno.id !== id);
-        setMisTurnos(nuevaLista);
+          const nuevaLista = misTurnos.filter((turno) => turno.id !== id);
+          setMisTurnos(nuevaLista);
 
-        const nuevaBase = turnosBase.filter((turno) => turno.id !== id);
-        setTurnosBase(nuevaBase);
-        alert(`Turno con ID ${id} cancelado.`);
+          const nuevaBase = turnosBase.filter((turno) => turno.id !== id);
+          setTurnosBase(nuevaBase);
+          alert(`Turno con ID ${id} cancelado.`);
+        } catch (error) {
+          console.error("Error al cancelar el turno:", error);
+          alert("No se pudo cancelar el turno. Inténtalo más tarde.");
+        }
       }
     }
   };
