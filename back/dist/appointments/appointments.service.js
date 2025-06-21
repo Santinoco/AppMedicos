@@ -102,6 +102,22 @@ let AppointmentsService = class AppointmentsService {
         await this.appointmentRepository.remove(appointment);
         return "Turno eliminado correctamente";
     }
+    async getAppointmentsByPatientName(name) {
+        const appointments = await this.appointmentRepository.find({
+            where: {
+                patient: { user: { nombre: name } },
+            },
+            relations: [
+                'doctor', 'doctor.user',
+                'patient', 'patient.user',
+                'status',
+            ],
+            order: {
+                id: 'ASC',
+            },
+        });
+        return appointments;
+    }
 };
 exports.AppointmentsService = AppointmentsService;
 exports.AppointmentsService = AppointmentsService = __decorate([
