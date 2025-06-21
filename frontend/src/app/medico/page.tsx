@@ -7,6 +7,7 @@ import { BackPaciente } from "../../types/backPaciente";
 import { BackTurno } from "../../types/backTurno";
 import { getUserId } from "../../services/userIdService";
 import { Turno } from "../../types/Turno";
+import { verificarTipoUsuario } from "../../services/guardService";
 
 interface Medico {
   nombre: String;
@@ -39,11 +40,25 @@ export default function MedicoDashboard() {
     motivo: "",
     fechaTurno: new Date("2025-05-29T10:30:00"),
   });
-
-  // Obtener el ID del usuario logueado
-  const userId = getUserId();
+  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
   useEffect(() => {
+    const verificarAcceso = async () => {
+      const esMedico = verificarTipoUsuario("doctor");
+      if (!esMedico) {
+        // Redirige al usuario si no es medico
+        router.push("/");
+      } else {
+        setIsVerified(true); // Marca como verificado si es medico
+      }
+    };
+
+    verificarAcceso();
+  }, [router]);
+
+  useEffect(() => {
+    // Obtener el ID del usuario logueado
+    const userId = getUserId();
     const fetchUserById = async () => {
       if (!userId) return;
 
@@ -114,7 +129,7 @@ export default function MedicoDashboard() {
     };
 
     fetchUserById();
-  }, [userId]);
+  }, [isVerified]);
 
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);

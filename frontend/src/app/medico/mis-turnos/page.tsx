@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { getUserId } from "../../../services/userIdService";
 import { BackTurno } from "../../../types/backTurno";
 import { Turno } from "../../../types/Turno";
+import { useRouter } from "next/navigation";
+import { verificarTipoUsuario } from "../../../services/guardService";
 
 const misTurnosInicial: Turno[] = [
   {
@@ -16,12 +18,28 @@ const misTurnosInicial: Turno[] = [
 ];
 
 export default function misTurnos() {
+  const router = useRouter();
   const [misTurnos, setMisTurnos] = useState<Turno[]>(misTurnosInicial);
   const [turnosBase, setTurnosBase] = useState<Turno[]>(misTurnosInicial);
-  // Obtener el ID del usuario logueado
-  const userId = getUserId();
+  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
   useEffect(() => {
+    const verificarAcceso = async () => {
+      const esMedico = verificarTipoUsuario("doctor");
+      if (!esMedico) {
+        // Redirige al usuario si no es medico
+        router.push("/");
+      } else {
+        setIsVerified(true); // Marca como verificado si es medico
+      }
+    };
+
+    verificarAcceso();
+  }, [router]);
+
+  useEffect(() => {
+    // Obtener el ID del usuario logueado
+    const userId = getUserId();
     const fetchTurnos = async () => {
       const token = localStorage.getItem("access_token");
       try {
@@ -48,7 +66,7 @@ export default function misTurnos() {
       }
     };
     fetchTurnos();
-  }, [userId]);
+  }, [isVerified]);
 
   const cancelarTurno = async (id: number) => {
     const token = localStorage.getItem("access_token");
