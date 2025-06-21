@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getUserId } from "../../services/userIdService";
 import axios from "axios";
 import { BackMedico } from "../../types/backMedico";
 import { BackPaciente } from "../../types/backPaciente";
+import { verificarTipoUsuario } from "../../services/guardService";
 
 interface Medico {
   especialidad: string;
@@ -65,7 +65,21 @@ export default function AdminDashboard() {
   const [medicos, setMedicos] = useState<Medico[]>(medicosInicial);
   const [pacientes, setPacientes] = useState<Paciente[]>(pacientesInicial);
   const [mostrarMedicos, setMostrarMedicos] = useState(true);
-  const userId = getUserId();
+  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
+
+  useEffect(() => {
+    const verificarAcceso = async () => {
+      const esAdmin = verificarTipoUsuario("administrator");
+      if (!esAdmin) {
+        // Redirige al usuario si no es administrador
+        router.push("/");
+      } else {
+        setIsVerified(true); // Marca como verificado si es administrador
+      }
+    };
+
+    verificarAcceso();
+  }, [router]);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
@@ -122,7 +136,7 @@ export default function AdminDashboard() {
       }
     };
     fetchUsuarios();
-  }, [userId]);
+  }, [isVerified]); // Solo ejecuta la lógica de usuarios si está verificado
 
   const eliminarUsuario = async (idUsuario: number, tipo: string) => {
     if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
@@ -153,8 +167,12 @@ export default function AdminDashboard() {
     }
   };
 
-  const toggleMedicos = () => {
-    setMostrarMedicos(!mostrarMedicos);
+  const handleLogout = () => {
+    // Elimina el token de localStorage
+    localStorage.removeItem("user");
+
+    // Redirige al usuario a la página de inicio
+    router.push("/");
   };
 
   return (
@@ -163,14 +181,11 @@ export default function AdminDashboard() {
         <h1 className="text-3xl font-bold text-green-800">
           Bienvenido, Administrador
         </h1>
-        <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition ml-auto">
-          <Link
-            key={"/"}
-            href={"/"}
-            onClick={() => localStorage.removeItem("token")}
-          >
-            Cerrar sesion
-          </Link>
+        <button
+          className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition ml-auto"
+          onClick={handleLogout}
+        >
+          Cerrar sesion
         </button>
       </div>
       <section className="bg-white p-6 rounded-lg shadow-md">

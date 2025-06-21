@@ -8,6 +8,7 @@ import { BackMedico } from "../../../../types/backMedico";
 import { BackPaciente } from "../../../../types/backPaciente";
 import { BackTurno } from "../../../../types/backTurno";
 import { Usuario } from "../../../../types/Usuario";
+import { verificarTipoUsuario } from "../../../../services/guardService";
 
 interface Turno {
   id: number;
@@ -69,6 +70,21 @@ export default function AdminUserView() {
 
   const [paciente, setPaciente] = useState<Paciente>(pacienteInicial);
   const [turnos, setTurnos] = useState<Turno[]>(turnosInicial);
+  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
+
+  useEffect(() => {
+    const verificarAcceso = async () => {
+      const esAdmin = verificarTipoUsuario("administrator");
+      if (!esAdmin) {
+        // Redirige al usuario si no es administrador
+        router.push("/");
+      } else {
+        setIsVerified(true); // Marca como verificado si es administrador
+      }
+    };
+
+    verificarAcceso();
+  }, [router]);
 
   useEffect(() => {
     const fetchTurnos = async () => {
@@ -128,7 +144,7 @@ export default function AdminUserView() {
       }
     };
     fetchTurnos();
-  }, [idUsuario]);
+  }, [idUsuario, isVerified]);
 
   const cancelarTurno = async (id: number) => {
     const turnoCancelado = turnos.find((turno) => turno.id === id);
