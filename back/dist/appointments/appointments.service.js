@@ -18,15 +18,12 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const appointment_model_1 = require("./entities/appointment.model");
 const calendar_model_1 = require("./../calendar/entities/calendar.model");
-const calendar_service_1 = require("../calendar/calendar.service");
 let AppointmentsService = class AppointmentsService {
     appointmentRepository;
     calendarRepository;
-    calendarService;
-    constructor(appointmentRepository, calendarRepository, calendarService) {
+    constructor(appointmentRepository, calendarRepository) {
         this.appointmentRepository = appointmentRepository;
         this.calendarRepository = calendarRepository;
-        this.calendarService = calendarService;
     }
     async getAllAppointments() {
         return this.appointmentRepository.find({
@@ -36,6 +33,7 @@ let AppointmentsService = class AppointmentsService {
                 'doctor_id',
                 'doctor.user',
                 'status',
+                'slot_datetime',
             ], order: { id: "ASC" }
         });
     }
@@ -46,6 +44,7 @@ let AppointmentsService = class AppointmentsService {
                 'doctor_id',
                 'doctor.user',
                 'status',
+                'slot_datetime',
             ], where: { id } });
     }
     async createAppointment(dto) {
@@ -110,7 +109,6 @@ exports.AppointmentsService = AppointmentsService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(appointment_model_1.Appointment)),
     __param(1, (0, typeorm_1.InjectRepository)(calendar_model_1.Calendar)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository,
-        calendar_service_1.CalendarService])
+        typeorm_2.Repository])
 ], AppointmentsService);
 //# sourceMappingURL=appointments.service.js.map
