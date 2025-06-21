@@ -10,7 +10,6 @@ export default function sidebar() {
   const links = [
     { href: "/medico", label: "Inicio" },
     { href: "/medico/mis-turnos", label: "Mis turnos" },
-    { href: "/medico/agregar-turnos", label: "Agregar Turnos" },
   ];
 
   return (
