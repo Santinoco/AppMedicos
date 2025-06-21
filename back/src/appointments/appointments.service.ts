@@ -4,7 +4,6 @@ import { Repository } from "typeorm";
 import { Appointment } from "./entities/appointment.model";
 import { CreateAppointmentDto } from "./dto/calendar.dto";
 import { Calendar } from "./../calendar/entities/calendar.model"
-import { CalendarService } from "src/calendar/calendar.service";
 
 @Injectable()
 export class AppointmentsService {
@@ -13,10 +12,8 @@ export class AppointmentsService {
     private appointmentRepository: Repository<Appointment>,
     @InjectRepository(Calendar)
     private calendarRepository: Repository<Calendar>,
-    private calendarService: CalendarService
   ) {}
 
-  // Obtener todas las citas
   async getAllAppointments() {
     return this.appointmentRepository.find({
       relations: [
@@ -25,10 +22,10 @@ export class AppointmentsService {
         'doctor_id',
         'doctor.user',
         'status',
+        'slot_datetime',
       ], order: { id: "ASC"}})
   }
 
-  // Obtener una cita por ID
   async getAppointmentById(id: number) {
     return this.appointmentRepository.findOne({ relations: [
       'patient_id',
@@ -36,10 +33,10 @@ export class AppointmentsService {
       'doctor_id',
       'doctor.user',
       'status',
+      'slot_datetime',
     ], where: { id } });
   }
 
-  // Crear una nueva cita
   async createAppointment(dto: CreateAppointmentDto) {
     const slot = await this.calendarRepository.findOne({ where: { slot_datetime: dto.slot_datetime } });
   
