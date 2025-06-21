@@ -2,19 +2,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { BackUser } from "../../types/backUser";
 import { BackMedico } from "../../types/backMedico";
 import { BackPaciente } from "../../types/backPaciente";
 import { BackTurno } from "../../types/backTurno";
 import { getUserId } from "../../services/userIdService";
-
-interface Turno {
-  id: number;
-  nombre: string;
-  email: string;
-  motivo: string;
-  fechaTurno: Date;
-}
+import { Turno } from "../../types/Turno";
+import { verificarTipoUsuario } from "../../services/guardService";
 
 interface Medico {
   nombre: String;
@@ -47,22 +40,36 @@ export default function MedicoDashboard() {
     motivo: "",
     fechaTurno: new Date("2025-05-29T10:30:00"),
   });
-
-  // Obtener el ID del usuario logueado
-  const userId = getUserId();
+  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
   useEffect(() => {
+    const verificarAcceso = async () => {
+      const esMedico = verificarTipoUsuario("doctor");
+      if (!esMedico) {
+        // Redirige al usuario si no es medico
+        router.push("/");
+      } else {
+        setIsVerified(true); // Marca como verificado si es medico
+      }
+    };
+
+    verificarAcceso();
+  }, [router]);
+
+  useEffect(() => {
+    // Obtener el ID del usuario logueado
+    const userId = getUserId();
     const fetchUserById = async () => {
       if (!userId) return;
 
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem("access_token");
 
       try {
         // El backend retorna un objeto con los datos del médico
         const responseMedico = await axios.get(
-          `http://localhost:3000/doctors/${userId}`, 
+          `http://localhost:3000/doctors/${userId}`,
           {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
         const medicoData: BackMedico = responseMedico.data;
@@ -81,7 +88,7 @@ export default function MedicoDashboard() {
           const responseTurno = await axios.get(
             `http://localhost:3000/appointments/doctor/${userId}`,
             {
-              headers: { Authorization: `Bearer ${token}` }
+              headers: { Authorization: `Bearer ${token}` },
             }
           );
           const turnoData: BackTurno[] = responseTurno.data;
@@ -97,7 +104,7 @@ export default function MedicoDashboard() {
             const responsePaciente = await axios.get(
               `http://localhost:3000/patients/${turnosOrdenados[0].patient_id}`,
               {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
               }
             );
             const pacienteData: BackPaciente = responsePaciente.data;
@@ -122,7 +129,7 @@ export default function MedicoDashboard() {
     };
 
     fetchUserById();
-  }, [userId]);
+  }, [isVerified]);
 
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
