@@ -4,8 +4,8 @@ import { Repository } from "typeorm";
 import { User } from "./entities/user.model";
 import { Doctor } from "src/doctors/entities/doctor.model";
 import { Patient } from "src/patients/entities/patient.model";
-import { DoctorsService } from "src/doctors/doctors.service";
-import { PatientService } from "src/patients/patients.service";
+import { DoctorsService } from "../doctors/doctors.service";
+import { PatientService } from "../patients/patients.service";
 
 @Injectable()
 export class UserService {
