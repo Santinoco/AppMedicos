@@ -3,11 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import { BackUser } from "../../../../types/backUser";
 import { BackMedico } from "../../../../types/backMedico";
-import { BackPaciente } from "../../../../types/backPaciente";
 import { BackTurno } from "../../../../types/backTurno";
-import { Usuario } from "../../../../types/Usuario";
 
 interface Turno {
   id: number;
@@ -23,40 +20,27 @@ interface Medico {
   numeroMatricula: number;
   comienzoJornada: string;
   finJornada: string;
+  usuario: {
+    id: number;
+    nombre: string;
+    apellido: string;
+    email: string;
+    activo: boolean;
+  };
 }
-
-interface Paciente {
-  consultasCompletadas: number;
-  seguroMedico: string;
-  historialMedico: string;
-  peso: number;
-  altura: number;
-  tipoSangre: String;
-}
-
-const usuarioInicial: Usuario = {
-  id: 0,
-  nombre: "",
-  apellido: "",
-  email: "",
-  activo: false,
-  tipo: 0, // 1 = admin, 2 = medico, 5 = paciente
-};
 
 const medicoInicial: Medico = {
   especialidad: "",
   numeroMatricula: 0,
   comienzoJornada: "",
   finJornada: "",
-};
-
-const pacienteInicial: Paciente = {
-  consultasCompletadas: 0,
-  seguroMedico: "",
-  historialMedico: "",
-  peso: 0,
-  altura: 0,
-  tipoSangre: "",
+  usuario: {
+    id: 0,
+    nombre: "",
+    apellido: "",
+    email: "",
+    activo: false,
+  },
 };
 
 const turnosInicial: Turno[] = [
@@ -76,110 +60,62 @@ export default function AdminUserView() {
   const params = useParams();
   const idUsuario = params.id;
 
-  const [usuario, setUsuario] = useState<Usuario>(usuarioInicial);
   const [medico, setMedico] = useState<Medico>(medicoInicial);
-  const [paciente, setPaciente] = useState<Paciente>(pacienteInicial);
   const [turnos, setTurnos] = useState<Turno[]>(turnosInicial);
 
   useEffect(() => {
     const fetchTurnos = async () => {
       const token = localStorage.getItem("access_token");
-      try {
-        // Obtener los datos del usuario por id
 
-        const usuarioResponse = await axios.get(
-          `http://localhost:3000/users/${idUsuario}`,
+      // Obtener los datos del médico por ID
+      try {
+        const medicoResponse = await axios.get(
+          `http://localhost:3000/doctors/${idUsuario}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        const usuarioData: BackUser = usuarioResponse.data;
+        const medicoData: BackMedico = medicoResponse.data;
 
-        setUsuario({
-          id: usuarioData.id,
-          nombre: usuarioData.nombre,
-          apellido: usuarioData.apellido,
-          email: usuarioData.email,
-          activo: usuarioData.activo,
-          tipo: usuarioData.user_type_id,
+        setMedico({
+          especialidad: medicoData.specialty,
+          numeroMatricula: medicoData.license_number,
+          comienzoJornada: medicoData.shift_start,
+          finJornada: medicoData.shift_end,
+          usuario: {
+            id: medicoData.user.id,
+            nombre: medicoData.user.nombre,
+            apellido: medicoData.user.apellido,
+            email: medicoData.user.email,
+            activo: medicoData.user.activo,
+          },
         });
-
-        // Obtener los datos del médico o paciente según el tipo de usuario
-
-        if (usuarioData.user_type_id == 2) {
-          try {
-            const medicoResponse = await axios.get(
-              `http://localhost:3000/doctors/${usuarioData.id}`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-            const medicoData: BackMedico = medicoResponse.data;
-
-            setMedico({
-              especialidad: medicoData.specialty,
-              numeroMatricula: medicoData.license_number,
-              comienzoJornada: medicoData.shift_start,
-              finJornada: medicoData.shift_end,
-            });
-          } catch (error) {
-            console.error("Error al obtener los datos del médico:", error);
-          }
-        } else if (usuarioData.user_type_id == 5) {
-          try {
-            const pacienteResponse = await axios.get(
-              `http://localhost:3000/patients/${usuarioData.id}`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-            const pacienteData: BackPaciente = pacienteResponse.data;
-
-            setPaciente({
-              consultasCompletadas: pacienteData.completed_consultations,
-              seguroMedico: pacienteData.health_insurance,
-              historialMedico: pacienteData.medical_history,
-              peso: pacienteData.weight,
-              altura: pacienteData.height,
-              tipoSangre: pacienteData.blood_type,
-            });
-          } catch (error) {
-            console.error("Error al obtener los datos del paciente:", error);
-          }
-        }
-
-        // Obtener los turnos del usuario
-        try {
-          let rutaUsuario: string = "";
-          if (usuarioData.user_type_id === 2) {
-            rutaUsuario = "doctor";
-          } else if (usuarioData.user_type_id === 5) {
-            rutaUsuario = "patient";
-          }
-
-          const turnosResponse = await axios.get(
-            `http://localhost:3000/appointments/${rutaUsuario}/${idUsuario}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-          const turnosData: Turno[] = turnosResponse.data.map(
-            (turno: BackTurno) => ({
-              id: turno.id,
-              nombre: `${turno.patient.nombre} ${turno.patient.apellido}`,
-              email: turno.patient.email,
-              motivo: turno.motivo,
-              fechaTurno: new Date(turno.slot_datetime.slot_datetime),
-              estado: turno.status.status_id,
-            })
-          );
-
-          setTurnos(turnosData);
-        } catch (error) {
-          console.error("Error al obtener los turnos del usuario:", error);
-        }
       } catch (error) {
-        console.error("Error al obtener los datos del usuario:", error);
+        console.error("Error al obtener los datos del médico:", error);
+      }
+
+      // Obtener los turnos del medico
+      try {
+        const turnosResponse = await axios.get(
+          `http://localhost:3000/appointments/doctor/${idUsuario}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const turnosData: Turno[] = turnosResponse.data.map(
+          (turno: BackTurno) => ({
+            id: turno.id,
+            nombre: `${turno.patient.nombre} ${turno.patient.apellido}`,
+            email: turno.patient.email,
+            motivo: turno.motivo,
+            fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+            estado: turno.status.status_id,
+          })
+        );
+
+        setTurnos(turnosData);
+      } catch (error) {
+        console.error("Error al obtener los turnos del usuario:", error);
       }
     };
     fetchTurnos();
@@ -228,75 +164,45 @@ export default function AdminUserView() {
         </div>
         <div>
           <span className="text-3xl font-bold text-black">
-            {usuario.nombre} {usuario.apellido}
+            {medico.usuario.nombre} {medico.usuario.apellido}
           </span>
-          <span className="text-gray-500 font-light"> - {usuario.email}</span>
+          <span className="text-gray-500 font-light">
+            {" "}
+            - {medico.usuario.email}
+          </span>
         </div>
         <p>
           <span className="font-bold mr-1">Id: </span>
-          {usuario.id}
+          {medico.usuario.id}
         </p>
         <p>
           <span className="font-bold mr-1">Tipo de usuario:</span>
-          {usuario.tipo === 2 ? (
-            <span>Medico</span>
-          ) : usuario.tipo === 5 ? (
-            <span>Paciente</span>
-          ) : (
-            <span></span>
-          )}
+
+          <span>Medico</span>
         </p>
         <p>
           <span className="font-bold mr-1">Actividad:</span>
-          {usuario.activo ? (
+          {medico.usuario.activo ? (
             <strong className="text-green-600 ml-1">Activo</strong>
           ) : (
             <strong className="text-red-700 ml-1">Inactivo</strong>
           )}
         </p>
-        {usuario.tipo === 2 ? (
-          <div className="space-y-6">
-            <p>
-              <span className="font-bold mr-1">Especialidad:</span>
-              {medico.especialidad}
-            </p>
-            <p>
-              <span className="font-bold mr-1">Matricula:</span>
-              {medico.numeroMatricula}
-            </p>
-            <p>
-              <span className="font-bold mr-1">Jornada laboral:</span>
-              {medico.comienzoJornada} a {medico.finJornada}
-            </p>
-          </div>
-        ) : usuario.tipo === 5 ? (
-          <div className="space-y-6">
-            <p>
-              <span className="font-bold mr-1">Consultas completadas:</span>
-              {paciente.consultasCompletadas}
-            </p>
-            <p>
-              <span className="font-bold mr-1">Seguro Medico:</span>
-              {paciente.seguroMedico}
-            </p>
-            <p>
-              <span className="font-bold mr-1">Historial Medico:</span>
-              {paciente.historialMedico}
-            </p>
-            <p>
-              <span className="font-bold mr-1">Peso:</span> {paciente.peso}
-            </p>
-            <p>
-              <span className="font-bold mr-1">Altura:</span> {paciente.altura}
-            </p>
-            <p>
-              <span className="font-bold mr-1">Tipo de sangre:</span>
-              {paciente.tipoSangre}
-            </p>
-          </div>
-        ) : (
-          <span></span>
-        )}
+
+        <div className="space-y-6">
+          <p>
+            <span className="font-bold mr-1">Especialidad:</span>
+            {medico.especialidad}
+          </p>
+          <p>
+            <span className="font-bold mr-1">Matricula:</span>
+            {medico.numeroMatricula}
+          </p>
+          <p>
+            <span className="font-bold mr-1">Jornada laboral:</span>
+            {medico.comienzoJornada} a {medico.finJornada}
+          </p>
+        </div>
 
         <section className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">📅 Turnos agendados</h2>

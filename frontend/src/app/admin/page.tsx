@@ -242,7 +242,7 @@ export default function AdminDashboard() {
                     <div className="flex-col flex gap-4 items-center">
                       <button
                         onClick={() =>
-                          router.push("/admin/usuario/" + medico.usuario.id)
+                          router.push("/admin/medico/" + medico.usuario.id)
                         }
                         className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition w-full"
                       >
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
                     <div className="flex-col flex gap-4 items-center">
                       <button
                         onClick={() =>
-                          router.push("/admin/usuario/" + paciente.usuario.id)
+                          router.push("/admin/paciente/" + paciente.usuario.id)
                         }
                         className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition w-full"
                       >
