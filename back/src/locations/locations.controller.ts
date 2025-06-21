@@ -10,9 +10,9 @@ import {
     UseGuards
   } from "@nestjs/common";
   import { LocationService } from "./locations.service";
-  import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { RolesGuard } from "src/auth/roles/roles.guard";
-import { Roles } from "src/auth/roles/roles.decorator";
+  import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+  import { RolesGuard } from "../auth/roles/roles.guard";
+  import { Roles } from "../auth/roles/roles.decorator";
   
   @Controller("locations")
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -43,6 +43,7 @@ import { Roles } from "src/auth/roles/roles.decorator";
     }
 
     @Patch(':location_id')
+    @Roles("administrator")
     async updateLocation(
       @Param('location_id', ParseIntPipe) location_id: number,
       @Body() updateData: any,

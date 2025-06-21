@@ -24,6 +24,10 @@ describe('LocationService', () => {
     repo = module.get<Repository<Location>>(getRepositoryToken(Location));
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
