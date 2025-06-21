@@ -78,6 +78,13 @@ let UserService = class UserService {
             relations: ['type'],
         });
     }
+    async findUsersByName(nombre) {
+        const users = await this.userRepository.find({ where: { nombre } });
+        if (!users || users.length === 0) {
+            throw new common_1.NotFoundException(`No se encontraron usuarios con el nombre ${nombre}`);
+        }
+        return users;
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

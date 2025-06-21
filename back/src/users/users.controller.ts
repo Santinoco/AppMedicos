@@ -39,6 +39,11 @@ export class UsersController {
     return this.userService.getUserAppoinments(id);
   }
 
+  @Get("by-name/:name")
+  async getUsersByName(@Param("name") name: string) {
+    return this.userService.findUsersByName(name);
+  }
+
   @Patch(":id")
   @Roles("administrator")
   async updateUser(
