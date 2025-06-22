@@ -1,7 +1,7 @@
 import { Calendar } from './entities/calendar.model';
 import { Repository } from 'typeorm';
-import { Appointment } from 'src/appointments/entities/appointment.model';
-import { Doctor } from 'src/doctors/entities/doctor.model';
+import { Appointment } from '../appointments/entities/appointment.model';
+import { Doctor } from '../doctors/entities/doctor.model';
 export declare class CalendarService {
     private readonly slotRepository;
     private readonly appointment;

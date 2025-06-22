@@ -5,8 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Calendar } from './entities/calendar.model';
 import { Repository } from 'typeorm';
 import { addMinutes, isWeekend, setHours, setMinutes } from 'date-fns';
-import { Appointment } from 'src/appointments/entities/appointment.model';
-import { Doctor } from 'src/doctors/entities/doctor.model';
+import { Appointment } from '../appointments/entities/appointment.model';
+import { Doctor } from '../doctors/entities/doctor.model';
 
 @Injectable()
 export class CalendarService {
