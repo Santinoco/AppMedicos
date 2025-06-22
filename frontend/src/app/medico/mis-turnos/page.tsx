@@ -39,34 +39,35 @@ export default function misTurnos() {
 
   useEffect(() => {
     // Obtener el ID del usuario logueado
-    const userId = getUserId();
-    const fetchTurnos = async () => {
-      const token = localStorage.getItem("access_token");
-      try {
-        const responseTurnos = await axios.get(
-          `http://localhost:3000/appointments/doctor/${userId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const turnosData: Turno[] = responseTurnos.data.map(
-          (turno: BackTurno) => ({
-            id: turno.id,
-            nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
-            email: turno.patient.user.email,
-            motivo: turno.motivo,
-            fechaTurno: new Date(turno.slot_datetime.slot_datetime),
-          })
-        );
-
-        setMisTurnos(turnosData);
-        setTurnosBase(turnosData);
-      } catch (error) {
-        console.error("Error al obtener los turnos:", error);
-      }
-    };
     fetchTurnos();
   }, [isVerified]);
+
+  const fetchTurnos = async () => {
+    const token = localStorage.getItem("access_token") || "";
+    const userId = getUserId();
+    try {
+      const responseTurnos = await axios.get(
+        `http://localhost:3000/appointments/doctor/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const turnosData: Turno[] = responseTurnos.data.map(
+        (turno: BackTurno) => ({
+          id: turno.id,
+          nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
+          email: turno.patient?.user?.email || "",
+          motivo: turno.motivo,
+          fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+        })
+      );
+
+      setMisTurnos(turnosData);
+      setTurnosBase(turnosData);
+    } catch (error) {
+      console.error("Error al obtener los turnos:", error);
+    }
+  };
 
   const cancelarTurno = async (id: number) => {
     const token = localStorage.getItem("access_token");
@@ -84,11 +85,7 @@ export default function misTurnos() {
             }
           );
 
-          const nuevaLista = misTurnos.filter((turno) => turno.id !== id);
-          setMisTurnos(nuevaLista);
-
-          const nuevaBase = turnosBase.filter((turno) => turno.id !== id);
-          setTurnosBase(nuevaBase);
+          fetchTurnos(); // Actualizar la lista de turnos después de cancelar
           alert(`Turno con ID ${id} cancelado.`);
         } catch (error) {
           console.error("Error al cancelar el turno:", error);
@@ -98,13 +95,29 @@ export default function misTurnos() {
     }
   };
 
-  const filtrarPorNombre = (nombre: string) => {
+  const filtrarPorNombre = async (nombre: string) => {
+    const token = localStorage.getItem("access_token");
+    const userId = getUserId();
     if (nombre.trim() === "") {
       setMisTurnos(turnosBase);
     } else {
-      const turnosFiltrados = turnosBase.filter((turno) =>
-        turno.nombre.toLowerCase().includes(nombre.toLowerCase().trim())
+      const responseFiltrado = await axios.get(
+        `http://localhost:3000/appointments/appointments-by-patient-name/${nombre}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
+
+      const turnosFiltrados: Turno[] = responseFiltrado.data
+        .filter((turno: BackTurno) => turno.doctor.user_id === userId)
+        .map((turno: BackTurno) => ({
+          id: turno.id,
+          nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
+          email: turno.patient.user.email,
+          motivo: turno.motivo,
+          fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+        }));
+
       setMisTurnos(turnosFiltrados);
     }
   };
@@ -113,9 +126,12 @@ export default function misTurnos() {
     <div className="flex-1 p-10 space-y-6">
       <section id="misTurnos" className=" mx-2 flex flex-col items-center ">
         <h1 className="text-3xl">Mis Turnos</h1>
+      </section>
+      <section className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">📅 Turnos agendados</h2>
         <div className="my-4">
           <label htmlFor="nombre" className="mr-2">
-            Filtrar por Nombre:
+            Filtrar:
           </label>
           <input
             type="text"
@@ -125,9 +141,6 @@ export default function misTurnos() {
             className="border border-gray-300 rounded p-2"
           />
         </div>
-      </section>
-      <section className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">📅 Turnos agendados</h2>
         {misTurnos.length === 0 ? (
           <p className="text-gray-500">No tenés turnos agendados.</p>
         ) : (
