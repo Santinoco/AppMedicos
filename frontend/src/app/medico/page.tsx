@@ -39,6 +39,7 @@ export default function MedicoDashboard() {
     email: "",
     motivo: "",
     fechaTurno: new Date("2025-05-29T10:30:00"),
+    estado: "",
   });
   const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
@@ -110,6 +111,7 @@ export default function MedicoDashboard() {
               email: pacienteData.user.email,
               motivo: turnoData[0].motivo,
               fechaTurno: turnoData[0].slot_datetime.slot_datetime,
+              estado: turnoData[0].status.status,
             });
           } catch (error) {
             console.error("Error al obtener los datos del paciente:", error);

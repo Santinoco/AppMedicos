@@ -4,4 +4,5 @@ export interface Turno {
   email: string;
   motivo: string;
   fechaTurno: Date;
+  estado: string;
 }
