@@ -2,7 +2,7 @@ import { Repository } from "typeorm";
 import { Appointment } from "./entities/appointment.model";
 import { CreateAppointmentDto } from "./dto/calendar.dto";
 import { Calendar } from "./../calendar/entities/calendar.model";
-import { CalendarService } from "src/calendar/calendar.service";
+import { CalendarService } from "../calendar/calendar.service";
 export declare class AppointmentsService {
     private appointmentRepository;
     private calendarRepository;
