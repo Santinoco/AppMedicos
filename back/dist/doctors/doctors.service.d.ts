@@ -12,4 +12,5 @@ export declare class DoctorsService {
     deleteDoctor(user_id: number): Promise<{
         message: string;
     }>;
+    getDoctorBySpeciality(specialty: string): Promise<Doctor[]>;
 }

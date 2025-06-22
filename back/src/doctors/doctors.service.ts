@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Doctor } from "./entities/doctor.model";
 import { Appointment } from "src/appointments/entities/appointment.model";
+import { isThisSecond } from "date-fns";
 
 @Injectable()
 export class DoctorsService {
@@ -44,6 +45,13 @@ export class DoctorsService {
       throw new NotFoundException(`Doctor with user_id ${user_id} not found`);
     }
     return { message: "Doctor and related appointments deleted successfully" };
+  }
+
+  async getDoctorBySpeciality(specialty: string) {
+    return this.doctorRepository.find({
+      where: { specialty : specialty},
+      relations: ["user"],
+    });
   }
 
 }
