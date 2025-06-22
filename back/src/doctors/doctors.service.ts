@@ -46,4 +46,11 @@ export class DoctorsService {
     return { message: "Doctor and related appointments deleted successfully" };
   }
 
+  async getDoctorBySpeciality(specialty: string) {
+    return this.doctorRepository.find({
+      where: { specialty : specialty},
+      relations: ["user"],
+    });
+  }
+
 }
