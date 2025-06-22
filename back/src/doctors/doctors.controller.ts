@@ -56,4 +56,9 @@ import {
       return this.doctorService.getDoctorBySpeciality(specialty);
     }
 
+    @Get("by-name/:nombre")
+    async getDoctorsByName(@Param("nombre") nombre: string) {
+      return this.doctorService.getDoctorByName(nombre);
+    }
+
   }

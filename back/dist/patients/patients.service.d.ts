@@ -12,4 +12,5 @@ export declare class PatientService {
     deletePatient(user_id: number): Promise<{
         message: string;
     }>;
+    getPatientByName(name: string): Promise<Patient[]>;
 }

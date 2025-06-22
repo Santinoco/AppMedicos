@@ -15,7 +15,7 @@ import { Calendar } from "src/calendar/entities/calendar.model";
       host: "localhost",
       port: 5432,
       username: "postgres",
-      password: "admin",
+      password: "postgres",
       database: "appmedicos",
       entities: [User, Appointment, Doctor, Patient, AppointmentStatus, UserType, Calendar], // Agregar cada nueva entidad acá
       synchronize: false, // Tener cuidado con esto en producción porque puede borrar la info de la base de datos

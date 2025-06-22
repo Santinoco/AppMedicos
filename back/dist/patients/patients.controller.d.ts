@@ -9,4 +9,5 @@ export declare class PatientController {
     deletePatient(user_id: number): Promise<{
         message: string;
     }>;
+    getPatientsByName(nombre: string): Promise<import("./entities/patient.model").Patient[]>;
 }
