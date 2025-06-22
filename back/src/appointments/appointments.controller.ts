@@ -9,11 +9,10 @@ import {
     UseGuards,
     Delete,
   } from "@nestjs/common";
-  import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+  import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
   import { AppointmentsService } from "./appointments.service";
-import { RolesGuard } from "src/auth/roles/roles.guard";
-import { Roles } from "src/auth/roles/roles.decorator";
-import { Timestamp } from "typeorm";
+import { RolesGuard } from "../auth/roles/roles.guard";
+import { Roles } from "../auth/roles/roles.decorator";
 
 @Controller("appointments")
 @UseGuards(JwtAuthGuard, RolesGuard)

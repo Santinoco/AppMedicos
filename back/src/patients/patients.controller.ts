@@ -10,9 +10,9 @@ import {
     UseGuards,
   } from "@nestjs/common";
   import { PatientService } from "./patients.service";
-  import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-  import { RolesGuard } from "src/auth/roles/roles.guard";
-import { Roles } from "src/auth/roles/roles.decorator";
+  import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+  import { RolesGuard } from "../auth/roles/roles.guard";
+  import { Roles } from "../auth/roles/roles.decorator";
   
   @Controller("patients")
   @UseGuards(JwtAuthGuard, RolesGuard)
