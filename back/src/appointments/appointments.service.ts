@@ -144,7 +144,7 @@ export class AppointmentsService {
         relations: [
           'doctor', 'doctor.user',
           'patient', 'patient.user',
-         'status',
+          'status', 'slot_datetime',
         ],
         order: {
           id: 'ASC',
