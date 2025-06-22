@@ -9,9 +9,9 @@ import {
 } from "typeorm";
 import { User } from "../../users/entities/user.model";
 import { AppointmentStatus } from "../../appointment-statuses/entities/appointment-status.model";
-import { Doctor } from "src/doctors/entities/doctor.model";
-import { Patient } from "src/patients/entities/patient.model";
-import { Calendar } from "src/calendar/entities/calendar.model";
+import { Doctor } from "../../doctors/entities/doctor.model";
+import { Patient } from "../../patients/entities/patient.model";
+import { Calendar } from "../../calendar/entities/calendar.model";
 
 @Entity()
 export class Appointment {

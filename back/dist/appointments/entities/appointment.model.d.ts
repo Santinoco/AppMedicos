@@ -1,7 +1,7 @@
 import { AppointmentStatus } from "../../appointment-statuses/entities/appointment-status.model";
-import { Doctor } from "src/doctors/entities/doctor.model";
-import { Patient } from "src/patients/entities/patient.model";
-import { Calendar } from "src/calendar/entities/calendar.model";
+import { Doctor } from "../../doctors/entities/doctor.model";
+import { Patient } from "../../patients/entities/patient.model";
+import { Calendar } from "../../calendar/entities/calendar.model";
 export declare class Appointment {
     id: number;
     slot_datetime: Calendar;

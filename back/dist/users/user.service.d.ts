@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { User } from "./entities/user.model";
-import { DoctorsService } from "src/doctors/doctors.service";
-import { PatientService } from "src/patients/patients.service";
+import { DoctorsService } from "../doctors/doctors.service";
+import { PatientService } from "../patients/patients.service";
 export declare class UserService {
     private userRepository;
     private doctorService;
