@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { Appointment } from "./entities/appointment.model";
 import { CreateAppointmentDto } from "./dto/calendar.dto";
 import { Calendar } from "./../calendar/entities/calendar.model"
+import { Between } from "typeorm";
 
 @Injectable()
 export class AppointmentsService {
@@ -113,6 +114,33 @@ export class AppointmentsService {
       order: {
         id: 'ASC',
       },
+    });
+
+    return appointments;
+  }
+
+  async getAppointmentsByDate(date: Date) {
+    // Si 'date' viene como string (por ejemplo, '2024-06-10'), conviértelo a Date local
+    const input = typeof date === 'string' ? new Date(date + 'T00:00:00') : new Date(date);
+    const start = new Date(input);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(input);
+    end.setHours(23, 59, 59, 999);
+
+    const appointments = await this.appointmentRepository.find({
+      where: {
+        slot_datetime: {
+          slot_datetime: Between(start, end),
+        },
+      },
+      relations: [
+        'doctor', 'doctor.user',
+        'patient', 'patient.user',
+        'status', 'slot_datetime'
+      ],
+      order: {
+        id: 'ASC',
+      }
     });
 
     return appointments;

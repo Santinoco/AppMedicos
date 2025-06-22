@@ -18,6 +18,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const appointment_model_1 = require("./entities/appointment.model");
 const calendar_model_1 = require("./../calendar/entities/calendar.model");
+const typeorm_3 = require("typeorm");
 let AppointmentsService = class AppointmentsService {
     appointmentRepository;
     calendarRepository;
@@ -115,6 +116,29 @@ let AppointmentsService = class AppointmentsService {
             order: {
                 id: 'ASC',
             },
+        });
+        return appointments;
+    }
+    async getAppointmentsByDate(date) {
+        const input = typeof date === 'string' ? new Date(date + 'T00:00:00') : new Date(date);
+        const start = new Date(input);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(input);
+        end.setHours(23, 59, 59, 999);
+        const appointments = await this.appointmentRepository.find({
+            where: {
+                slot_datetime: {
+                    slot_datetime: (0, typeorm_3.Between)(start, end),
+                },
+            },
+            relations: [
+                'doctor', 'doctor.user',
+                'patient', 'patient.user',
+                'status', 'slot_datetime'
+            ],
+            order: {
+                id: 'ASC',
+            }
         });
         return appointments;
     }

@@ -13,6 +13,7 @@ import {
   import { AppointmentsService } from "./appointments.service";
 import { RolesGuard } from "src/auth/roles/roles.guard";
 import { Roles } from "src/auth/roles/roles.decorator";
+import { Timestamp } from "typeorm";
 
 @Controller("appointments")
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -63,5 +64,9 @@ export class AppointmentsController {
     return this.appointmentsService.getAppointmentsByPatientName(name);
   }
 
+  @Get('appointments-by-date/:date')
+  async getAppointmentsByDate(@Param('date') date: Date) {
+    return this.appointmentsService.getAppointmentsByDate(date);
+  }
   
 }

@@ -47,6 +47,9 @@ let AppointmentsController = class AppointmentsController {
     async getAppointmentsByName(name) {
         return this.appointmentsService.getAppointmentsByPatientName(name);
     }
+    async getAppointmentsByDate(date) {
+        return this.appointmentsService.getAppointmentsByDate(date);
+    }
 };
 exports.AppointmentsController = AppointmentsController;
 __decorate([
@@ -106,6 +109,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "getAppointmentsByName", null);
+__decorate([
+    (0, common_1.Get)('appointments-by-date/:date'),
+    __param(0, (0, common_1.Param)('date')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Date]),
+    __metadata("design:returntype", Promise)
+], AppointmentsController.prototype, "getAppointmentsByDate", null);
 exports.AppointmentsController = AppointmentsController = __decorate([
     (0, common_1.Controller)("appointments"),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
