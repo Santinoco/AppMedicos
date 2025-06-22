@@ -45,7 +45,7 @@ let AppointmentsService = class AppointmentsService {
     }
     async getAppointmentById(id) {
         try {
-            return this.appointmentRepository.findOne({ relations: [
+            const appointment = await this.appointmentRepository.findOne({ relations: [
                     'patient_id',
                     'patient.user',
                     'doctor_id',
@@ -53,9 +53,13 @@ let AppointmentsService = class AppointmentsService {
                     'status',
                     'slot_datetime',
                 ], where: { id } });
+            if (!appointment) {
+                throw new common_1.NotFoundException(`Turno con ID ${id} no encontrado`);
+            }
+            return appointment;
         }
         catch (error) {
-            throw new common_1.BadRequestException('Error al obtener el turno.');
+            throw new common_1.NotFoundException('Error al obtener el turno.');
         }
     }
     async createAppointment(dto) {

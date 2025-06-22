@@ -7,9 +7,9 @@ export declare class AppointmentsService {
     private calendarRepository;
     constructor(appointmentRepository: Repository<Appointment>, calendarRepository: Repository<Calendar>);
     getAllAppointments(): Promise<Appointment[]>;
-    getAppointmentById(id: number): Promise<Appointment | null>;
+    getAppointmentById(id: number): Promise<Appointment>;
     createAppointment(dto: CreateAppointmentDto): Promise<Appointment>;
-    updateAppointmentStatus(id: number, newStatus: number): Promise<Appointment | null>;
+    updateAppointmentStatus(id: number, newStatus: number): Promise<Appointment>;
     findByDoctorId(doctorUserId: number): Promise<Appointment[]>;
     findByPatientId(patientUserId: number): Promise<Appointment[]>;
     deleteAppointment(id: number): Promise<string>;

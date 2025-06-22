@@ -46,7 +46,7 @@ export class AppointmentsService {
       }
       return appointment;
     } catch (error) {
-      throw new BadRequestException('Error al obtener el turno.');
+      throw new NotFoundException('Error al obtener el turno.');
     }
   }
 
