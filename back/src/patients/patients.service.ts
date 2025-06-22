@@ -53,4 +53,15 @@ export class PatientService {
   
     return { message: "Patient and related appointments deleted successfully" };
   } 
+
+  async getPatientByName(name: string) {
+    const patients = await this.patientRepository.find({
+      where: {
+        user: { nombre: name },
+      },
+      relations: ["user"],
+      order: { user_id: "ASC" },
+    });
+    return patients;
+  }
 }

@@ -59,6 +59,12 @@ let DoctorsService = class DoctorsService {
             relations: ["user"],
         });
     }
+    async getDoctorByName(name) {
+        return this.doctorRepository.find({
+            where: { user: { nombre: name } },
+            relations: ["user"],
+        });
+    }
 };
 exports.DoctorsService = DoctorsService;
 exports.DoctorsService = DoctorsService = __decorate([

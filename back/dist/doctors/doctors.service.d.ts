@@ -13,4 +13,5 @@ export declare class DoctorsService {
         message: string;
     }>;
     getDoctorBySpeciality(specialty: string): Promise<Doctor[]>;
+    getDoctorByName(name: string): Promise<Doctor[]>;
 }

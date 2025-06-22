@@ -49,4 +49,9 @@ import {
       return this.patientService.deletePatient(user_id);
     }
 
+    @Get("by-name/:nombre")
+    async getPatientsByName(@Param("nombre") nombre: string) {
+      return this.patientService.getPatientByName(nombre);
+    }
+
   }
