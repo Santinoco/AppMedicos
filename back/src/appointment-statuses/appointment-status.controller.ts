@@ -8,9 +8,9 @@ import {
     UseGuards,
   } from "@nestjs/common";
   import { AppointmentStatusService } from "./appointment-status.service";
-  import { RolesGuard } from "src/auth/roles/roles.guard";
-  import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-  import { Roles } from "src/auth/roles/roles.decorator";
+  import { RolesGuard } from "../auth/roles/roles.guard";
+  import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+  import { Roles } from "../auth/roles/roles.decorator";
     
   @Controller("appointment-statuses")
   @UseGuards(JwtAuthGuard, RolesGuard)
