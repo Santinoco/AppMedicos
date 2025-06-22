@@ -5,7 +5,7 @@ import { Appointment } from "./entities/appointment.model";
 import { CreateAppointmentDto } from "./dto/calendar.dto";
 import { Calendar } from "./../calendar/entities/calendar.model"
 import { Between } from "typeorm";
-
+import { CalendarService } from "src/calendar/calendar.service";
 @Injectable()
 export class AppointmentsService {
   constructor(
@@ -13,6 +13,7 @@ export class AppointmentsService {
     private appointmentRepository: Repository<Appointment>,
     @InjectRepository(Calendar)
     private calendarRepository: Repository<Calendar>,
+    private calendarService: CalendarService,
   ) {}
 
   async getAllAppointments() {
@@ -53,11 +54,12 @@ export class AppointmentsService {
   async createAppointment(dto: CreateAppointmentDto) {
     try {
       const slot = await this.calendarRepository.findOne({ where: { slot_datetime: dto.slot_datetime } });
-    
+
       if (!slot) {
         throw new NotFoundException("No existe un slot para esa fecha y hora.");
       }
-    
+
+
       const appointment = this.appointmentRepository.create({
         motivo: dto.motivo,
         slot_datetime: slot,
@@ -89,7 +91,7 @@ export class AppointmentsService {
         relations: [
           'doctor', 'doctor.user',
           'patient', 'patient.user',
-          'status',
+          'status', 'slot_datetime',
         ],
         order: {
           id: 'ASC',
@@ -109,7 +111,7 @@ export class AppointmentsService {
         relations: [
           'doctor', 'doctor.user',
           'patient', 'patient.user',
-          'status',
+          'status', 'slot_datetime',
         ],
         order: {
           id: 'ASC',

@@ -19,12 +19,15 @@ const typeorm_2 = require("typeorm");
 const appointment_model_1 = require("./entities/appointment.model");
 const calendar_model_1 = require("./../calendar/entities/calendar.model");
 const typeorm_3 = require("typeorm");
+const calendar_service_1 = require("../calendar/calendar.service");
 let AppointmentsService = class AppointmentsService {
     appointmentRepository;
     calendarRepository;
-    constructor(appointmentRepository, calendarRepository) {
+    calendarService;
+    constructor(appointmentRepository, calendarRepository, calendarService) {
         this.appointmentRepository = appointmentRepository;
         this.calendarRepository = calendarRepository;
+        this.calendarService = calendarService;
     }
     async getAllAppointments() {
         try {
@@ -98,7 +101,7 @@ let AppointmentsService = class AppointmentsService {
                 relations: [
                     'doctor', 'doctor.user',
                     'patient', 'patient.user',
-                    'status',
+                    'status', 'slot_datetime',
                 ],
                 order: {
                     id: 'ASC',
@@ -118,7 +121,7 @@ let AppointmentsService = class AppointmentsService {
                 relations: [
                     'doctor', 'doctor.user',
                     'patient', 'patient.user',
-                    'status',
+                    'status', 'slot_datetime',
                 ],
                 order: {
                     id: 'ASC',
@@ -198,6 +201,7 @@ exports.AppointmentsService = AppointmentsService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(appointment_model_1.Appointment)),
     __param(1, (0, typeorm_1.InjectRepository)(calendar_model_1.Calendar)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        calendar_service_1.CalendarService])
 ], AppointmentsService);
 //# sourceMappingURL=appointments.service.js.map
