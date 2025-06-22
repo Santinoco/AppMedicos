@@ -71,4 +71,13 @@ export class UserService {
     });
 }
 
+async findUsersByName(nombre: string) {
+  const users = await this.userRepository.find({ where: { nombre } });
+  if (!users || users.length === 0) {
+    throw new NotFoundException(`No se encontraron usuarios con el nombre ${nombre}`);
+  }
+  return users;
+}
+
+
 }

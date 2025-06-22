@@ -19,4 +19,5 @@ export declare class UserService {
         message: string;
     }>;
     findByEmailWithType(email: string): Promise<User | null>;
+    findUsersByName(nombre: string): Promise<User[]>;
 }

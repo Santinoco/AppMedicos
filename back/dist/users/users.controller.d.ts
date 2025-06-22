@@ -8,6 +8,7 @@ export declare class UsersController {
         user: import("./entities/user.model").User | null;
         message: string;
     }>;
+    getUsersByName(name: string): Promise<import("./entities/user.model").User[]>;
     updateUser(id: number, updateData: any): Promise<import("./entities/user.model").User>;
     deleteUser(id: number): Promise<{
         message: string;

@@ -32,6 +32,9 @@ let UsersController = class UsersController {
     async getUserAppoinments(id) {
         return this.userService.getUserAppoinments(id);
     }
+    async getUsersByName(name) {
+        return this.userService.findUsersByName(name);
+    }
     async updateUser(id, updateData) {
         return this.userService.updateUser(id, updateData);
     }
@@ -60,6 +63,13 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getUserAppoinments", null);
+__decorate([
+    (0, common_1.Get)("by-name/:name"),
+    __param(0, (0, common_1.Param)("name")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getUsersByName", null);
 __decorate([
     (0, common_1.Patch)(":id"),
     (0, roles_decorator_1.Roles)("administrator"),
