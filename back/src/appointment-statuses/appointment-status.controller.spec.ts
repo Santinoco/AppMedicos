@@ -1,27 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LocationController } from '../locations/locations.controller';
-import { LocationService } from '../locations/locations.service';
+import { AppointmentStatusController } from './appointment-status.controller';
+import { AppointmentStatusService } from './appointment-status.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles/roles.guard';
 
-describe('LocationController', () => {
-  let controller: LocationController;
-  let service: LocationService;
+describe('AppointmentStatusController', () => {
+  let controller: AppointmentStatusController;
+  let service: AppointmentStatusService;
 
   const mockService = {
-    getAllLocations: jest.fn(),
-    getLocationById: jest.fn(),
-    createLocation: jest.fn(),
-    deleteLocation: jest.fn(),
-    updateLocation: jest.fn(),
+    getAllStatuses: jest.fn(),
+    getStatusById: jest.fn(),
+    createStatus: jest.fn(),
   };
 
   const mockGuard = { canActivate: jest.fn(() => true) };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [LocationController],
-      providers: [{ provide: LocationService, useValue: mockService }],
+      controllers: [AppointmentStatusController],
+      providers: [
+        { provide: AppointmentStatusService, useValue: mockService },
+      ],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue(mockGuard)
@@ -29,70 +29,46 @@ describe('LocationController', () => {
       .useValue(mockGuard)
       .compile();
 
-    controller = module.get<LocationController>(LocationController);
-    service = module.get<LocationService>(LocationService);
+    controller = module.get<AppointmentStatusController>(AppointmentStatusController);
+    service = module.get<AppointmentStatusService>(AppointmentStatusService);
 
     jest.clearAllMocks();
   });
 
-  describe('getAllLocations', () => {
-    it('should return all locations', async () => {
-      const mockLocations = [{ id: 1, nombre: 'Centro' }];
-      mockService.getAllLocations.mockResolvedValue(mockLocations);
+  describe('getAllStatuses', () => {
+    it('should return all appointment statuses', async () => {
+      const data = [{ status_id: 1, status: 'Pendiente' }, { status_id: 2, status: 'Confirmado' }];
+      mockService.getAllStatuses.mockResolvedValue(data);
 
-      const result = await controller.getAllLocations();
+      const result = await controller.getAllStatuses();
 
-      expect(result).toBe(mockLocations);
-      expect(mockService.getAllLocations).toHaveBeenCalled();
+      expect(result).toBe(data);
+      expect(mockService.getAllStatuses).toHaveBeenCalled();
     });
   });
 
-  describe('getLocationById', () => {
-    it('should return the location by id', async () => {
-      const mockLocation = { id: 2, nombre: 'Sucursal A' };
-      mockService.getLocationById.mockResolvedValue(mockLocation);
+  describe('getStatusById', () => {
+    it('should return a status by id', async () => {
+      const data = { status_id: 3, status: 'Finalizado' };
+      mockService.getStatusById.mockResolvedValue(data);
 
-      const result = await controller.getLocationById(2);
+      const result = await controller.getStatusById(3);
 
-      expect(result).toBe(mockLocation);
-      expect(mockService.getLocationById).toHaveBeenCalledWith(2);
+      expect(result).toBe(data);
+      expect(mockService.getStatusById).toHaveBeenCalledWith(3);
     });
   });
 
-  describe('createLocation', () => {
-    it('should create a new location', async () => {
-      const dto = { nombre: 'Nueva Sucursal', direccion: 'Av X 1234' };
-      const mockLocation = { ...dto, id: 5 };
-      mockService.createLocation.mockResolvedValue(mockLocation);
+  describe('createStatus', () => {
+    it('should create a new status', async () => {
+      const dto = { status: 'En proceso' };
+      const created = { status_id: 4, ...dto };
+      mockService.createStatus.mockResolvedValue(created);
 
-      const result = await controller.createLocation(dto);
+      const result = await controller.createStatus(dto);
 
-      expect(result).toBe(mockLocation);
-      expect(mockService.createLocation).toHaveBeenCalledWith(dto);
-    });
-  });
-
-  describe('deleteLocation', () => {
-    it('should delete the location', async () => {
-      mockService.deleteLocation.mockResolvedValue('Eliminado correctamente');
-
-      const result = await controller.deleteLocation(8);
-
-      expect(result).toBe('Eliminado correctamente');
-      expect(mockService.deleteLocation).toHaveBeenCalledWith(8);
-    });
-  });
-
-  describe('updateLocation', () => {
-    it('should update the location', async () => {
-      const patch = { nombre: 'Sucursal editada' };
-      const updated = { id: 10, ...patch };
-      mockService.updateLocation.mockResolvedValue(updated);
-
-      const result = await controller.updateLocation(10, patch);
-
-      expect(result).toBe(updated);
-      expect(mockService.updateLocation).toHaveBeenCalledWith(10, patch);
+      expect(result).toBe(created);
+      expect(mockService.createStatus).toHaveBeenCalledWith(dto);
     });
   });
 
