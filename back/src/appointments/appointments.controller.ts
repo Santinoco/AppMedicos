@@ -57,5 +57,15 @@ export class AppointmentsController {
   async deleteAppointment(@Param('id', ParseIntPipe) id: number) {
     return this.appointmentsService.deleteAppointment(id);
   }
+
+  @Get('appointments-by-patient-name/:name')
+  async getAppointmentsByName(@Param('name') name: string) {
+    return this.appointmentsService.getAppointmentsByPatientName(name);
+  }
+
+  @Get('appointments-by-date/:date')
+  async getAppointmentsByDate(@Param('date') date: Date) {
+    return this.appointmentsService.getAppointmentsByDate(date);
+  }
   
 }

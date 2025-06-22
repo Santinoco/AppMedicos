@@ -51,4 +51,9 @@ import {
       return this.doctorService.deleteDoctor(user_id);
     }
 
+    @Get("specialty/:specialty")
+    async getDoctorsBySpecialty(@Param("specialty") specialty: string) {
+      return this.doctorService.getDoctorBySpeciality(specialty);
+    }
+
   }

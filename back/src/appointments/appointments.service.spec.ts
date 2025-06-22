@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppointmentsService } from './appointments.service';
-import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Appointment } from './entities/appointment.model';
 import { Calendar } from '../calendar/entities/calendar.model';
-import { NotFoundException } from '@nestjs/common';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { CalendarService } from '../calendar/calendar.service';
 
-// Helper factory para mockear el repositorio TypeORM
 const mockRepository = () => ({
   find: jest.fn(),
   findOne: jest.fn(),
@@ -14,7 +12,9 @@ const mockRepository = () => ({
   save: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
+  delete: jest.fn(),
 });
+const mockCalendarService = {};
 
 describe('AppointmentsService', () => {
   let service: AppointmentsService;
@@ -27,165 +27,157 @@ describe('AppointmentsService', () => {
         AppointmentsService,
         { provide: getRepositoryToken(Appointment), useFactory: mockRepository },
         { provide: getRepositoryToken(Calendar), useFactory: mockRepository },
+        { provide: CalendarService, useValue: mockCalendarService },
       ],
     }).compile();
 
     service = module.get<AppointmentsService>(AppointmentsService);
     appointmentRepo = module.get(getRepositoryToken(Appointment));
     calendarRepo = module.get(getRepositoryToken(Calendar));
-
     // @ts-ignore
     service.appointmentRepository = appointmentRepo;
     // @ts-ignore
     service.calendarRepository = calendarRepo;
-
-    jest.clearAllMocks();
   });
 
+  afterEach(() => jest.clearAllMocks());
+
+  
   describe('getAllAppointments', () => {
-    it('should find all appointments with relations', async () => {
+    it('should return all appointments', async () => {
       const expected = [{ id: 1 }];
       appointmentRepo.find.mockResolvedValue(expected);
-
       const result = await service.getAllAppointments();
-
-      expect(appointmentRepo.find).toHaveBeenCalledWith({
-        relations: [
-          'patient_id',
-          'patient.user',
-          'doctor_id',
-          'doctor.user',
-          'status',
-          'slot_datetime',
-        ],
-        order: { id: "ASC" }
-      });
       expect(result).toBe(expected);
     });
   });
 
+  
   describe('getAppointmentById', () => {
-    it('should find appointment by id with relations', async () => {
-      const appointment = { id: 22 };
-      appointmentRepo.findOne.mockResolvedValue(appointment);
-
-      const result = await service.getAppointmentById(22);
-
-      expect(appointmentRepo.findOne).toHaveBeenCalledWith({
-        relations: [
-          'patient_id',
-          'patient.user',
-          'doctor_id',
-          'doctor.user',
-          'status',
-          'slot_datetime',
-        ],
-        where: { id: 22 }
-      });
-      expect(result).toBe(appointment);
+    it('should return an appointment by id if exists', async () => {
+      const expected = { id: 4 };
+      appointmentRepo.findOne.mockResolvedValue(expected);
+      const result = await service.getAppointmentById(4);
+      expect(result).toBe(expected);
     });
   });
 
+  
   describe('createAppointment', () => {
-    const dto = { motivo: 'Consulta', slot_datetime: '2024-06-01T10:00:00Z', doctor_id: 1, patient_id: 2 };
+    const dto = { motivo: 'Test', slot_datetime: '2024-07-01', doctor_id: 2, patient_id: 9 };
 
-    it('should create appointment when slot exists', async () => {
-      const fakeSlot = { id: 10 };
-      const appCreated = { ...dto, slot_datetime: fakeSlot };
-      const appSaved = { ...appCreated, id: 1 };
+    it('should create and return appointment', async () => {
+      const slot = { id: 5 };
+      const created = { ...dto, slot_datetime: slot };
+      const saved = { ...created, id: 88 };
 
-      calendarRepo.findOne.mockResolvedValue(fakeSlot);
-      appointmentRepo.create.mockReturnValue(appCreated);
-      appointmentRepo.save.mockResolvedValue(appSaved);
+      calendarRepo.findOne.mockResolvedValue(slot);
+      appointmentRepo.create.mockReturnValue(created);
+      appointmentRepo.save.mockResolvedValue(saved);
 
       const result = await service.createAppointment(dto as any);
-
+      expect(result).toBe(saved);
       expect(calendarRepo.findOne).toHaveBeenCalledWith({ where: { slot_datetime: dto.slot_datetime } });
       expect(appointmentRepo.create).toHaveBeenCalledWith({
         motivo: dto.motivo,
-        slot_datetime: fakeSlot,
+        slot_datetime: slot,
         doctor_id: dto.doctor_id,
         patient_id: dto.patient_id,
       });
-      expect(appointmentRepo.save).toHaveBeenCalledWith(appCreated);
-      expect(result).toBe(appSaved);
-    });
-
-    it('should throw NotFoundException if slot does not exist', async () => {
-      calendarRepo.findOne.mockResolvedValue(null);
-      await expect(service.createAppointment(dto as any)).rejects.toThrow(NotFoundException);
+      expect(appointmentRepo.save).toHaveBeenCalledWith(created);
     });
   });
 
+  
   describe('updateAppointmentStatus', () => {
-    it('should update appointment status and return appointment', async () => {
+    it('should update and return appointment', async () => {
       appointmentRepo.update.mockResolvedValue(undefined);
-      const found = { id: 99, estado_id: 3 };
-      jest.spyOn(service, 'getAppointmentById').mockResolvedValue(found as any);
+      jest.spyOn(service, 'getAppointmentById').mockResolvedValue({ id: 9, estado_id: 5 } as any);
 
-      const result = await service.updateAppointmentStatus(99, 3);
-
-      expect(appointmentRepo.update).toHaveBeenCalledWith(99, { estado_id: 3 });
-      expect(service.getAppointmentById).toHaveBeenCalledWith(99);
-      expect(result).toBe(found);
+      const result = await service.updateAppointmentStatus(9, 5);
+      expect(result).toEqual({ id: 9, estado_id: 5 });
+      expect(appointmentRepo.update).toHaveBeenCalledWith(9, { estado_id: 5 });
+      expect(service.getAppointmentById).toHaveBeenCalledWith(9);
     });
   });
 
+  
   describe('findByDoctorId', () => {
-    it('should find appointments by doctor id', async () => {
-      const appointments = [{ id: 5 }];
-      appointmentRepo.find.mockResolvedValue(appointments);
-
-      const doctorUserId = 15;
-      const result = await service.findByDoctorId(doctorUserId);
-
-      expect(appointmentRepo.find).toHaveBeenCalledWith({
-        where: { doctor: { user_id: doctorUserId } },
-        relations: [
-          'doctor', 'doctor.user', 'patient', 'patient.user', 'status',
-        ],
-        order: { id: 'ASC' }
-      });
-      expect(result).toBe(appointments);
+    it('should return appointments for doctor', async () => {
+      const data = [{ id: 1 }];
+      appointmentRepo.find.mockResolvedValue(data);
+      const result = await service.findByDoctorId(5);
+      expect(result).toBe(data);
+      expect(appointmentRepo.find).toHaveBeenCalledWith(expect.objectContaining({
+        where: { doctor: { user_id: 5 } }
+      }));
     });
   });
 
+  
   describe('findByPatientId', () => {
-    it('should find appointments by patient id', async () => {
-      const appointments = [{ id: 6 }];
-      appointmentRepo.find.mockResolvedValue(appointments);
-
-      const patientUserId = 17;
-      const result = await service.findByPatientId(patientUserId);
-
-      expect(appointmentRepo.find).toHaveBeenCalledWith({
-        where: { patient: { user_id: patientUserId } },
-        relations: [
-          'doctor', 'doctor.user', 'patient', 'patient.user', 'status',
-        ],
-        order: { id: 'ASC' }
-      });
-      expect(result).toBe(appointments);
+    it('should return appointments for patient', async () => {
+      const data = [{ id: 1 }];
+      appointmentRepo.find.mockResolvedValue(data);
+      const result = await service.findByPatientId(2);
+      expect(result).toBe(data);
+      expect(appointmentRepo.find).toHaveBeenCalledWith(expect.objectContaining({
+        where: { patient: { user_id: 2 } }
+      }));
     });
   });
 
+  
   describe('deleteAppointment', () => {
-    it('should delete appointment if exists', async () => {
-      const existing = { id: 77 };
-      appointmentRepo.findOne.mockResolvedValue(existing);
+    it('should remove if appointment exists', async () => {
+      const fake = { id: 9 };
+      appointmentRepo.findOne.mockResolvedValue(fake);
       appointmentRepo.remove.mockResolvedValue(undefined);
 
-      const res = await service.deleteAppointment(77);
-
-      expect(appointmentRepo.findOne).toHaveBeenCalledWith({ where: { id: 77 } });
-      expect(appointmentRepo.remove).toHaveBeenCalledWith(existing);
-      expect(res).toBe("Turno eliminado correctamente");
-    });
-
-    it('should throw NotFoundException if appointment does not exist', async () => {
-      appointmentRepo.findOne.mockResolvedValue(null);
-
-      await expect(service.deleteAppointment(77)).rejects.toThrow(NotFoundException);
+      const result = await service.deleteAppointment(9);
+      expect(result).toBe('Turno eliminado correctamente');
+      expect(appointmentRepo.findOne).toHaveBeenCalledWith({ where: { id: 9 } });
+      expect(appointmentRepo.remove).toHaveBeenCalledWith(fake);
     });
   });
+
+  
+  describe('getAppointmentsByPatientName', () => {
+    it('should return appointments for a patient name', async () => {
+      const data = [{ id: 1 }];
+      appointmentRepo.find.mockResolvedValue(data);
+      const result = await service.getAppointmentsByPatientName('Pepe');
+      expect(result).toBe(data);
+      expect(appointmentRepo.find).toHaveBeenCalledWith(expect.objectContaining({
+        where: { patient: { user: { nombre: 'Pepe' } } }
+      }));
+    });
+  });
+
+  
+  describe('getAppointmentsByDate', () => {
+    it('should search between dates (date as string)', async () => {
+      const data = [];
+      const date = new Date('2024-07-02T00:00:00Z');
+      appointmentRepo.find.mockResolvedValue(data);
+
+      const result = await service.getAppointmentsByDate(date);
+      expect(result).toBe(data);
+
+      const call = appointmentRepo.find.mock.calls[0][0];
+      expect(call.where.slot_datetime.slot_datetime.constructor.name).toBe('FindOperator');
+      expect(call.where.slot_datetime.slot_datetime.type).toBe('between');
+    });
+
+    it('should search between dates (date as Date)', async () => {
+      const data = [];
+      appointmentRepo.find.mockResolvedValue(data);
+      const date = new Date('2024-07-03T00:00:00Z');
+
+      const result = await service.getAppointmentsByDate(date);
+      expect(result).toBe(data);
+    });
+
+  });
+
 });

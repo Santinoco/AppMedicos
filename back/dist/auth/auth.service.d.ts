@@ -2,7 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../users/user.service';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
-import { UserType } from 'src/user-type/entities/user-type.model';
+import { UserType } from '../user-type/entities/user-type.model';
 import { Repository } from 'typeorm';
 export declare class AuthService {
     private readonly userTypeRepository;

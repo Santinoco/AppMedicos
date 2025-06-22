@@ -53,6 +53,12 @@ let DoctorsService = class DoctorsService {
         }
         return { message: "Doctor and related appointments deleted successfully" };
     }
+    async getDoctorBySpeciality(specialty) {
+        return this.doctorRepository.find({
+            where: { specialty: specialty },
+            relations: ["user"],
+        });
+    }
 };
 exports.DoctorsService = DoctorsService;
 exports.DoctorsService = DoctorsService = __decorate([
