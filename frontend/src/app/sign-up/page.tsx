@@ -55,6 +55,17 @@ export default function SignUp() {
       }
 
       setSuccess('Registro exitoso! Redirigiendo...');
+
+      const data1 = await res.json();
+      const userRol =
+        data1.user?.type?.name ||
+        data1.user?.role ||
+        data1.user?.rol ||
+        '';
+
+      localStorage.setItem('user', JSON.stringify(data1.user));
+      localStorage.setItem('access_token', data1.access_token);
+
       setTimeout(() => {
         router.push(type === 'patient' ? '/paciente' : '/medico');
       }, 1000);
