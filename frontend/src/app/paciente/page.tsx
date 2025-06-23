@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { getUserId } from '../../services/userIdService';
 
 export default function PacienteInicio() {
   const [user, setUser] = useState(null);
@@ -11,7 +12,7 @@ export default function PacienteInicio() {
   useEffect(() => {
     const waitForCredentials = () => {
       const accessToken = localStorage.getItem("access_token");
-      const userId = localStorage.getItem("user_id");
+      const userId = getUserId();
       if (!accessToken || !userId) {
         setTimeout(waitForCredentials, 50);
         return;
