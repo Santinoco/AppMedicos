@@ -26,44 +26,74 @@ let PatientService = class PatientService {
         this.appointmentRepository = appointmentRepository;
     }
     async getAllPatients() {
-        return this.patientRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
+        try {
+            return this.patientRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
+        }
+        catch (error) {
+            throw new Error(`Failed to retrieve patients: ${error.message}`);
+        }
     }
     async getPatientById(user_id) {
-        return this.patientRepository.findOne({
-            where: { user_id },
-            relations: ["user"],
-        });
+        try {
+            return this.patientRepository.findOne({
+                where: { user_id },
+                relations: ["user"],
+            });
+        }
+        catch (error) {
+            throw new Error(`Failed to retrieve patient with user_id ${user_id}: ${error.message}`);
+        }
     }
     async createPatient(patientData) {
-        const patient = this.patientRepository.create(patientData);
-        return this.patientRepository.save(patient);
+        try {
+            const patient = this.patientRepository.create(patientData);
+            return this.patientRepository.save(patient);
+        }
+        catch (error) {
+            throw new Error(`Failed to create patient: ${error.message}`);
+        }
     }
     async updatePatient(user_id, updateData) {
-        const patient = await this.patientRepository.findOne({ where: { user_id } });
-        if (!patient) {
-            throw new common_1.NotFoundException(`Patient with user_id ${user_id} not found`);
+        try {
+            const patient = await this.patientRepository.findOne({ where: { user_id } });
+            if (!patient) {
+                throw new common_1.NotFoundException(`Patient with user_id ${user_id} not found`);
+            }
+            Object.assign(patient, updateData);
+            return this.patientRepository.save(patient);
         }
-        Object.assign(patient, updateData);
-        return this.patientRepository.save(patient);
+        catch (error) {
+            throw new Error(`Failed to update patient with user_id ${user_id}: ${error.message}`);
+        }
     }
     async deletePatient(user_id) {
-        const patient = await this.patientRepository.findOne({ where: { user_id } });
-        if (!patient) {
-            throw new common_1.NotFoundException(`Patient with user_id ${user_id} not found`);
+        try {
+            const patient = await this.patientRepository.findOne({ where: { user_id } });
+            if (!patient) {
+                throw new common_1.NotFoundException(`Patient with user_id ${user_id} not found`);
+            }
+            await this.appointmentRepository.delete({ patient: { user_id } });
+            await this.patientRepository.delete({ user_id });
+            return { message: "Patient and related appointments deleted successfully" };
         }
-        await this.appointmentRepository.delete({ patient: { user_id } });
-        await this.patientRepository.delete({ user_id });
-        return { message: "Patient and related appointments deleted successfully" };
+        catch (error) {
+            throw new Error(`Failed to delete patient with user_id ${user_id}: ${error.message}`);
+        }
     }
     async getPatientByName(name) {
-        const patients = await this.patientRepository.find({
-            where: {
-                user: { nombre: name },
-            },
-            relations: ["user"],
-            order: { user_id: "ASC" },
-        });
-        return patients;
+        try {
+            const patients = await this.patientRepository.find({
+                where: {
+                    user: { nombre: name },
+                },
+                relations: ["user"],
+                order: { user_id: "ASC" },
+            });
+            return patients;
+        }
+        catch (error) {
+            throw new Error(`Failed to retrieve patients by name ${name}: ${error.message}`);
+        }
     }
 };
 exports.PatientService = PatientService;
