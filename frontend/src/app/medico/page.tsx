@@ -67,23 +67,7 @@ export default function MedicoDashboard() {
 
       try {
         // El backend retorna un objeto con los datos del médico
-        const responseMedico = await axios.get(
-          `http://localhost:3000/doctors/${userId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const medicoData: BackMedico = responseMedico.data;
-
-        setMedico({
-          nombre: `${medicoData.user.nombre} ${medicoData.user.apellido}`,
-          especialidad: medicoData.specialty,
-          numeroMatricula: medicoData.license_number,
-          email: medicoData.user.email,
-          comienzoJornada: medicoData.shift_start,
-          finJornada: medicoData.shift_end,
-        });
-
+        getMedico(token, userId);
         try {
           // El backend retorna un objeto con los datos de los turnos del medico
           const responseTurno = await axios.get(
@@ -92,12 +76,14 @@ export default function MedicoDashboard() {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-          const turnoData: BackTurno[] = responseTurno.data;
+          const turnoData: BackTurno = responseTurno.data.find(
+            (turno) => turno.status.status === "pending"
+          );
 
           try {
             // Obtener datos del paciente del primer turno
             const responsePaciente = await axios.get(
-              `http://localhost:3000/patients/${turnoData[0].patient.user_id}`,
+              `http://localhost:3000/patients/${turnoData.patient.user_id}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
               }
@@ -106,12 +92,12 @@ export default function MedicoDashboard() {
 
             // Asignar el primer turno como "próximo turno"
             setTurno({
-              id: turnoData[0].id,
+              id: turnoData.id,
               nombre: `${pacienteData.user.nombre} ${pacienteData.user.apellido}`,
               email: pacienteData.user.email,
-              motivo: turnoData[0].motivo,
-              fechaTurno: turnoData[0].slot_datetime.slot_datetime,
-              estado: turnoData[0].status.status,
+              motivo: turnoData.motivo,
+              fechaTurno: turnoData.slot_datetime.slot_datetime,
+              estado: turnoData.status.status,
             });
           } catch (error) {
             console.error("Error al obtener los datos del paciente:", error);
@@ -127,11 +113,30 @@ export default function MedicoDashboard() {
     fetchUserById();
   }, [isVerified]);
 
+  const getMedico = async (token, userId) => {
+    const responseMedico = await axios.get(
+      `http://localhost:3000/doctors/${userId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const medicoData: BackMedico = responseMedico.data;
+
+    setMedico({
+      nombre: `${medicoData.user.nombre} ${medicoData.user.apellido}`,
+      especialidad: medicoData.specialty,
+      numeroMatricula: medicoData.license_number,
+      email: medicoData.user.email,
+      comienzoJornada: medicoData.shift_start,
+      finJornada: medicoData.shift_end,
+    });
+  };
+
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       comienzoJornadaInput &&
@@ -140,20 +145,41 @@ export default function MedicoDashboard() {
       parseInt(finJornadaInput) <= 1900 &&
       parseInt(comienzoJornadaInput) < parseInt(finJornadaInput)
     ) {
-      setMedico((prevMedico) => ({
-        ...prevMedico,
-        comienzoJornada: `${comienzoJornadaInput.slice(
-          0,
-          2
-        )}:${comienzoJornadaInput.slice(2)}`,
-        finJornada: `${finJornadaInput.slice(0, 2)}:${finJornadaInput.slice(
-          2
-        )}`,
-      }));
+      const comienzoJornadaFormateado: string = `${comienzoJornadaInput.slice(
+        0,
+        2
+      )}:${comienzoJornadaInput.slice(2, 4)}:00`;
+      const finJornadaFormateado: string = `${finJornadaInput.slice(
+        0,
+        2
+      )}:${finJornadaInput.slice(2, 4)}:00`;
+      const token = localStorage.getItem("access_token");
+      const userId = getUserId();
+
+      try {
+        await axios.patch(
+          `http://localhost:3000/doctors/${userId}`,
+          {
+            shift_start: comienzoJornadaFormateado,
+            shift_end: finJornadaFormateado,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      } catch (error) {
+        console.error("Error al actualizar la jornada:", error);
+      }
+
+      try {
+        getMedico(token, userId); // Actualizar los datos del médico después de la modificación
+      } catch (error) {
+        console.error("Error al actualizar la jornada:", error);
+      }
+
       alert(
-        `Jornada actualizada: ${medico.comienzoJornada} - ${medico.finJornada}`
+        `Jornada actualizada: ${comienzoJornadaFormateado} - ${finJornadaFormateado}`
       );
-      // Agregar lógica para enviar los datos al backend con post
     } else {
       alert("Por favor, ingrese valores válidos.");
     }
@@ -174,25 +200,35 @@ export default function MedicoDashboard() {
         <h3 className="text-lg font-semibold text-green-800 mb-2">
           📌 Próximo turno
         </h3>
-        <div>
-          <div className="mb-1">
-            <span className="font-bold">{turno.nombre}</span>{" "}
-            <span className="text-gray-500 font-light">- {turno.email}</span>
+        {turno.id === 1 &&
+        turno.nombre === "" &&
+        turno.email === "" &&
+        turno.motivo === "" &&
+        turno.fechaTurno.getTime() ===
+          new Date("2025-05-29T10:30:00").getTime() &&
+        turno.estado === "" ? (
+          <p className="text-gray-500">No hay turnos pendientes.</p>
+        ) : (
+          <div>
+            <div className="mb-1">
+              <span className="font-bold">{turno.nombre}</span>{" "}
+              <span className="text-gray-500 font-light">- {turno.email}</span>
+            </div>
+            <div className="mb-1">
+              <span className="font-bold mr-1">Fecha:</span>
+              📅{" "}
+              {new Date(turno.fechaTurno).toLocaleDateString("es-ES", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "2-digit",
+              })}
+            </div>
+            <div className="mb-1">
+              <div className="font-bold">Motivo de consulta:</div>
+              <p>{turno.motivo}</p>
+            </div>
           </div>
-          <div className="mb-1">
-            <span className="font-bold mr-1">Fecha:</span>
-            📅{" "}
-            {new Date(turno.fechaTurno).toLocaleDateString("es-ES", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "2-digit",
-            })}
-          </div>
-        </div>
-        <div className="mb-1">
-          <div className="font-bold">Motivo de consulta:</div>
-          <p>{turno.motivo}</p>
-        </div>
+        )}
       </section>
       <button
         onClick={() => router.push("/medico/mis-turnos")}
