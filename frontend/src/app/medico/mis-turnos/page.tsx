@@ -1,93 +1,100 @@
 "use client";
 import axios from "axios";
 import { useEffect, useState } from "react";
-
-interface Turno {
-  id: number;
-  nombre: string;
-  email: string;
-  motivo: string;
-  fechaTurno: Date;
-}
+import { getUserId } from "../../../services/userIdService";
+import { BackTurno } from "../../../types/backTurno";
+import { Turno } from "../../../types/Turno";
+import { useRouter } from "next/navigation";
+import { verificarTipoUsuario } from "../../../services/guardService";
 
 const misTurnosInicial: Turno[] = [
   {
-    id: 1,
-    nombre: "Juan Perez",
-    email: "juan@mail.com",
-    motivo: "Fiebre",
-    fechaTurno: new Date("2025-05-29T10:30:00"),
-  },
-  {
-    id: 2,
-    nombre: "Maria Gomez",
-    email: "maria@mail.com",
-    motivo: "Control",
-    fechaTurno: new Date("2025-05-29T11:00:00"),
-  },
-  {
-    id: 3,
-    nombre: "Carlos Rodríguez",
-    email: "carlos@mail.com",
-    motivo: "Dolor de cabeza",
-    fechaTurno: new Date("2025-05-28T09:00:00"),
-  },
-  {
-    id: 4,
-    nombre: "Lucía Fernández",
-    email: "lucia@mail.com",
-    motivo: "Chequeo general",
-    fechaTurno: new Date("2025-05-30T14:00:00"),
-  },
-  {
-    id: 5,
-    nombre: "Diego López",
-    email: "diego@mail.com",
-    motivo: "Vacunación",
-    fechaTurno: new Date("2025-05-27T08:30:00"),
-  },
-  {
-    id: 6,
-    nombre: "Ana Torres",
-    email: "ana@mail.com",
-    motivo: "Consulta",
-    fechaTurno: new Date("2025-05-29T12:00:00"),
+    id: 0,
+    nombre: "",
+    email: "",
+    motivo: "",
+    fechaTurno: new Date("0001-01-01T10:00:00"),
   },
 ];
 
 export default function misTurnos() {
+  const router = useRouter();
   const [misTurnos, setMisTurnos] = useState<Turno[]>(misTurnosInicial);
   const [turnosBase, setTurnosBase] = useState<Turno[]>(misTurnosInicial);
-  const userId = 1; // Reemplazar con la lógica para obtener la ID del usuario logueado
+  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
-  //Funcion GET, MODIFICAR SI EL JSON NO ES EL MISMO QUE EL DE EJEMPLO
   useEffect(() => {
+    const verificarAcceso = async () => {
+      const esMedico = verificarTipoUsuario("doctor");
+      if (!esMedico) {
+        // Redirige al usuario si no es medico
+        router.push("/");
+      } else {
+        setIsVerified(true); // Marca como verificado si es medico
+      }
+    };
+
+    verificarAcceso();
+  }, [router]);
+
+  useEffect(() => {
+    // Obtener el ID del usuario logueado
+    const userId = getUserId();
     const fetchTurnos = async () => {
+      const token = localStorage.getItem("access_token");
       try {
-        const response = await axios.get(`/id/${userId}`); // Modificar a ruta real
-        const turnos: Turno[] = response.data.map((turno: any) => ({
-          ...turno,
-          fechaTurno: new Date(turno.fechaTurno), // Convertir fecha a objeto Date
-        }));
-        setTurnosBase(turnos);
+        const responseTurnos = await axios.get(
+          `http://localhost:3000/appointments/doctor/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const turnosData: Turno[] = responseTurnos.data.map(
+          (turno: BackTurno) => ({
+            id: turno.id,
+            nombre: `${turno.patient.nombre} ${turno.patient.apellido}`,
+            email: turno.patient.email,
+            motivo: turno.motivo,
+            fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+          })
+        );
+
+        setMisTurnos(turnosData);
+        setTurnosBase(turnosData);
       } catch (error) {
         console.error("Error al obtener los turnos:", error);
       }
     };
     fetchTurnos();
-  }, [userId]);
+  }, [isVerified]);
 
-  const cancelarTurno = (id: number) => {
+  const cancelarTurno = async (id: number) => {
+    const token = localStorage.getItem("access_token");
     const turnoCancelado = misTurnos.find((turno) => turno.id === id);
-    //Aca deberia usar uno o 2 Post al back para actualizar la lista de turnos del medico
-    //y la nueva lista de turnos a tomar
-    //por ahora solo actualizo el estado local
-    if (turnoCancelado) {
-      const nuevaLista = misTurnos.filter((turno) => turno.id !== id);
-      setMisTurnos(nuevaLista);
+    if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
+      if (turnoCancelado) {
+        try {
+          await axios.patch(
+            `http://localhost:3000/appointments/${id}/status`,
+            {
+              estado: 3, // Cambiar el estado del turno a cancelado
+            },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-      const nuevaBase = turnosBase.filter((turno) => turno.id !== id);
-      setTurnosBase(nuevaBase);
+          const nuevaLista = misTurnos.filter((turno) => turno.id !== id);
+          setMisTurnos(nuevaLista);
+
+          const nuevaBase = turnosBase.filter((turno) => turno.id !== id);
+          setTurnosBase(nuevaBase);
+          alert(`Turno con ID ${id} cancelado.`);
+        } catch (error) {
+          console.error("Error al cancelar el turno:", error);
+          alert("No se pudo cancelar el turno. Inténtalo más tarde.");
+        }
+      }
     }
   };
 
@@ -134,7 +141,7 @@ export default function misTurnos() {
                   key={misTurnos.id}
                 >
                   <div>
-                    <div>
+                    <div className="mb-1">
                       <span className="font-bold">{misTurnos.nombre}</span>{" "}
                       <span className="text-gray-500 font-light">
                         - {misTurnos.email}

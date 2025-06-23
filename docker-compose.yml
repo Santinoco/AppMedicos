@@ -14,13 +14,15 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:3001
 
   backend:
-    build: ./backend
+    build: ./back
     ports:
       - "3001:3001"
     depends_on:
       - db
     environment:
       DATABASE_URL: postgres://postgres@db:5432/app-turnos-medicos
+      PORT: 3001
+    command: npm run start:dev
 
   db:
     image: postgres

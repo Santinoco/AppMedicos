@@ -1,15 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-interface Turno {
-  id: number;
-  nombre: string;
-  email: string;
-  motivo: string;
-  fechaTurno: Date;
-  especialidad: string;
-}
+import axios from "axios";
+import { BackMedico } from "../../types/backMedico";
+import { BackPaciente } from "../../types/backPaciente";
+import { BackTurno } from "../../types/backTurno";
+import { getUserId } from "../../services/userIdService";
+import { Turno } from "../../types/Turno";
+import { verificarTipoUsuario } from "../../services/guardService";
 
 interface Medico {
   nombre: String;
@@ -28,21 +26,110 @@ export default function MedicoDashboard() {
   >(null);
   const [finJornadaInput, setFinJornadaInput] = useState<string | null>(null);
   const [medico, setMedico] = useState<Medico>({
-    nombre: "Dr. Juan Perez",
-    especialidad: "Cardiología",
-    numeroMatricula: 123456,
-    email: "medico@mail.com",
-    comienzoJornada: "12:00",
-    finJornada: "18:30",
+    nombre: "",
+    especialidad: "",
+    numeroMatricula: 0,
+    email: "",
+    comienzoJornada: "",
+    finJornada: "",
   });
-  const turno: Turno = {
+  const [turno, setTurno] = useState<Turno>({
     id: 1,
-    nombre: "Juan Perez",
-    email: "juan@mail.com",
-    motivo: "Fiebre",
+    nombre: "",
+    email: "",
+    motivo: "",
     fechaTurno: new Date("2025-05-29T10:30:00"),
-    especialidad: "Neurología",
-  };
+  });
+  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
+
+  useEffect(() => {
+    const verificarAcceso = async () => {
+      const esMedico = verificarTipoUsuario("doctor");
+      if (!esMedico) {
+        // Redirige al usuario si no es medico
+        router.push("/");
+      } else {
+        setIsVerified(true); // Marca como verificado si es medico
+      }
+    };
+
+    verificarAcceso();
+  }, [router]);
+
+  useEffect(() => {
+    // Obtener el ID del usuario logueado
+    const userId = getUserId();
+    const fetchUserById = async () => {
+      if (!userId) return;
+
+      const token = localStorage.getItem("access_token");
+
+      try {
+        // El backend retorna un objeto con los datos del médico
+        const responseMedico = await axios.get(
+          `http://localhost:3000/doctors/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const medicoData: BackMedico = responseMedico.data;
+
+        setMedico({
+          nombre: `${medicoData.user.nombre} ${medicoData.user.apellido}`,
+          especialidad: medicoData.specialty,
+          numeroMatricula: medicoData.license_number,
+          email: medicoData.user.email,
+          comienzoJornada: medicoData.shift_start,
+          finJornada: medicoData.shift_end,
+        });
+
+        try {
+          // El backend retorna un objeto con los datos de los turnos del medico
+          const responseTurno = await axios.get(
+            `http://localhost:3000/appointments/doctor/${userId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          const turnoData: BackTurno[] = responseTurno.data;
+
+          const turnosOrdenados = turnoData.sort(
+            (a, b) =>
+              a.slot_datetime.slot_datetime.getTime() -
+              b.slot_datetime.slot_datetime.getTime()
+          );
+
+          try {
+            // Obtener datos del paciente del primer turno
+            const responsePaciente = await axios.get(
+              `http://localhost:3000/patients/${turnosOrdenados[0].patient_id}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+            const pacienteData: BackPaciente = responsePaciente.data;
+
+            // Asignar el primer turno como "próximo turno"
+            setTurno({
+              id: turnosOrdenados[0].id,
+              nombre: `${pacienteData.user.nombre} ${pacienteData.user.apellido}`,
+              email: pacienteData.user.email,
+              motivo: turnosOrdenados[0].motivo,
+              fechaTurno: turnosOrdenados[0].slot_datetime.slot_datetime,
+            });
+          } catch (error) {
+            console.error("Error al obtener los datos del paciente:", error);
+          }
+        } catch (error) {
+          console.error("Error al obtener los datos del turno:", error);
+        }
+      } catch (error) {
+        console.error("Error al obtener los datos del usuario:", error);
+      }
+    };
+
+    fetchUserById();
+  }, [isVerified]);
 
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
@@ -91,14 +178,24 @@ export default function MedicoDashboard() {
         <h3 className="text-lg font-semibold text-green-800 mb-2">
           📌 Próximo turno
         </h3>
-        <p>
-          <strong>{turno.nombre}</strong> ({turno.especialidad})<br />
-          📅{" "}
-          {new Intl.DateTimeFormat("es-ES", {
-            dateStyle: "medium",
-            timeStyle: "short",
-          }).format(turno.fechaTurno)}
-        </p>
+        <div>
+          <div className="mb-1">
+            <span className="font-bold">{turno.nombre}</span>{" "}
+            <span className="text-gray-500 font-light">- {turno.email}</span>
+          </div>
+          <div className="mb-1">
+            <span className="font-bold mr-1">Fecha:</span>
+            📅{" "}
+            {new Intl.DateTimeFormat("es-ES", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            }).format(turno.fechaTurno)}
+          </div>
+        </div>
+        <div className="mb-1">
+          <div className="font-bold">Motivo de consulta:</div>
+          <p>{turno.motivo}</p>
+        </div>
       </section>
       <button
         onClick={() => router.push("/medico/mis-turnos")}
