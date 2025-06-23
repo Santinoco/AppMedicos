@@ -121,8 +121,8 @@ export default function AdminUserView() {
         const turnosData: Turno[] = turnosResponse.data.map(
           (turno: BackTurno) => ({
             id: turno.id,
-            nombre: `${turno.patient.nombre} ${turno.patient.apellido}`,
-            email: turno.patient.email,
+            nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
+            email: turno.patient.user.email,
             motivo: turno.motivo,
             fechaTurno: new Date(turno.slot_datetime.slot_datetime),
             estado: turno.status.status_id,
