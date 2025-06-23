@@ -9,12 +9,10 @@ export default function PacienteInicio() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Puede que todavía no esté el user_id/access_token (sobre todo justo tras login)
     const waitForCredentials = () => {
       const accessToken = localStorage.getItem("access_token");
       const userId = localStorage.getItem("user_id");
       if (!accessToken || !userId) {
-        // Si no existen, espera un poquito y reintenta
         setTimeout(waitForCredentials, 50);
         return;
       }
