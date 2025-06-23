@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Doctor } from "./entities/doctor.model";
-import { Appointment } from "src/appointments/entities/appointment.model";
+import { Appointment } from "../appointments/entities/appointment.model";
 
 @Injectable()
 export class DoctorsService {
@@ -14,7 +14,7 @@ export class DoctorsService {
   ) {}
 
   async getAllDoctors() {
-    return this.doctorRepository.find({ relations: ["user"] });
+    return this.doctorRepository.find({ relations: ["user"], order: { user_id: "ASC" }  });
   }
 
   async getDoctorById(user_id: number) {
@@ -44,6 +44,20 @@ export class DoctorsService {
       throw new NotFoundException(`Doctor with user_id ${user_id} not found`);
     }
     return { message: "Doctor and related appointments deleted successfully" };
+  }
+
+  async getDoctorBySpeciality(specialty: string) {
+    return this.doctorRepository.find({
+      where: { specialty : specialty},
+      relations: ["user"],
+    });
+  }
+
+  async getDoctorByName (name: string) {
+    return this.doctorRepository.find({
+      where: { user: { nombre: name } },
+      relations: ["user"],
+    });
   }
 
 }

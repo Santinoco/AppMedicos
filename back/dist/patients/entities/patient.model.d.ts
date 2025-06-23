@@ -1,5 +1,5 @@
 import { User } from "../../users/entities/user.model";
-import { Appointment } from "src/appointments/entities/appointment.model";
+import { Appointment } from "../../appointments/entities/appointment.model";
 export declare class Patient {
     user_id: number;
     user: User;

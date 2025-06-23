@@ -4,8 +4,8 @@ import { Repository } from "typeorm";
 import { User } from "./entities/user.model";
 import { Doctor } from "src/doctors/entities/doctor.model";
 import { Patient } from "src/patients/entities/patient.model";
-import { DoctorsService } from "src/doctors/doctors.service";
-import { PatientService } from "src/patients/patients.service";
+import { DoctorsService } from "../doctors/doctors.service";
+import { PatientService } from "../patients/patients.service";
 
 @Injectable()
 export class UserService {
@@ -16,7 +16,7 @@ export class UserService {
   ) {}
 
   async getAllUsers() {
-    return this.userRepository.find();
+    return this.userRepository.find({ order: { id: "ASC" }});
   }
 
   async getUserById(id: number) {
@@ -70,5 +70,14 @@ export class UserService {
         relations: ['type'],
     });
 }
+
+async findUsersByName(nombre: string) {
+  const users = await this.userRepository.find({ where: { nombre } });
+  if (!users || users.length === 0) {
+    throw new NotFoundException(`No se encontraron usuarios con el nombre ${nombre}`);
+  }
+  return users;
+}
+
 
 }

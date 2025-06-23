@@ -1,7 +1,7 @@
 import { Controller, Get, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { CalendarService } from './calendar.service';
 import { AppointmentsService } from 'src/appointments/appointments.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('calendar')
 @UseGuards(JwtAuthGuard)

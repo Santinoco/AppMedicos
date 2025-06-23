@@ -26,7 +26,7 @@ let DoctorsService = class DoctorsService {
         this.appointmentRepository = appointmentRepository;
     }
     async getAllDoctors() {
-        return this.doctorRepository.find({ relations: ["user"] });
+        return this.doctorRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
     }
     async getDoctorById(user_id) {
         return this.doctorRepository.findOne({
@@ -52,6 +52,18 @@ let DoctorsService = class DoctorsService {
             throw new common_1.NotFoundException(`Doctor with user_id ${user_id} not found`);
         }
         return { message: "Doctor and related appointments deleted successfully" };
+    }
+    async getDoctorBySpeciality(specialty) {
+        return this.doctorRepository.find({
+            where: { specialty: specialty },
+            relations: ["user"],
+        });
+    }
+    async getDoctorByName(name) {
+        return this.doctorRepository.find({
+            where: { user: { nombre: name } },
+            relations: ["user"],
+        });
     }
 };
 exports.DoctorsService = DoctorsService;

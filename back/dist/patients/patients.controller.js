@@ -38,6 +38,9 @@ let PatientController = class PatientController {
     async deletePatient(user_id) {
         return this.patientService.deletePatient(user_id);
     }
+    async getPatientsByName(nombre) {
+        return this.patientService.getPatientByName(nombre);
+    }
 };
 exports.PatientController = PatientController;
 __decorate([
@@ -76,6 +79,13 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], PatientController.prototype, "deletePatient", null);
+__decorate([
+    (0, common_1.Get)("by-name/:nombre"),
+    __param(0, (0, common_1.Param)("nombre")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], PatientController.prototype, "getPatientsByName", null);
 exports.PatientController = PatientController = __decorate([
     (0, common_1.Controller)("patients"),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

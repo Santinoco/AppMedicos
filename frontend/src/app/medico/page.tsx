@@ -39,6 +39,7 @@ export default function MedicoDashboard() {
     email: "",
     motivo: "",
     fechaTurno: new Date("2025-05-29T10:30:00"),
+    estado: "",
   });
   const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
@@ -93,16 +94,10 @@ export default function MedicoDashboard() {
           );
           const turnoData: BackTurno[] = responseTurno.data;
 
-          const turnosOrdenados = turnoData.sort(
-            (a, b) =>
-              a.slot_datetime.slot_datetime.getTime() -
-              b.slot_datetime.slot_datetime.getTime()
-          );
-
           try {
             // Obtener datos del paciente del primer turno
             const responsePaciente = await axios.get(
-              `http://localhost:3000/patients/${turnosOrdenados[0].patient_id}`,
+              `http://localhost:3000/patients/${turnoData[0].patient.user_id}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
               }
@@ -111,11 +106,12 @@ export default function MedicoDashboard() {
 
             // Asignar el primer turno como "próximo turno"
             setTurno({
-              id: turnosOrdenados[0].id,
+              id: turnoData[0].id,
               nombre: `${pacienteData.user.nombre} ${pacienteData.user.apellido}`,
               email: pacienteData.user.email,
-              motivo: turnosOrdenados[0].motivo,
-              fechaTurno: turnosOrdenados[0].slot_datetime.slot_datetime,
+              motivo: turnoData[0].motivo,
+              fechaTurno: turnoData[0].slot_datetime.slot_datetime,
+              estado: turnoData[0].status.status,
             });
           } catch (error) {
             console.error("Error al obtener los datos del paciente:", error);
@@ -186,10 +182,11 @@ export default function MedicoDashboard() {
           <div className="mb-1">
             <span className="font-bold mr-1">Fecha:</span>
             📅{" "}
-            {new Intl.DateTimeFormat("es-ES", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            }).format(turno.fechaTurno)}
+            {new Date(turno.fechaTurno).toLocaleDateString("es-ES", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "2-digit",
+            })}
           </div>
         </div>
         <div className="mb-1">

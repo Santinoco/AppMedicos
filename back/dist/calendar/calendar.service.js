@@ -33,8 +33,8 @@ let CalendarService = class CalendarService {
         const startDate = new Date();
         const endDate = new Date();
         endDate.setMonth(endDate.getMonth() + 3);
-        const startHour = 7;
-        const endHour = 16;
+        const startHour = 10;
+        const endHour = 20;
         const intervalMinutes = 30;
         const slots = [];
         for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
@@ -58,7 +58,7 @@ let CalendarService = class CalendarService {
         await this.slotRepository.upsert(slotEntities, ['slot_datetime']);
     }
     async getSlots() {
-        return this.slotRepository.find();
+        return this.slotRepository.find({ order: { slot_id: "ASC" } });
     }
     async getAppointmentsForDoctor(doctorUserId) {
         return await this.appointment

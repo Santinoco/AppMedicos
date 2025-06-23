@@ -10,9 +10,9 @@ import {
     UseGuards,
   } from "@nestjs/common";
   import { DoctorsService } from "./doctors.service";
-  import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { RolesGuard } from "src/auth/roles/roles.guard";
-import { Roles } from "src/auth/roles/roles.decorator";
+  import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+  import { RolesGuard } from "../auth/roles/roles.guard";
+  import { Roles } from "../auth/roles/roles.decorator";
   
   @Controller("doctors")
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -30,6 +30,7 @@ import { Roles } from "src/auth/roles/roles.decorator";
     }
   
     @Post()
+    @Roles("administrator")
     async createDoctor(@Body() doctorData: any) {
       return this.doctorService.createDoctor(doctorData);
     }
@@ -48,6 +49,16 @@ import { Roles } from "src/auth/roles/roles.decorator";
       @Param('user_id', ParseIntPipe) user_id: number
     ) {
       return this.doctorService.deleteDoctor(user_id);
+    }
+
+    @Get("specialty/:specialty")
+    async getDoctorsBySpecialty(@Param("specialty") specialty: string) {
+      return this.doctorService.getDoctorBySpeciality(specialty);
+    }
+
+    @Get("by-name/:nombre")
+    async getDoctorsByName(@Param("nombre") nombre: string) {
+      return this.doctorService.getDoctorByName(nombre);
     }
 
   }

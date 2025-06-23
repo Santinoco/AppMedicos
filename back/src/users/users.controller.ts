@@ -10,9 +10,9 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { RolesGuard } from "src/auth/roles/roles.guard";
-import { Roles } from "src/auth/roles/roles.decorator";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { RolesGuard } from "../auth/roles/roles.guard";
+import { Roles } from "../auth/roles/roles.decorator";
 
 @Controller("users")
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -37,6 +37,11 @@ export class UsersController {
   @Get(":id/appointments")
   async getUserAppoinments(@Param("id", ParseIntPipe) id: number) {
     return this.userService.getUserAppoinments(id);
+  }
+
+  @Get("by-name/:name")
+  async getUsersByName(@Param("name") name: string) {
+    return this.userService.findUsersByName(name);
   }
 
   @Patch(":id")

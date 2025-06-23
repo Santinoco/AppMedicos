@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Patient } from "./entities/patient.model";
-import { Appointment } from "src/appointments/entities/appointment.model";
+import { Appointment } from "../appointments/entities/appointment.model";
 
 @Injectable()
 export class PatientService {
@@ -14,7 +14,7 @@ export class PatientService {
   ) {}
 
   async getAllPatients() {
-    return this.patientRepository.find({ relations: ["user"] });
+    return this.patientRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
   }
 
   async getPatientById(user_id: number) {
@@ -53,4 +53,15 @@ export class PatientService {
   
     return { message: "Patient and related appointments deleted successfully" };
   } 
+
+  async getPatientByName(name: string) {
+    const patients = await this.patientRepository.find({
+      where: {
+        user: { nombre: name },
+      },
+      relations: ["user"],
+      order: { user_id: "ASC" },
+    });
+    return patients;
+  }
 }

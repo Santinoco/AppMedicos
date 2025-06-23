@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { BackMedico } from "../../types/backMedico";
 import { BackPaciente } from "../../types/backPaciente";
 import { verificarTipoUsuario } from "../../services/guardService";
+import { BackUser } from "../../types/backUser";
 
 interface Medico {
   especialidad: string;
@@ -64,6 +64,8 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [medicos, setMedicos] = useState<Medico[]>(medicosInicial);
   const [pacientes, setPacientes] = useState<Paciente[]>(pacientesInicial);
+  const [medicosAux, setMedicosAux] = useState<Medico[]>([]);
+  const [pacientesAux, setPacientesAux] = useState<Paciente[]>([]);
   const [mostrarMedicos, setMostrarMedicos] = useState(true);
   const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
@@ -106,6 +108,7 @@ export default function AdminDashboard() {
         );
 
         setMedicos(medicosData);
+        setMedicosAux(medicosData);
       } catch (error) {
         console.error("Error al obtener los medicos:", error);
       }
@@ -131,6 +134,7 @@ export default function AdminDashboard() {
         );
 
         setPacientes(pacientesData);
+        setPacientesAux(pacientesData);
       } catch (error) {
         console.error("Error al obtener los pacientes:", error);
       }
@@ -175,6 +179,65 @@ export default function AdminDashboard() {
     router.push("/");
   };
 
+  const filtrarPorNombre = async (nombre: string) => {
+    const token = localStorage.getItem("access_token");
+    const rol = mostrarMedicos ? "doctors" : "patients";
+    if (nombre != "") {
+      try {
+        const responseFiltrado = await axios.get(
+          `http://localhost:3000/${rol}}/by-name/${nombre}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (mostrarMedicos) {
+          const medicosFiltrados: Medico[] = responseFiltrado.data.map(
+            (medico: BackMedico) => ({
+              especialidad: medico.specialty,
+              matricula: medico.license_number,
+              usuario: {
+                id: medico.user.id,
+                nombre: medico.user.nombre,
+                apellido: medico.user.apellido,
+                email: medico.user.email,
+                activo: medico.user.activo,
+              },
+            })
+          );
+          setMedicos(medicosFiltrados);
+        }
+        if (!mostrarMedicos) {
+          const pacientesFiltrados: Paciente[] = responseFiltrado.data.map(
+            (paciente: BackPaciente) => ({
+              consultasCompletadas: paciente.completed_consultations,
+              seguroMedico: paciente.health_insurance,
+              usuario: {
+                id: paciente.user.id,
+                nombre: paciente.user.nombre,
+                apellido: paciente.user.apellido,
+                email: paciente.user.email,
+                activo: paciente.user.activo,
+              },
+            })
+          );
+          setPacientes(pacientesFiltrados);
+        }
+      } catch (error) {
+        console.error("Error al filtrar por nombre:", error);
+      }
+    } else {
+      reestablecerListas();
+    }
+  };
+
+  const reestablecerListas = () => {
+    if (mostrarMedicos) {
+      setMedicos(medicosAux);
+    } else {
+      setPacientes(pacientesAux);
+    }
+  };
+
   return (
     <main className="flex-1 p-10 space-y-6">
       <div className="flex">
@@ -216,6 +279,18 @@ export default function AdminDashboard() {
         <h2 className="text-xl font-semibold mb-4">
           {mostrarMedicos ? "Médicos registrados" : "Pacientes registrados"}
         </h2>
+        <div className="my-4">
+          <label htmlFor="nombre" className="mr-2">
+            Filtrar:
+          </label>
+          <input
+            type="text"
+            id="nombre"
+            placeholder="Ingrese un nombre"
+            onChange={(e) => filtrarPorNombre(e.target.value)}
+            className="border border-gray-300 rounded p-2"
+          />
+        </div>
         {mostrarMedicos ? (
           <div>
             {medicos.length === 0 ? (

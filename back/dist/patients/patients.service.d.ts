@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 import { Patient } from "./entities/patient.model";
-import { Appointment } from "src/appointments/entities/appointment.model";
+import { Appointment } from "../appointments/entities/appointment.model";
 export declare class PatientService {
     private patientRepository;
     private appointmentRepository;
@@ -12,4 +12,5 @@ export declare class PatientService {
     deletePatient(user_id: number): Promise<{
         message: string;
     }>;
+    getPatientByName(name: string): Promise<Patient[]>;
 }

@@ -1,23 +1,23 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  ParseIntPipe,
-  Patch,
-  UseGuards,
-  Delete,
-} from "@nestjs/common";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { AppointmentsService } from "./appointments.service";
-import { RolesGuard } from "src/auth/roles/roles.guard";
-import { Roles } from "src/auth/roles/roles.decorator";
+    Controller,
+    Get,
+    Post,
+    Body,
+    Param,
+    ParseIntPipe,
+    Patch,
+    UseGuards,
+    Delete,
+  } from "@nestjs/common";
+  import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+  import { AppointmentsService } from "./appointments.service";
+import { RolesGuard } from "../auth/roles/roles.guard";
+import { Roles } from "../auth/roles/roles.decorator";
 
 @Controller("appointments")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AppointmentsController {
-  constructor(private readonly appointmentsService: AppointmentsService) { }
+  constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Get()
   async getAllAppointments() {
@@ -58,4 +58,14 @@ export class AppointmentsController {
     return this.appointmentsService.deleteAppointment(id);
   }
 
+  @Get('appointments-by-patient-name/:name')
+  async getAppointmentsByName(@Param('name') name: string) {
+    return this.appointmentsService.getAppointmentsByPatientName(name);
+  }
+
+  @Get('appointments-by-date/:date')
+  async getAppointmentsByDate(@Param('date') date: Date) {
+    return this.appointmentsService.getAppointmentsByDate(date);
+  }
+  
 }

@@ -26,7 +26,7 @@ let PatientService = class PatientService {
         this.appointmentRepository = appointmentRepository;
     }
     async getAllPatients() {
-        return this.patientRepository.find({ relations: ["user"] });
+        return this.patientRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
     }
     async getPatientById(user_id) {
         return this.patientRepository.findOne({
@@ -54,6 +54,16 @@ let PatientService = class PatientService {
         await this.appointmentRepository.delete({ patient: { user_id } });
         await this.patientRepository.delete({ user_id });
         return { message: "Patient and related appointments deleted successfully" };
+    }
+    async getPatientByName(name) {
+        const patients = await this.patientRepository.find({
+            where: {
+                user: { nombre: name },
+            },
+            relations: ["user"],
+            order: { user_id: "ASC" },
+        });
+        return patients;
     }
 };
 exports.PatientService = PatientService;

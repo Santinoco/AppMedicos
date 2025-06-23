@@ -13,7 +13,6 @@ const user_model_1 = require("../users/entities/user.model");
 const appointment_model_1 = require("../appointments/entities/appointment.model");
 const doctor_model_1 = require("../doctors/entities/doctor.model");
 const patient_model_1 = require("../patients/entities/patient.model");
-const location_model_1 = require("../locations/entities/location.model");
 const appointment_status_model_1 = require("../appointment-statuses/entities/appointment-status.model");
 const user_type_model_1 = require("../user-type/entities/user-type.model");
 const calendar_model_1 = require("../calendar/entities/calendar.model");
@@ -30,7 +29,7 @@ exports.DatabaseModule = DatabaseModule = __decorate([
                 username: "postgres",
                 password: "admin",
                 database: "appmedicos",
-                entities: [user_model_1.User, appointment_model_1.Appointment, doctor_model_1.Doctor, patient_model_1.Patient, location_model_1.Location, appointment_status_model_1.AppointmentStatus, user_type_model_1.UserType, calendar_model_1.Calendar],
+                entities: [user_model_1.User, appointment_model_1.Appointment, doctor_model_1.Doctor, patient_model_1.Patient, appointment_status_model_1.AppointmentStatus, user_type_model_1.UserType, calendar_model_1.Calendar],
                 synchronize: false,
             }),
         ],

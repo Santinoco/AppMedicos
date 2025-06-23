@@ -11,7 +11,7 @@ export class AppointmentStatusService {
   ) {}
 
   async getAllStatuses() {
-    return this.appointmentStatusRepository.find();
+    return this.appointmentStatusRepository.find({order: {status_id: "ASC"}});
   }
 
   async getStatusById(status_id: number) {

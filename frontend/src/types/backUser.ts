@@ -5,5 +5,4 @@ export interface BackUser {
   email: string;
   password: string;
   activo: boolean;
-  user_type_id: number;
 }

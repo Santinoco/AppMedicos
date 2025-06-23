@@ -7,10 +7,8 @@ export interface BackTurno {
   slot_datetime: Calendar;
   motivo: string;
   estado_id: number;
-  doctor_id: BackMedico;
-  doctor: BackUser;
-  patient_id: BackPaciente;
-  patient: BackUser;
+  doctor: BackMedico;
+  patient: BackPaciente;
   status: Status;
 }
 

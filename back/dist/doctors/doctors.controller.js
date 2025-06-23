@@ -38,6 +38,12 @@ let DoctorsController = class DoctorsController {
     async deleteDoctor(user_id) {
         return this.doctorService.deleteDoctor(user_id);
     }
+    async getDoctorsBySpecialty(specialty) {
+        return this.doctorService.getDoctorBySpeciality(specialty);
+    }
+    async getDoctorsByName(nombre) {
+        return this.doctorService.getDoctorByName(nombre);
+    }
 };
 exports.DoctorsController = DoctorsController;
 __decorate([
@@ -55,6 +61,7 @@ __decorate([
 ], DoctorsController.prototype, "getDoctorById", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, roles_decorator_1.Roles)("administrator"),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -76,6 +83,20 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], DoctorsController.prototype, "deleteDoctor", null);
+__decorate([
+    (0, common_1.Get)("specialty/:specialty"),
+    __param(0, (0, common_1.Param)("specialty")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], DoctorsController.prototype, "getDoctorsBySpecialty", null);
+__decorate([
+    (0, common_1.Get)("by-name/:nombre"),
+    __param(0, (0, common_1.Param)("nombre")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], DoctorsController.prototype, "getDoctorsByName", null);
 exports.DoctorsController = DoctorsController = __decorate([
     (0, common_1.Controller)("doctors"),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
