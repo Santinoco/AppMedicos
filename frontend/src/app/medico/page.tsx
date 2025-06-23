@@ -92,12 +92,14 @@ export default function MedicoDashboard() {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-          const turnoData: BackTurno[] = responseTurno.data;
+          const turnoData: BackTurno = responseTurno.data.find(
+            (turno) => turno.status.status === "pending"
+          );
 
           try {
             // Obtener datos del paciente del primer turno
             const responsePaciente = await axios.get(
-              `http://localhost:3000/patients/${turnoData[0].patient.user_id}`,
+              `http://localhost:3000/patients/${turnoData.patient.user_id}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
               }
@@ -106,12 +108,12 @@ export default function MedicoDashboard() {
 
             // Asignar el primer turno como "próximo turno"
             setTurno({
-              id: turnoData[0].id,
+              id: turnoData.id,
               nombre: `${pacienteData.user.nombre} ${pacienteData.user.apellido}`,
               email: pacienteData.user.email,
-              motivo: turnoData[0].motivo,
-              fechaTurno: turnoData[0].slot_datetime.slot_datetime,
-              estado: turnoData[0].status.status,
+              motivo: turnoData.motivo,
+              fechaTurno: turnoData.slot_datetime.slot_datetime,
+              estado: turnoData.status.status,
             });
           } catch (error) {
             console.error("Error al obtener los datos del paciente:", error);
@@ -174,25 +176,35 @@ export default function MedicoDashboard() {
         <h3 className="text-lg font-semibold text-green-800 mb-2">
           📌 Próximo turno
         </h3>
-        <div>
-          <div className="mb-1">
-            <span className="font-bold">{turno.nombre}</span>{" "}
-            <span className="text-gray-500 font-light">- {turno.email}</span>
+        {turno.id === 1 &&
+        turno.nombre === "" &&
+        turno.email === "" &&
+        turno.motivo === "" &&
+        turno.fechaTurno.getTime() ===
+          new Date("2025-05-29T10:30:00").getTime() &&
+        turno.estado === "" ? (
+          <p className="text-gray-500">No hay turnos pendientes.</p>
+        ) : (
+          <div>
+            <div className="mb-1">
+              <span className="font-bold">{turno.nombre}</span>{" "}
+              <span className="text-gray-500 font-light">- {turno.email}</span>
+            </div>
+            <div className="mb-1">
+              <span className="font-bold mr-1">Fecha:</span>
+              📅{" "}
+              {new Date(turno.fechaTurno).toLocaleDateString("es-ES", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "2-digit",
+              })}
+            </div>
+            <div className="mb-1">
+              <div className="font-bold">Motivo de consulta:</div>
+              <p>{turno.motivo}</p>
+            </div>
           </div>
-          <div className="mb-1">
-            <span className="font-bold mr-1">Fecha:</span>
-            📅{" "}
-            {new Date(turno.fechaTurno).toLocaleDateString("es-ES", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "2-digit",
-            })}
-          </div>
-        </div>
-        <div className="mb-1">
-          <div className="font-bold">Motivo de consulta:</div>
-          <p>{turno.motivo}</p>
-        </div>
+        )}
       </section>
       <button
         onClick={() => router.push("/medico/mis-turnos")}
