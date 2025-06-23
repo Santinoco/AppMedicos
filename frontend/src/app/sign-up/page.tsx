@@ -42,7 +42,7 @@ export default function SignUp() {
     };
 
     try {
-      const res = await fetch('http://localhost:3000/auth/login', {
+      const res = await fetch('http://localhost:3000/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -56,7 +56,7 @@ export default function SignUp() {
 
       setSuccess('Registro exitoso! Redirigiendo...');
       setTimeout(() => {
-        router.push(type === 'patient' ? '/patient' : '/doctor');
+        router.push(type === 'patient' ? '/paciente' : '/medico');
       }, 1000);
     } catch (err) {
       setError('Error de conexión con el servidor.');
