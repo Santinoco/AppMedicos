@@ -45,7 +45,11 @@ export default function PacienteLayout({ children }: { children: React.ReactNode
                 ? 'bg-green-100 text-green-800 font-semibold'
                 : 'text-green-700 hover:bg-green-200 hover:text-green-900'
             )}
-            onClick={() => localStorage.removeItem('access_token')}
+            onClick={() => {
+              localStorage.removeItem('access_token');          
+              localStorage.removeItem('user');          
+              localStorage.removeItem('user_id');
+            }}
           >
             Cerrar sesión
           </Link>

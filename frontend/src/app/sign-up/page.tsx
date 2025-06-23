@@ -42,7 +42,7 @@ export default function SignUp() {
     };
 
     try {
-      const res = await fetch('http://localhost:3000/auth/login', {
+      const res = await fetch('http://localhost:3000/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -55,8 +55,19 @@ export default function SignUp() {
       }
 
       setSuccess('Registro exitoso! Redirigiendo...');
+
+      const data1 = await res.json();
+      const userRol =
+        data1.user?.type?.name ||
+        data1.user?.role ||
+        data1.user?.rol ||
+        '';
+
+      localStorage.setItem('user', JSON.stringify(data1.user));
+      localStorage.setItem('access_token', data1.access_token);
+
       setTimeout(() => {
-        router.push(type === 'patient' ? '/patient' : '/doctor');
+        router.push(type === 'patient' ? '/paciente' : '/medico');
       }, 1000);
     } catch (err) {
       setError('Error de conexión con el servidor.');
