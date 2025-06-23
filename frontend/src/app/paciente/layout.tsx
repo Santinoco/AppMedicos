@@ -45,7 +45,7 @@ export default function PacienteLayout({ children }: { children: React.ReactNode
                 ? 'bg-green-100 text-green-800 font-semibold'
                 : 'text-green-700 hover:bg-green-200 hover:text-green-900'
             )}
-            onClick={() => localStorage.removeItem('token')}
+            onClick={() => localStorage.removeItem('access_token')}
           >
             Cerrar sesión
           </Link>

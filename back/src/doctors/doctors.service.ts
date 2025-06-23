@@ -53,4 +53,11 @@ export class DoctorsService {
     });
   }
 
+  async getDoctorByName (name: string) {
+    return this.doctorRepository.find({
+      where: { user: { nombre: name } },
+      relations: ["user"],
+    });
+  }
+
 }

@@ -55,6 +55,16 @@ let PatientService = class PatientService {
         await this.patientRepository.delete({ user_id });
         return { message: "Patient and related appointments deleted successfully" };
     }
+    async getPatientByName(name) {
+        const patients = await this.patientRepository.find({
+            where: {
+                user: { nombre: name },
+            },
+            relations: ["user"],
+            order: { user_id: "ASC" },
+        });
+        return patients;
+    }
 };
 exports.PatientService = PatientService;
 exports.PatientService = PatientService = __decorate([

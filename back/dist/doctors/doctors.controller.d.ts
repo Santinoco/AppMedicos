@@ -10,4 +10,5 @@ export declare class DoctorsController {
         message: string;
     }>;
     getDoctorsBySpecialty(specialty: string): Promise<import("./entities/doctor.model").Doctor[]>;
+    getDoctorsByName(nombre: string): Promise<import("./entities/doctor.model").Doctor[]>;
 }
