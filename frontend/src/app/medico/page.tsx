@@ -67,23 +67,7 @@ export default function MedicoDashboard() {
 
       try {
         // El backend retorna un objeto con los datos del médico
-        const responseMedico = await axios.get(
-          `http://localhost:3000/doctors/${userId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const medicoData: BackMedico = responseMedico.data;
-
-        setMedico({
-          nombre: `${medicoData.user.nombre} ${medicoData.user.apellido}`,
-          especialidad: medicoData.specialty,
-          numeroMatricula: medicoData.license_number,
-          email: medicoData.user.email,
-          comienzoJornada: medicoData.shift_start,
-          finJornada: medicoData.shift_end,
-        });
-
+        getMedico(token, userId);
         try {
           // El backend retorna un objeto con los datos de los turnos del medico
           const responseTurno = await axios.get(
@@ -129,11 +113,30 @@ export default function MedicoDashboard() {
     fetchUserById();
   }, [isVerified]);
 
+  const getMedico = async (token, userId) => {
+    const responseMedico = await axios.get(
+      `http://localhost:3000/doctors/${userId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const medicoData: BackMedico = responseMedico.data;
+
+    setMedico({
+      nombre: `${medicoData.user.nombre} ${medicoData.user.apellido}`,
+      especialidad: medicoData.specialty,
+      numeroMatricula: medicoData.license_number,
+      email: medicoData.user.email,
+      comienzoJornada: medicoData.shift_start,
+      finJornada: medicoData.shift_end,
+    });
+  };
+
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       comienzoJornadaInput &&
@@ -142,20 +145,41 @@ export default function MedicoDashboard() {
       parseInt(finJornadaInput) <= 1900 &&
       parseInt(comienzoJornadaInput) < parseInt(finJornadaInput)
     ) {
-      setMedico((prevMedico) => ({
-        ...prevMedico,
-        comienzoJornada: `${comienzoJornadaInput.slice(
-          0,
-          2
-        )}:${comienzoJornadaInput.slice(2)}`,
-        finJornada: `${finJornadaInput.slice(0, 2)}:${finJornadaInput.slice(
-          2
-        )}`,
-      }));
+      const comienzoJornadaFormateado: string = `${comienzoJornadaInput.slice(
+        0,
+        2
+      )}:${comienzoJornadaInput.slice(2, 4)}:00`;
+      const finJornadaFormateado: string = `${finJornadaInput.slice(
+        0,
+        2
+      )}:${finJornadaInput.slice(2, 4)}:00`;
+      const token = localStorage.getItem("access_token");
+      const userId = getUserId();
+
+      try {
+        await axios.patch(
+          `http://localhost:3000/doctors/${userId}`,
+          {
+            shift_start: comienzoJornadaFormateado,
+            shift_end: finJornadaFormateado,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      } catch (error) {
+        console.error("Error al actualizar la jornada:", error);
+      }
+
+      try {
+        getMedico(token, userId); // Actualizar los datos del médico después de la modificación
+      } catch (error) {
+        console.error("Error al actualizar la jornada:", error);
+      }
+
       alert(
-        `Jornada actualizada: ${medico.comienzoJornada} - ${medico.finJornada}`
+        `Jornada actualizada: ${comienzoJornadaFormateado} - ${finJornadaFormateado}`
       );
-      // Agregar lógica para enviar los datos al backend con post
     } else {
       alert("Por favor, ingrese valores válidos.");
     }
