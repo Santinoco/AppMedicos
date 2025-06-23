@@ -11,7 +11,7 @@ RUN npm install
 COPY . .
 
 # Expone el puerto y corre la app
-EXPOSE 3001
+EXPOSE 3000
 CMD ["npm", "run", "start"]# Usa Node.js base image
 FROM node:18
 
@@ -25,5 +25,5 @@ RUN npm install
 COPY . .
 
 # Expone el puerto y corre la app
-EXPOSE 3001
+EXPOSE 3000
 CMD ["npm", "run", "start"]

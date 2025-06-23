@@ -20,7 +20,7 @@ export default function LoginPaciente() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:3001/auth/login', {
+      const res = await fetch('http://localhost:3000/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -39,9 +39,7 @@ export default function LoginPaciente() {
         data.user?.role ||
         data.user?.rol ||
         "";
-
       if (
-        userRol.toLowerCase() !== 'paciente' &&
         userRol.toLowerCase() !== 'patient'
       ) {
         setError(
@@ -103,7 +101,6 @@ export default function LoginPaciente() {
             className="p-3 rounded border border-gray-300 text-base"
           />
           <button
-          onClick={() => router.push('/paciente')}
             type="submit"
             className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded text-lg"
           >
