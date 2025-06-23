@@ -14,6 +14,7 @@ const misTurnosInicial: Turno[] = [
     email: "",
     motivo: "",
     fechaTurno: new Date("0001-01-01T10:00:00"),
+    estado: "",
   },
 ];
 
@@ -21,6 +22,7 @@ export default function misTurnos() {
   const router = useRouter();
   const [misTurnos, setMisTurnos] = useState<Turno[]>(misTurnosInicial);
   const [turnosBase, setTurnosBase] = useState<Turno[]>(misTurnosInicial);
+  const [mostrarPendientes, setMostrarPendientes] = useState(true);
   const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
   useEffect(() => {
@@ -59,6 +61,7 @@ export default function misTurnos() {
           email: turno.patient?.user?.email || "",
           motivo: turno.motivo,
           fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+          estado: turno.status.status,
         })
       );
 
@@ -116,6 +119,7 @@ export default function misTurnos() {
           email: turno.patient.user.email,
           motivo: turno.motivo,
           fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+          estado: turno.status.status,
         }));
 
       setMisTurnos(turnosFiltrados);
@@ -128,7 +132,33 @@ export default function misTurnos() {
         <h1 className="text-3xl">Mis Turnos</h1>
       </section>
       <section className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">📅 Turnos agendados</h2>
+        <div className="flex space-x-4 mb-4">
+          <button
+            className={`py-2 px-4 rounded ${
+              mostrarPendientes
+                ? "bg-green-600 text-white cursor-default"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+            disabled={mostrarPendientes}
+            onClick={() => setMostrarPendientes(true)}
+          >
+            Pendientes
+          </button>
+          <button
+            className={`py-2 px-4 rounded ${
+              !mostrarPendientes
+                ? "bg-green-600 text-white cursor-default"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+            disabled={!mostrarPendientes}
+            onClick={() => setMostrarPendientes(false)}
+          >
+            Historial
+          </button>
+        </div>
+        <h2 className="text-xl font-semibold mb-4">
+          📅 {mostrarPendientes ? "Turnos Pendientes" : "Historial de Turnos"}
+        </h2>
         <div className="my-4">
           <label htmlFor="nombre" className="mr-2">
             Filtrar:
@@ -141,23 +171,28 @@ export default function misTurnos() {
             className="border border-gray-300 rounded p-2"
           />
         </div>
+
         {misTurnos.length === 0 ? (
-          <p className="text-gray-500">No tenés turnos agendados.</p>
+          <p className="text-gray-500">No tenés turnos pendientes.</p>
         ) : (
           <ul className="space-y-4">
             {misTurnos
-              .slice() // Crear una copia del array para no modificar el estado original
-              .sort((a, b) => a.fechaTurno.getTime() - b.fechaTurno.getTime()) //Ordeno por fecha antes de mostrar
-              .map((misTurnos) => (
+              .filter((turno) =>
+                mostrarPendientes
+                  ? turno.estado === "pending"
+                  : turno.estado === "cancelled" ||
+                    turno.estado === "rescheduled"
+              )
+              .map((turno) => (
                 <li
                   className="border p-4 rounded-lg flex justify-between items-start"
-                  key={misTurnos.id}
+                  key={turno.id}
                 >
                   <div>
                     <div className="mb-1">
-                      <span className="font-bold">{misTurnos.nombre}</span>{" "}
+                      <span className="font-bold">{turno.nombre}</span>{" "}
                       <span className="text-gray-500 font-light">
-                        - {misTurnos.email}
+                        - {turno.email}
                       </span>
                     </div>
                     <div className="mb-1">
@@ -166,21 +201,26 @@ export default function misTurnos() {
                       {new Intl.DateTimeFormat("es-ES", {
                         dateStyle: "medium",
                         timeStyle: "short",
-                      }).format(misTurnos.fechaTurno)}
+                      }).format(turno.fechaTurno)}
                     </div>
-
+                    <div className="mb-1">
+                      <span className="font-bold mr-1">Estado:</span>
+                      <span>{turno.estado}</span>
+                    </div>
                     <div className="mb-1">
                       <div className="font-bold">Motivo de consulta:</div>
-                      <p>{misTurnos.motivo}</p>
+                      <p>{turno.motivo}</p>
                     </div>
                   </div>
                   <div className="flex gap-4 items-center">
-                    <button
-                      onClick={() => cancelarTurno(misTurnos.id)}
-                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Cancelar Turno
-                    </button>
+                    {mostrarPendientes && (
+                      <button
+                        onClick={() => cancelarTurno(turno.id)}
+                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        Cancelar Turno
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}
