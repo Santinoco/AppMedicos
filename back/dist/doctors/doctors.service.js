@@ -26,38 +26,79 @@ let DoctorsService = class DoctorsService {
         this.appointmentRepository = appointmentRepository;
     }
     async getAllDoctors() {
-        return this.doctorRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
+        try {
+            return await this.doctorRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
+        }
+        catch (error) {
+            throw new Error('Error al obtener los médicos: ' + error.message);
+        }
     }
     async getDoctorById(user_id) {
-        return this.doctorRepository.findOne({
-            where: { user_id },
-            relations: ["user"],
-        });
+        try {
+            return await this.doctorRepository.findOne({
+                where: { user_id },
+                relations: ["user"],
+            });
+        }
+        catch (error) {
+            throw new Error('Error al obtener el médico: ' + error.message);
+        }
     }
     async createDoctor(doctorData) {
-        const doctor = this.doctorRepository.create(doctorData);
-        return this.doctorRepository.save(doctor);
+        try {
+            const doctor = this.doctorRepository.create(doctorData);
+            return await this.doctorRepository.save(doctor);
+        }
+        catch (error) {
+            throw new Error('Error al crear el médico: ' + error.message);
+        }
     }
     async updateDoctor(user_id, updateData) {
-        const doctor = await this.doctorRepository.findOne({ where: { user_id } });
-        if (!doctor)
-            throw new common_1.NotFoundException(`Doctor with user_id ${user_id} not found`);
-        Object.assign(doctor, updateData);
-        return this.doctorRepository.save(doctor);
+        try {
+            const doctor = await this.doctorRepository.findOne({ where: { user_id } });
+            if (!doctor)
+                throw new common_1.NotFoundException(`Doctor with user_id ${user_id} not found`);
+            Object.assign(doctor, updateData);
+            return await this.doctorRepository.save(doctor);
+        }
+        catch (error) {
+            throw new Error('Error al actualizar el médico: ' + error.message);
+        }
     }
     async deleteDoctor(user_id) {
-        await this.appointmentRepository.delete({ doctor_id: user_id });
-        const result = await this.doctorRepository.delete({ user_id });
-        if (result.affected === 0) {
-            throw new common_1.NotFoundException(`Doctor with user_id ${user_id} not found`);
+        try {
+            await this.appointmentRepository.delete({ doctor_id: user_id });
+            const result = await this.doctorRepository.delete({ user_id });
+            if (result.affected === 0) {
+                throw new common_1.NotFoundException(`Doctor with user_id ${user_id} not found`);
+            }
+            return { message: "Doctor and related appointments deleted successfully" };
         }
-        return { message: "Doctor and related appointments deleted successfully" };
+        catch (error) {
+            throw new Error('Error al eliminar el médico: ' + error.message);
+        }
     }
     async getDoctorBySpeciality(specialty) {
-        return this.doctorRepository.find({
-            where: { specialty: specialty },
-            relations: ["user"],
-        });
+        try {
+            return await this.doctorRepository.find({
+                where: { specialty: specialty },
+                relations: ["user"],
+            });
+        }
+        catch (error) {
+            throw new Error('Error al obtener médicos por especialidad: ' + error.message);
+        }
+    }
+    async getDoctorByName(name) {
+        try {
+            return await this.doctorRepository.find({
+                where: { user: { nombre: name } },
+                relations: ["user"],
+            });
+        }
+        catch (error) {
+            throw new Error('Error al obtener médicos por nombre: ' + error.message);
+        }
     }
 };
 exports.DoctorsService = DoctorsService;

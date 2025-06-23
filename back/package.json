@@ -84,7 +84,10 @@
       "**/*.(t|j)s",
       "!**/*.module.ts",
       "!**/*.model.ts",
-      "!**/main.ts"
+      "!**/main.ts",
+      "!**/*.dto.ts",
+      "!**/*.guard.ts",
+      "!**/*.decorator.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"

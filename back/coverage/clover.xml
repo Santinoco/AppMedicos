@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1750623481186" clover="3.2.0">
-  <project timestamp="1750623481186" name="All files">
-    <metrics statements="431" coveredstatements="385" conditionals="38" coveredconditionals="22" methods="112" coveredmethods="100" elements="581" coveredelements="507" complexity="0" loc="431" ncloc="431" packages="13" files="25" classes="25"/>
+<coverage generated="1750704639695" clover="3.2.0">
+  <project timestamp="1750704639695" name="All files">
+    <metrics statements="442" coveredstatements="380" conditionals="33" coveredconditionals="16" methods="111" coveredmethods="99" elements="586" coveredelements="495" complexity="0" loc="442" ncloc="442" packages="9" files="19" classes="19"/>
     <package name="src">
       <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
       <file name="app.controller.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\app.controller.ts">
@@ -143,13 +143,6 @@
         <line num="184" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="src.appointments.dto">
-      <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="calendar.dto.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\appointments\dto\calendar.dto.ts">
-        <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="0" type="stmt"/>
-      </file>
-    </package>
     <package name="src.auth">
       <metrics statements="49" coveredstatements="43" conditionals="4" coveredconditionals="4" methods="10" coveredmethods="8"/>
       <file name="auth.controller.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\auth\auth.controller.ts">
@@ -209,67 +202,6 @@
         <line num="6" count="0" type="stmt"/>
         <line num="8" count="0" type="stmt"/>
         <line num="16" count="0" type="stmt"/>
-      </file>
-    </package>
-    <package name="src.auth.dto">
-      <metrics statements="10" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="login-auth.dto.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\auth\dto\login-auth.dto.ts">
-        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="8" count="1" type="stmt"/>
-      </file>
-      <file name="register-auth.dto.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\auth\dto\register-auth.dto.ts">
-        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="6" count="1" type="stmt"/>
-        <line num="9" count="1" type="stmt"/>
-        <line num="12" count="1" type="stmt"/>
-      </file>
-    </package>
-    <package name="src.auth.guards">
-      <metrics statements="13" coveredstatements="3" conditionals="1" coveredconditionals="0" methods="2" coveredmethods="0"/>
-      <file name="jwt-auth.guard.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\auth\guards\jwt-auth.guard.ts">
-        <metrics statements="13" coveredstatements="3" conditionals="1" coveredconditionals="0" methods="2" coveredmethods="0"/>
-        <line num="1" count="8" type="stmt"/>
-        <line num="2" count="8" type="stmt"/>
-        <line num="5" count="8" type="stmt"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="11" count="0" type="cond" truecount="0" falsecount="1"/>
-        <line num="12" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
-      </file>
-    </package>
-    <package name="src.auth.roles">
-      <metrics statements="14" coveredstatements="7" conditionals="4" coveredconditionals="0" methods="3" coveredmethods="1"/>
-      <file name="roles.decorator.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\auth\roles\roles.decorator.ts">
-        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
-        <line num="1" count="6" type="stmt"/>
-        <line num="3" count="6" type="stmt"/>
-        <line num="4" count="8" type="stmt"/>
-      </file>
-      <file name="roles.guard.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\auth\roles\roles.guard.ts">
-        <metrics statements="11" coveredstatements="4" conditionals="4" coveredconditionals="0" methods="2" coveredmethods="0"/>
-        <line num="1" count="6" type="stmt"/>
-        <line num="2" count="6" type="stmt"/>
-        <line num="3" count="6" type="stmt"/>
-        <line num="6" count="6" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="15" count="0" type="cond" truecount="0" falsecount="1"/>
-        <line num="16" count="0" type="stmt"/>
-        <line num="18" count="0" type="cond" truecount="0" falsecount="3"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="21" count="0" type="stmt"/>
       </file>
     </package>
     <package name="src.calendar">
@@ -342,9 +274,9 @@
       </file>
     </package>
     <package name="src.doctors">
-      <metrics statements="41" coveredstatements="39" conditionals="2" coveredconditionals="2" methods="14" coveredmethods="12"/>
+      <metrics statements="58" coveredstatements="44" conditionals="2" coveredconditionals="0" methods="16" coveredmethods="12"/>
       <file name="doctors.controller.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\doctors\doctors.controller.ts">
-        <metrics statements="19" coveredstatements="18" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="6"/>
+        <metrics statements="21" coveredstatements="19" conditionals="0" coveredconditionals="0" methods="8" coveredmethods="6"/>
         <line num="1" count="1" type="stmt"/>
         <line num="12" count="1" type="stmt"/>
         <line num="13" count="1" type="stmt"/>
@@ -364,37 +296,54 @@
         <line num="51" count="1" type="stmt"/>
         <line num="55" count="1" type="stmt"/>
         <line num="56" count="0" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
       </file>
       <file name="doctors.service.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\doctors\doctors.service.ts">
-        <metrics statements="22" coveredstatements="21" conditionals="2" coveredconditionals="2" methods="7" coveredmethods="6"/>
+        <metrics statements="37" coveredstatements="25" conditionals="2" coveredconditionals="0" methods="8" coveredmethods="6"/>
         <line num="1" count="6" type="stmt"/>
         <line num="2" count="6" type="stmt"/>
         <line num="3" count="6" type="stmt"/>
         <line num="4" count="6" type="stmt"/>
         <line num="5" count="6" type="stmt"/>
         <line num="8" count="6" type="stmt"/>
-        <line num="11" count="8" type="stmt"/>
-        <line num="13" count="8" type="stmt"/>
+        <line num="11" count="6" type="stmt"/>
+        <line num="13" count="6" type="stmt"/>
         <line num="17" count="1" type="stmt"/>
-        <line num="21" count="1" type="stmt"/>
-        <line num="28" count="1" type="stmt"/>
-        <line num="29" count="1" type="stmt"/>
-        <line num="33" count="2" type="stmt"/>
-        <line num="34" count="2" type="cond" truecount="1" falsecount="0"/>
-        <line num="35" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
         <line num="36" count="1" type="stmt"/>
-        <line num="40" count="2" type="stmt"/>
-        <line num="42" count="2" type="stmt"/>
-        <line num="43" count="2" type="cond" truecount="1" falsecount="0"/>
-        <line num="44" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
         <line num="46" count="1" type="stmt"/>
-        <line num="50" count="0" type="stmt"/>
+        <line num="47" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="58" count="1" type="stmt"/>
+        <line num="59" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
       </file>
     </package>
     <package name="src.patients">
-      <metrics statements="40" coveredstatements="40" conditionals="2" coveredconditionals="2" methods="12" coveredmethods="12"/>
+      <metrics statements="56" coveredstatements="44" conditionals="2" coveredconditionals="0" methods="14" coveredmethods="12"/>
       <file name="patients.controller.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\patients\patients.controller.ts">
-        <metrics statements="17" coveredstatements="17" conditionals="0" coveredconditionals="0" methods="6" coveredmethods="6"/>
+        <metrics statements="19" coveredstatements="18" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="6"/>
         <line num="1" count="1" type="stmt"/>
         <line num="12" count="1" type="stmt"/>
         <line num="13" count="1" type="stmt"/>
@@ -412,32 +361,48 @@
         <line num="42" count="1" type="stmt"/>
         <line num="48" count="1" type="stmt"/>
         <line num="49" count="1" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
       </file>
       <file name="patients.service.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\patients\patients.service.ts">
-        <metrics statements="23" coveredstatements="23" conditionals="2" coveredconditionals="2" methods="6" coveredmethods="6"/>
+        <metrics statements="37" coveredstatements="26" conditionals="2" coveredconditionals="0" methods="7" coveredmethods="6"/>
         <line num="1" count="6" type="stmt"/>
         <line num="2" count="6" type="stmt"/>
         <line num="3" count="6" type="stmt"/>
         <line num="4" count="6" type="stmt"/>
         <line num="5" count="6" type="stmt"/>
         <line num="8" count="6" type="stmt"/>
-        <line num="11" count="8" type="stmt"/>
-        <line num="13" count="8" type="stmt"/>
+        <line num="11" count="6" type="stmt"/>
+        <line num="13" count="6" type="stmt"/>
         <line num="17" count="1" type="stmt"/>
-        <line num="21" count="1" type="stmt"/>
-        <line num="28" count="1" type="stmt"/>
-        <line num="29" count="1" type="stmt"/>
-        <line num="33" count="2" type="stmt"/>
-        <line num="35" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
         <line num="36" count="1" type="stmt"/>
-        <line num="39" count="1" type="stmt"/>
-        <line num="40" count="1" type="stmt"/>
-        <line num="44" count="2" type="stmt"/>
-        <line num="46" count="2" type="cond" truecount="1" falsecount="0"/>
-        <line num="47" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="47" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="48" count="0" type="stmt"/>
         <line num="50" count="1" type="stmt"/>
-        <line num="52" count="1" type="stmt"/>
-        <line num="54" count="1" type="stmt"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="58" count="1" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="60" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="63" count="1" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="65" count="1" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="82" count="0" type="stmt"/>
       </file>
     </package>
     <package name="src.user-type">
@@ -484,9 +449,9 @@
       </file>
     </package>
     <package name="src.users">
-      <metrics statements="55" coveredstatements="50" conditionals="9" coveredconditionals="5" methods="16" coveredmethods="14"/>
+      <metrics statements="71" coveredstatements="56" conditionals="9" coveredconditionals="3" methods="16" coveredmethods="14"/>
       <file name="user.service.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\users\user.service.ts">
-        <metrics statements="36" coveredstatements="32" conditionals="9" coveredconditionals="5" methods="9" coveredmethods="8"/>
+        <metrics statements="52" coveredstatements="38" conditionals="9" coveredconditionals="3" methods="9" coveredmethods="8"/>
         <line num="1" count="4" type="stmt"/>
         <line num="2" count="4" type="stmt"/>
         <line num="3" count="4" type="stmt"/>
@@ -494,35 +459,51 @@
         <line num="7" count="4" type="stmt"/>
         <line num="8" count="4" type="stmt"/>
         <line num="11" count="4" type="stmt"/>
-        <line num="13" count="11" type="stmt"/>
-        <line num="14" count="11" type="stmt"/>
-        <line num="15" count="11" type="stmt"/>
+        <line num="13" count="9" type="stmt"/>
+        <line num="14" count="9" type="stmt"/>
+        <line num="15" count="9" type="stmt"/>
         <line num="19" count="1" type="stmt"/>
-        <line num="23" count="1" type="stmt"/>
-        <line num="27" count="2" type="stmt"/>
-        <line num="28" count="2" type="stmt"/>
-        <line num="29" count="2" type="cond" truecount="1" falsecount="1"/>
-        <line num="30" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="32" count="1" type="stmt"/>
-        <line num="33" count="1" type="stmt"/>
-        <line num="35" count="1" type="stmt"/>
-        <line num="36" count="1" type="stmt"/>
-        <line num="38" count="2" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="38" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="39" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="41" count="1" type="stmt"/>
         <line num="42" count="1" type="stmt"/>
-        <line num="46" count="1" type="stmt"/>
-        <line num="53" count="2" type="stmt"/>
-        <line num="54" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="47" count="2" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
         <line num="55" count="1" type="stmt"/>
-        <line num="56" count="1" type="stmt"/>
-        <line num="60" count="2" type="stmt"/>
-        <line num="61" count="2" type="cond" truecount="1" falsecount="0"/>
-        <line num="62" count="1" type="stmt"/>
-        <line num="64" count="1" type="stmt"/>
-        <line num="68" count="1" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="70" count="1" type="stmt"/>
+        <line num="71" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="73" count="1" type="stmt"/>
         <line num="75" count="0" type="stmt"/>
-        <line num="76" count="0" type="cond" truecount="0" falsecount="3"/>
-        <line num="77" count="0" type="stmt"/>
-        <line num="79" count="0" type="stmt"/>
+        <line num="80" count="1" type="stmt"/>
+        <line num="81" count="1" type="stmt"/>
+        <line num="82" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="83" count="0" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="92" count="1" type="stmt"/>
+        <line num="93" count="1" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="103" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="105" count="0" type="cond" truecount="0" falsecount="3"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="108" count="0" type="stmt"/>
+        <line num="110" count="0" type="stmt"/>
       </file>
       <file name="users.controller.ts" path="E:\TRAE_Projects\WebProjects\Progra3\TrabajoPractico\MainApp\AppMedicos\back\src\users\users.controller.ts">
         <metrics statements="19" coveredstatements="18" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="6"/>

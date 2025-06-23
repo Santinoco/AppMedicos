@@ -52,6 +52,7 @@ export default function LoginPaciente() {
 
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('access_token', data.access_token);
+      localStorage.setItem('user_id', data.user.id);
 
       router.push('/paciente');
     } catch (error) {
