@@ -156,6 +156,26 @@ export class AppointmentsService {
     }
   }
 
+  async getAppointmentsByDoctorName(name: string) {
+    try {
+      const appointments = await this.appointmentRepository.find({
+        where: {
+          doctor: { user: { nombre: name } },
+        },
+        relations: [
+          'doctor', 'doctor.user',
+          'patient', 'patient.user',
+         'status','slot_datetime',
+        ],
+        order: {
+          id: 'ASC',
+        },
+      })
+      return appointments;
+    } catch (error) {
+      throw new BadRequestException('Error al obtener los turnos por nombre de medico.');}
+  }
+
   async getAppointmentsByDate(date: Date) {
     try {
       const input = typeof date === 'string' ? new Date(date + 'T00:00:00') : new Date(date);
