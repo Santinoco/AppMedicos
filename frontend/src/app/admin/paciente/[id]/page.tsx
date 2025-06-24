@@ -3,11 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import { BackUser } from "../../../../types/backUser";
-import { BackMedico } from "../../../../types/backMedico";
 import { BackPaciente } from "../../../../types/backPaciente";
 import { BackTurno } from "../../../../types/backTurno";
-import { Usuario } from "../../../../types/Usuario";
 import { verificarTipoUsuario } from "../../../../services/guardService";
 
 interface Turno {
@@ -284,12 +281,14 @@ export default function AdminUserView() {
                     </div>
                   </div>
                   <div className="flex gap-4 items-center">
-                    <button
-                      onClick={() => cancelarTurno(turno.id)}
-                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Cancelar Turno
-                    </button>
+                    {turno.estado !== 2 && turno.estado !== 3 && (
+                      <button
+                        onClick={() => cancelarTurno(turno.id)}
+                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        Cancelar Turno
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}

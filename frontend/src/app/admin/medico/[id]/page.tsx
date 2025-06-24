@@ -266,12 +266,14 @@ export default function AdminUserView() {
                     </div>
                   </div>
                   <div className="flex gap-4 items-center">
-                    <button
-                      onClick={() => cancelarTurno(turno.id)}
-                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Cancelar Turno
-                    </button>
+                    {turno.estado !== 2 && turno.estado !== 3 && (
+                      <button
+                        onClick={() => cancelarTurno(turno.id)}
+                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        Cancelar Turno
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}
