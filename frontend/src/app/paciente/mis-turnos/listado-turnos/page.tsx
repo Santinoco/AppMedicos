@@ -1,15 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import jwtDecode from 'jwt-decode';
+import { getUserId } from '../../../../services/userIdService';
 
-interface TokenPayload {
-  sub: number;
-  email: string;
-  role: string;
-  iat: number;
-  exp: number;
-}
 
 interface Turno {
   id: number;
@@ -24,7 +17,7 @@ interface Turno {
     };
   };
   status: {
-    nombre: string;
+    status: string;
   };
 }
 
@@ -33,31 +26,28 @@ export default function ListadoTurnos() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+    const token = localStorage.getItem('access_token');
+    const patientId = getUserId();
 
-    try {
-      const decoded = jwtDecode<TokenPayload>(token);
-      const patientId = decoded.sub;
-
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments/patient/${patientId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setTurnos(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error('Error al traer los turnos:', err);
-          setLoading(false);
-        });
-    } catch (err) {
-      console.error('Token inválido:', err);
+    if (!token || !patientId) {
       setLoading(false);
+      return;
     }
+
+    fetch(`http://localhost:3000/appointments/patient/${patientId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setTurnos(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error al traer los turnos:', err);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) return <p className="text-center mt-10">Cargando turnos...</p>;
@@ -74,7 +64,7 @@ export default function ListadoTurnos() {
             <p className="text-gray-700">📅 Fecha: {new Date(turno.slot_datetime.slot_datetime).toLocaleDateString()}</p>
             <p className="text-gray-700">🕒 Hora: {new Date(turno.slot_datetime.slot_datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
             <p className="text-gray-700">📌 Motivo: {turno.motivo}</p>
-            <p className="text-gray-700">📍 Estado: {turno.status.nombre}</p>
+            <p className="text-gray-700">📍 Estado: {turno.status.status}</p>
           </div>
         ))}
       </div>

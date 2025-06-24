@@ -12,7 +12,11 @@ import { Calendar } from "src/calendar/entities/calendar.model";
   imports: [
     TypeOrmModule.forRoot({
       type: "postgres",
-      url: process.env.DATABASE_URL,
+      host: "localhost",
+      port: 5432,
+      username: "postgres",
+      password: "admin",
+      database: "appmedicos",
       entities: [User, Appointment, Doctor, Patient, AppointmentStatus, UserType, Calendar], // Agregar cada nueva entidad acá
       synchronize: false, // Tener cuidado con esto en producción porque puede borrar la info de la base de datos
     }),

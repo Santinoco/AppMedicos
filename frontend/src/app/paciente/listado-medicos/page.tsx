@@ -25,7 +25,7 @@ export default function ListaMedicosConFiltro() {
       return;
     }
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/doctors`, {
+    fetch(`http://localhost:3000/doctors`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

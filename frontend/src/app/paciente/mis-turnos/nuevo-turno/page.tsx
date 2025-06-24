@@ -38,7 +38,7 @@ export default function MisTurnos() {
       setError('No autenticado. Por favor inicia sesión.');
       return;
     }
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/doctors`, {
+    fetch(`http://localhost:3000/doctors`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.ok ? res.json() : Promise.reject('Error al obtener doctores'))
@@ -54,7 +54,7 @@ export default function MisTurnos() {
     }
     setLoading(true);
     const token = localStorage.getItem('access_token');
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/calendar/doctor-available-slots?doctorUserId=${medicoSeleccionado.user_id}`, {
+    fetch(`http://localhost:3000/calendar/doctor-available-slots?doctorUserId=${medicoSeleccionado.user_id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.ok ? res.json() : Promise.reject('Error al obtener slots'))
@@ -248,7 +248,7 @@ export default function MisTurnos() {
 
             try {
               const token = localStorage.getItem('access_token');
-              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments`, {
+              const res = await fetch(`http://localhost:3000/appointments`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
