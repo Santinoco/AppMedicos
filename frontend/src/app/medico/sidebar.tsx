@@ -39,7 +39,11 @@ export default function sidebar() {
               ? "bg-green-100 text-green-800 font-semibold"
               : "text-green-700 hover:bg-green-200 hover:text-green-900"
           )}
-          onClick={() => localStorage.removeItem("user")}
+          onClick={() => {
+            localStorage.removeItem('access_token');          
+            localStorage.removeItem('user');          
+            localStorage.removeItem('user_id');
+          }}
         >
           Cerrar sesion
         </Link>

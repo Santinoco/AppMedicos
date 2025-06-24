@@ -21,7 +21,10 @@ import {
   
     @Get()
     async getAllDoctors() {
-      return this.doctorService.getAllDoctors();
+      //return this.doctorService.getAllDoctors();
+      const docs = await this.doctorService.getAllDoctors();
+      console.log('✅ Doctores encontrados:', docs);
+      return docs;
     }
   
     @Get(":user_id")

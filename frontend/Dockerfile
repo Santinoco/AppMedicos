@@ -16,8 +16,8 @@ COPY . .
 # Construir la app (opcional, para producción)
 # RUN npm run build
 
-# Exponer el puerto 3000
-EXPOSE 3000
+# Exponer el puerto 3001
+EXPOSE 3001
 
 # Comando para arrancar en modo desarrollo
 CMD ["npm", "run", "dev"]

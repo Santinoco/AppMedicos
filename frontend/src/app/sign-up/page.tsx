@@ -42,7 +42,7 @@ export default function SignUp() {
     };
 
     try {
-      const res = await fetch('http://localhost:3000/auth/login', {
+      const res = await fetch('http://localhost:3000/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -55,8 +55,19 @@ export default function SignUp() {
       }
 
       setSuccess('Registro exitoso! Redirigiendo...');
+
+      const data1 = await res.json();
+      const userRol =
+        data1.user?.type?.name ||
+        data1.user?.role ||
+        data1.user?.rol ||
+        '';
+
+      localStorage.setItem('user', JSON.stringify(data1.user));
+      localStorage.setItem('access_token', data1.access_token);
+
       setTimeout(() => {
-        router.push(type === 'patient' ? '/patient' : '/doctor');
+        router.push(type === 'patient' ? '/paciente' : '/medico');
       }, 1000);
     } catch (err) {
       setError('Error de conexión con el servidor.');
@@ -67,7 +78,7 @@ export default function SignUp() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-green-100 to-white p-8 font-sans">
       <button
         onClick={() => router.push('/')}
-        className="self-start mb-6 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
+        className="absolute top-4 left-4 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

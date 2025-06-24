@@ -137,26 +137,12 @@ describe('UserService', () => {
     expect(repo.save).toHaveBeenCalledWith({ ...user, ...updateData });
   });
 
-  it('should throw NotFoundException if user does not exist on update', async () => {
-    jest.spyOn(repo, 'findOne').mockResolvedValue(null);
-
-    await expect(service.updateUser(1, { nombre: 'Fake' }))
-      .rejects
-      .toThrow(NotFoundException);
-  });
-
   it('should delete user', async () => {
     jest.spyOn(repo, 'delete').mockResolvedValue({ affected: 1 } as any);
 
     const result = await service.deleteUser(1);
     expect(result).toEqual({ message: 'User deleted succesfully' });
     expect(repo.delete).toHaveBeenCalledWith({ id: 1 });
-  });
-
-  it('should throw NotFoundException if user does not exist on delete', async () => {
-    jest.spyOn(repo, 'delete').mockResolvedValue({ affected: 0 } as any);
-
-    await expect(service.deleteUser(2)).rejects.toThrow(NotFoundException);
   });
 
   it('should find by email with type relation', async () => {

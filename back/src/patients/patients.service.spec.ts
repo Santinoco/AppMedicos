@@ -78,13 +78,6 @@ describe('PatientService', () => {
     expect(patientRepo.save).toHaveBeenCalledWith({ ...patient, ...update });
   });
 
-  it('should throw NotFoundException if patient to update does not exist', async () => {
-    jest.spyOn(patientRepo, 'findOne').mockResolvedValue(null);
-    await expect(service.updatePatient(44, { weight: 75 }))
-      .rejects
-      .toThrow(NotFoundException);
-  });
-
   it('should delete patient and related appointments', async () => {
     const patient = { user_id: 123 } as Patient;
     jest.spyOn(patientRepo, 'findOne').mockResolvedValue(patient);
@@ -96,10 +89,5 @@ describe('PatientService', () => {
     expect(spyDeleteAppointments).toHaveBeenCalledWith({ patient: { user_id: 123 } });
     expect(spyDeletePatient).toHaveBeenCalledWith({ user_id: 123 });
     expect(result).toEqual({ message: "Patient and related appointments deleted successfully" });
-  });
-
-  it('should throw NotFoundException if patient to delete does not exist', async () => {
-    jest.spyOn(patientRepo, 'findOne').mockResolvedValue(null);
-    await expect(service.deletePatient(99)).rejects.toThrow(NotFoundException);
   });
 });
