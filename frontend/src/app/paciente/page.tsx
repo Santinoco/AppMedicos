@@ -1,15 +1,36 @@
-"use client"
+'use client';
 
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+<<<<<<< HEAD
 import { getUserId } from '../../services/userIdService';
+=======
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+
+interface User {
+  nombre: string;
+  apellido: string;
+  email: string;
+}
+
+interface DatosPaciente {
+  health_insurance: string;
+  medical_history: string;
+  weight: number;
+  height: number;
+  blood_type: string;
+  completed_consultations: number;
+}
+>>>>>>> 2f314ce (agrego redireccion a raiz cuando no se tiene un token de paciente)
 
 export default function PacienteInicio() {
-  const [user, setUser] = useState(null);
-  const [datosPaciente, setDatosPaciente] = useState(null);
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [datosPaciente, setDatosPaciente] = useState<DatosPaciente | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+<<<<<<< HEAD
     const waitForCredentials = () => {
       const accessToken = localStorage.getItem("access_token");
       const userId = getUserId();
@@ -23,40 +44,48 @@ export default function PacienteInicio() {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
+=======
+    const accessToken = localStorage.getItem('access_token');
+    const userData = localStorage.getItem('user');
+    if (!accessToken || !userData) {
+      router.push('/');
+      return;
+    }
+
+    const parsedUser = JSON.parse(userData);
+    const userId = parsedUser.id;
+
+    axios
+      .get(`http://localhost:3000/patients/${userId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+>>>>>>> 2f314ce (agrego redireccion a raiz cuando no se tiene un token de paciente)
       })
-        .then((response) => {
-          if (!response.ok) throw new Error("No autorizado o error al obtener datos");
-          return response.json();
-        })
-        .then((data) => {
-          setUser({
-            nombre: data.user.nombre,
-            apellido: data.user.apellido,
-            email: data.user.email,
-          });
-          setDatosPaciente({
-            health_insurance: data.health_insurance,
-            medical_history: data.medical_history,
-            weight: data.weight,
-            height: data.height,
-            blood_type: data.blood_type,
-            completed_consultations: data.completed_consultations,
-          });
-          setLoading(false);
-        })
-        .catch((error) => {
-          setUser({ nombre: "Paciente", apellido: "", email: "" });
-          setDatosPaciente(null);
-          setLoading(false);
+      .then((res) => {
+        setUser({
+          nombre: res.data.user.nombre,
+          apellido: res.data.user.apellido,
+          email: res.data.user.email,
         });
-    };
 
-    waitForCredentials();
-  }, []);
+        setDatosPaciente({
+          health_insurance: res.data.health_insurance,
+          medical_history: res.data.medical_history,
+          weight: res.data.weight,
+          height: res.data.height,
+          blood_type: res.data.blood_type,
+          completed_consultations: res.data.completed_consultations,
+        });
+      })
+      .catch((err) => {
+        console.error('Error al obtener datos del paciente:', err);
+        router.push('/');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [router]);
 
-  if (loading) {
-    return <div className="p-10 text-center">Cargando datos del paciente...</div>;
-  }
+  if (loading) return <div className="p-10 text-center">Cargando datos del paciente...</div>;
 
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-800">

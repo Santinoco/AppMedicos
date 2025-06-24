@@ -78,7 +78,7 @@ export default function SignUp() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-green-100 to-white p-8 font-sans">
       <button
         onClick={() => router.push('/')}
-        className="self-start mb-6 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
+        className="absolute top-4 left-4 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
