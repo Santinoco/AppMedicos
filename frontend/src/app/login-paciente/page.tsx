@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 interface User {
   id: number;
   email: string;
-  rol: 'paciente' | 'medico' | 'admin';
+  rol: 'paciente' | 'medico' | 'administrator';
 }
 
 export default function LoginPaciente() {
@@ -38,10 +38,8 @@ export default function LoginPaciente() {
         data.user?.type?.name ||
         data.user?.role ||
         data.user?.rol ||
-        '';
-
+        "";
       if (
-        userRol.toLowerCase() !== 'paciente' &&
         userRol.toLowerCase() !== 'patient'
       ) {
         setError(
@@ -52,9 +50,8 @@ export default function LoginPaciente() {
 
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('user_id', data.user.id);
 
-      router.push('/paciente');
+      router.push("/paciente");
     } catch (error) {
       setError('Error al conectar con el servidor');
     }
@@ -104,7 +101,6 @@ export default function LoginPaciente() {
             className="p-3 rounded border border-gray-300 text-base"
           />
           <button
-          onClick={() => router.push('/paciente')}
             type="submit"
             className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded text-lg"
           >

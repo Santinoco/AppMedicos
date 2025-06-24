@@ -98,7 +98,7 @@ export default function LoginMedico() {
             onChange={(e) => setPassword(e.target.value)}
             className="p-3 rounded border border-gray-300 text-base"
           />
-          <button onClick={() => router.push('/medico')}
+          <button 
             type="submit"
             className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded text-lg"
           >
