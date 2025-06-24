@@ -1,9 +1,5 @@
 'use client';
-
 import { useEffect, useState } from 'react';
-<<<<<<< HEAD
-import { getUserId } from '../../services/userIdService';
-=======
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
@@ -21,7 +17,6 @@ interface DatosPaciente {
   blood_type: string;
   completed_consultations: number;
 }
->>>>>>> 2f314ce (agrego redireccion a raiz cuando no se tiene un token de paciente)
 
 export default function PacienteInicio() {
   const router = useRouter();
@@ -30,21 +25,6 @@ export default function PacienteInicio() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-<<<<<<< HEAD
-    const waitForCredentials = () => {
-      const accessToken = localStorage.getItem("access_token");
-      const userId = getUserId();
-      if (!accessToken || !userId) {
-        setTimeout(waitForCredentials, 50);
-        return;
-      }
-
-      fetch(`http://localhost:3000/patients/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-=======
     const accessToken = localStorage.getItem('access_token');
     const userData = localStorage.getItem('user');
     if (!accessToken || !userData) {
@@ -58,7 +38,6 @@ export default function PacienteInicio() {
     axios
       .get(`http://localhost:3000/patients/${userId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
->>>>>>> 2f314ce (agrego redireccion a raiz cuando no se tiene un token de paciente)
       })
       .then((res) => {
         setUser({
