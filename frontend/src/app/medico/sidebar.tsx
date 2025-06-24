@@ -10,6 +10,7 @@ export default function sidebar() {
   const links = [
     { href: "/medico", label: "Inicio" },
     { href: "/medico/mis-turnos", label: "Mis turnos" },
+    { href: "/medico/mis-pacientes", label: "Mis pacientes" },
   ];
 
   return (
@@ -40,9 +41,9 @@ export default function sidebar() {
               : "text-green-700 hover:bg-green-200 hover:text-green-900"
           )}
           onClick={() => {
-            localStorage.removeItem('access_token');          
-            localStorage.removeItem('user');          
-            localStorage.removeItem('user_id');
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user");
+            localStorage.removeItem("user_id");
           }}
         >
           Cerrar sesion

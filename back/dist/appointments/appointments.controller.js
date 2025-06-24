@@ -47,6 +47,9 @@ let AppointmentsController = class AppointmentsController {
     async getAppointmentsByName(name) {
         return this.appointmentsService.getAppointmentsByPatientName(name);
     }
+    async getAppointmentsByDoctorName(name) {
+        return this.appointmentsService.getAppointmentsByDoctorName(name);
+    }
     async getAppointmentsByDate(date) {
         return this.appointmentsService.getAppointmentsByDate(date);
     }
@@ -109,6 +112,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AppointmentsController.prototype, "getAppointmentsByName", null);
+__decorate([
+    (0, common_1.Get)('appointments-by-doctor-name/:name'),
+    __param(0, (0, common_1.Param)('name')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AppointmentsController.prototype, "getAppointmentsByDoctorName", null);
 __decorate([
     (0, common_1.Get)('appointments-by-date/:date'),
     __param(0, (0, common_1.Param)('date')),

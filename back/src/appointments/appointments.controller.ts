@@ -63,6 +63,11 @@ export class AppointmentsController {
     return this.appointmentsService.getAppointmentsByPatientName(name);
   }
 
+  @Get('appointments-by-doctor-name/:name')
+  async getAppointmentsByDoctorName(@Param('name') name: string) {
+    return this.appointmentsService.getAppointmentsByDoctorName(name);
+  }
+
   @Get('appointments-by-date/:date')
   async getAppointmentsByDate(@Param('date') date: Date) {
     return this.appointmentsService.getAppointmentsByDate(date);

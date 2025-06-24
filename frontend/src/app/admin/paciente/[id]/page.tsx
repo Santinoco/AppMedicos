@@ -3,11 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import { BackUser } from "../../../../types/backUser";
-import { BackMedico } from "../../../../types/backMedico";
 import { BackPaciente } from "../../../../types/backPaciente";
 import { BackTurno } from "../../../../types/backTurno";
-import { Usuario } from "../../../../types/Usuario";
 import { verificarTipoUsuario } from "../../../../services/guardService";
 
 interface Turno {
@@ -121,30 +118,32 @@ export default function AdminUserView() {
 
       // Obtener los turnos del paciente
       try {
-        const turnosResponse = await axios.get(
-          `http://localhost:3000/appointments/patient/${idUsuario}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const turnosData: Turno[] = turnosResponse.data.map(
-          (turno: BackTurno) => ({
-            id: turno.id,
-            nombre: `${turno.doctor.user.nombre} ${turno.doctor.user.apellido}`,
-            email: turno.doctor.user.email,
-            motivo: turno.motivo,
-            fechaTurno: new Date(turno.slot_datetime.slot_datetime),
-            estado: turno.status.status_id,
-          })
-        );
-
-        setTurnos(turnosData);
+        obtenerTurnosPaciente(token);
       } catch (error) {
         console.error("Error al obtener los turnos del usuario:", error);
       }
     };
     fetchTurnos();
   }, [idUsuario, isVerified]);
+
+  const obtenerTurnosPaciente = async (token: string) => {
+    const turnosResponse = await axios.get(
+      `http://localhost:3000/appointments/patient/${idUsuario}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const turnosData: Turno[] = turnosResponse.data.map((turno: BackTurno) => ({
+      id: turno.id,
+      nombre: `${turno.doctor.user.nombre} ${turno.doctor.user.apellido}`,
+      email: turno.doctor.user.email,
+      motivo: turno.motivo,
+      fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+      estado: turno.status.status_id,
+    }));
+
+    setTurnos(turnosData);
+  };
 
   const cancelarTurno = async (id: number) => {
     const turnoCancelado = turnos.find((turno) => turno.id === id);
@@ -170,6 +169,34 @@ export default function AdminUserView() {
           alert("No se pudo cancelar el turno. Inténtalo más tarde.");
         }
       }
+    }
+  };
+
+  const filtrarPorNombre = async (nombre: string) => {
+    const token = localStorage.getItem("access_token");
+    const userId = paciente.usuario.id;
+    if (nombre.trim() === "") {
+      obtenerTurnosPaciente(token); // Si el campo está vacío, obtener todos los turnos
+    } else {
+      const responseFiltrado = await axios.get(
+        `http://localhost:3000/appointments/appointments-by-doctor-name/${nombre}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const turnosFiltrados: Turno[] = responseFiltrado.data
+        .filter((turno: BackTurno) => turno.patient.user_id === userId)
+        .map((turno: BackTurno) => ({
+          id: turno.id,
+          nombre: `${turno.doctor.user.nombre} ${turno.doctor.user.apellido}`,
+          email: turno.doctor.user.email,
+          motivo: turno.motivo,
+          fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+          estado: turno.status.status_id,
+        }));
+
+      setTurnos(turnosFiltrados);
     }
   };
 
@@ -240,6 +267,18 @@ export default function AdminUserView() {
 
         <section className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">📅 Turnos agendados</h2>
+          <div className="my-4">
+            <label htmlFor="nombre" className="mr-2">
+              Filtrar:
+            </label>
+            <input
+              type="text"
+              id="nombre"
+              placeholder="Ingrese un nombre"
+              onChange={(e) => filtrarPorNombre(e.target.value)}
+              className="border border-gray-300 rounded p-2"
+            />
+          </div>
           {turnos.length === 0 ? (
             <p className="text-gray-500">No tenés turnos agendados.</p>
           ) : (
@@ -251,7 +290,8 @@ export default function AdminUserView() {
                 >
                   <div>
                     <div>
-                      <span className="font-bold">{turno.nombre}</span>{" "}
+                      <span className="font-bold mr-2">Medico:</span>
+                      <span>{turno.nombre}</span>{" "}
                       <span className="text-gray-500 font-light">
                         - {turno.email}
                       </span>
@@ -284,12 +324,14 @@ export default function AdminUserView() {
                     </div>
                   </div>
                   <div className="flex gap-4 items-center">
-                    <button
-                      onClick={() => cancelarTurno(turno.id)}
-                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Cancelar Turno
-                    </button>
+                    {turno.estado !== 2 && turno.estado !== 3 && (
+                      <button
+                        onClick={() => cancelarTurno(turno.id)}
+                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        Cancelar Turno
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}
