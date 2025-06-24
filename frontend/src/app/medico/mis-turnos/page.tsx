@@ -40,12 +40,12 @@ export default function misTurnos() {
   }, [router]);
 
   useEffect(() => {
-    // Obtener el ID del usuario logueado
     fetchTurnos();
   }, [isVerified]);
 
   const fetchTurnos = async () => {
     const token = localStorage.getItem("access_token") || "";
+    // Obtener el ID del usuario logueado
     const userId = getUserId();
     try {
       const responseTurnos = await axios.get(
