@@ -94,7 +94,7 @@ let AppointmentsService = class AppointmentsService {
     }
     async findByDoctorId(doctorUserId) {
         try {
-            return this.appointmentRepository.find({
+            const appointments = this.appointmentRepository.find({
                 where: {
                     doctor: { user_id: doctorUserId },
                 },
@@ -103,10 +103,8 @@ let AppointmentsService = class AppointmentsService {
                     'patient', 'patient.user',
                     'status', 'slot_datetime',
                 ],
-                order: {
-                    id: 'ASC',
-                },
             });
+            return (await appointments).sort((a, b) => a.slot_datetime.slot_id - b.slot_datetime.slot_id);
         }
         catch (error) {
             throw new common_1.BadRequestException('Error al obtener los turnos del doctor.');
@@ -114,7 +112,7 @@ let AppointmentsService = class AppointmentsService {
     }
     async findByPatientId(patientUserId) {
         try {
-            return this.appointmentRepository.find({
+            const appointments = this.appointmentRepository.find({
                 where: {
                     patient: { user_id: patientUserId },
                 },
@@ -123,10 +121,8 @@ let AppointmentsService = class AppointmentsService {
                     'patient', 'patient.user',
                     'status', 'slot_datetime',
                 ],
-                order: {
-                    id: 'ASC',
-                },
             });
+            return (await appointments).sort((a, b) => a.slot_datetime.slot_id - b.slot_datetime.slot_id);
         }
         catch (error) {
             throw new common_1.BadRequestException('Error al obtener los turnos del paciente.');
