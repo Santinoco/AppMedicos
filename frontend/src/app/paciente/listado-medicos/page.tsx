@@ -2,48 +2,72 @@
 
 import { useEffect, useState } from 'react';
 
-interface Medico {
+interface Doctor {
   id: number;
-  nombre: string;
-  apellido: string;
-  especialidad: string;
+  user: {
+    nombre: string;
+    apellido: string;
+  };
+  specialty?: string;
 }
 
-export default function ListadoMedicos() {
-  const [medicos, setMedicos] = useState<Medico[]>([]);
+export default function ListaMedicosConFiltro() {
+  const [medicos, setMedicos] = useState<Doctor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [especialidadFiltro, setEspecialidadFiltro] = useState<string>('');
 
   useEffect(() => {
-    // Simulación de fetch desde backend
-    const data: Medico[] = [
-      { id: 1, nombre: 'Carlos', apellido: 'López', especialidad: 'Cardiología' },
-      { id: 2, nombre: 'María', apellido: 'Gómez', especialidad: 'Dermatología' },
-      { id: 3, nombre: 'Lucía', apellido: 'Pérez', especialidad: 'Pediatría' },
-      { id: 4, nombre: 'José', apellido: 'Fernández', especialidad: 'Cardiología' },
-    ];
-    setMedicos(data);
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      setError('No autenticado. Por favor inicia sesión.');
+      setLoading(false);
+      return;
+    }
+
+    fetch(`http://localhost:3000/doctors`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errMsg = await res.text();
+          throw new Error(errMsg || 'Error al obtener doctores');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setMedicos(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || 'Error inesperado');
+        setLoading(false);
+      });
   }, []);
 
-  const especialidadesUnicas = Array.from(
-    new Set(medicos.map((m) => m.especialidad))
-  );
+  if (loading) return <p className="text-center mt-10">Cargando doctores...</p>;
+  if (error) return <p className="text-red-600 text-center mt-10">Error: {error}</p>;
 
+  // Obtener especialidades únicas para el select
+  const especialidadesUnicas = Array.from(
+    new Set(medicos.map((m) => m.specialty).filter(Boolean))
+  ) as string[];
+
+  // Filtrar médicos por especialidad seleccionada
   const medicosFiltrados = especialidadFiltro
-    ? medicos.filter((m) => m.especialidad === especialidadFiltro)
+    ? medicos.filter((m) => m.specialty === especialidadFiltro)
     : medicos;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-10">
-      <h1 className="text-3xl font-bold text-green-800 mb-6">
-        Cartilla de Médicos
-      </h1>
+    <div className="min-h-screen bg-gray-100 p-10 max-w-5xl mx-auto">
+      <h1 className="text-3xl font-bold text-green-800 mb-6 text-center">Cartilla de Médicos</h1>
 
-      <div className="mb-6">
-        <label className="block mb-2 text-gray-700 font-medium">
-          Filtrar por especialidad:
-        </label>
+      <div className="mb-6 max-w-xs mx-auto sm:mx-0">
+        <label className="block mb-2 text-gray-700 font-medium">Filtrar por especialidad:</label>
         <select
-          className="border border-gray-300 rounded px-4 py-2 w-full sm:w-64"
+          className="border border-gray-300 rounded px-4 py-2 w-full"
           value={especialidadFiltro}
           onChange={(e) => setEspecialidadFiltro(e.target.value)}
         >
@@ -57,18 +81,18 @@ export default function ListadoMedicos() {
       </div>
 
       {medicosFiltrados.length === 0 ? (
-        <p className="text-gray-500">No hay médicos para la especialidad seleccionada.</p>
+        <p className="text-center text-gray-600">No hay médicos para la especialidad seleccionada.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {medicosFiltrados.map((medico) => (
+          {medicosFiltrados.map((doc) => (
             <div
-              key={medico.id}
-              className="bg-white shadow-md p-6 rounded-lg"
+              key={doc.id}
+              className="bg-white shadow-md p-6 rounded-lg hover:shadow-lg transition"
             >
               <h2 className="text-xl font-semibold text-green-800 mb-1">
-                {medico.nombre} {medico.apellido}
+                {doc.user?.nombre} {doc.user?.apellido}
               </h2>
-              <p className="text-gray-600">Especialidad: {medico.especialidad}</p>
+              {doc.specialty && <p className="text-gray-600">Especialidad: {doc.specialty}</p>}
             </div>
           ))}
         </div>

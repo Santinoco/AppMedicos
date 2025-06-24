@@ -18,7 +18,7 @@ export default function PacienteInicio() {
         return;
       }
 
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/patients/${userId}`, {
+      fetch(`http://localhost:3000/patients/${userId}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",

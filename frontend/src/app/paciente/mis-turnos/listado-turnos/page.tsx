@@ -1,53 +1,73 @@
 'use client';
+
 import { useEffect, useState } from 'react';
+import { getUserId } from '../../../../services/userIdService';
+
 
 interface Turno {
   id: number;
-  fecha: string;
-  hora: string;
-  medico: string;
-  especialidad: string;
+  motivo: string;
+  slot_datetime: {
+    slot_datetime: string;
+  };
+  doctor: {
+    user: {
+      nombre: string;
+      apellido: string;
+    };
+  };
+  status: {
+    status: string;
+  };
 }
 
 export default function ListadoTurnos() {
   const [turnos, setTurnos] = useState<Turno[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulación de fetch
-    setTurnos([
-      {
-        id: 1,
-        fecha: '15/06/2025',
-        hora: '10:00 hs',
-        medico: 'Dr. López',
-        especialidad: 'Cardiología',
+    const token = localStorage.getItem('access_token');
+    const patientId = getUserId();
+
+    if (!token || !patientId) {
+      setLoading(false);
+      return;
+    }
+
+    fetch(`http://localhost:3000/appointments/patient/${patientId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-      {
-        id: 2,
-        fecha: '25/07/2025',
-        hora: '14:30 hs',
-        medico: 'Dra. Ramírez',
-        especialidad: 'Pediatría',
-      },
-    ]);
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setTurnos(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error al traer los turnos:', err);
+        setLoading(false);
+      });
   }, []);
 
+  if (loading) return <p className="text-center mt-10">Cargando turnos...</p>;
+
+  if (turnos.length === 0) return <p className="text-center mt-10">No hay turnos agendados.</p>;
+
   return (
-    <div className="p-8 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold text-green-800 mb-6">📋 Tus turnos agendados</h2>
-      {turnos.length === 0 ? (
-        <p className="text-gray-500">No tenés turnos por el momento.</p>
-      ) : (
-        <div className="space-y-4">
-          {turnos.map((turno) => (
-            <div key={turno.id} className="bg-white p-4 shadow rounded border-l-4 border-green-400">
-              <h3 className="text-xl font-semibold text-green-700">{turno.especialidad}</h3>
-              <p className="text-gray-800">👨‍⚕️ {turno.medico}</p>
-              <p className="text-gray-600">📅 {turno.fecha} - 🕒 {turno.hora}</p>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="p-8 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-green-800">Mis turnos</h2>
+      <div className="grid gap-6">
+        {turnos.map((turno) => (
+          <div key={turno.id} className="bg-white shadow-md rounded-xl p-6 border border-gray-200">
+            <p className="text-lg font-semibold text-gray-800">🩺 Doctor: {turno.doctor.user.nombre} {turno.doctor.user.apellido}</p>
+            <p className="text-gray-700">📅 Fecha: {new Date(turno.slot_datetime.slot_datetime).toLocaleDateString()}</p>
+            <p className="text-gray-700">🕒 Hora: {new Date(turno.slot_datetime.slot_datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+            <p className="text-gray-700">📌 Motivo: {turno.motivo}</p>
+            <p className="text-gray-700">📍 Estado: {turno.status.status}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
