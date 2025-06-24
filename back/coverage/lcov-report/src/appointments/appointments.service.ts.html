@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">79.66% </span>
+                <span class="strong">73.13% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>47/59</span>
+                <span class='fraction'>49/67</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">76.92% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>10/10</span>
+                <span class='fraction'>10/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">78.94% </span>
+                <span class="strong">74.6% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>45/57</span>
+                <span class='fraction'>47/63</span>
             </div>
         
             
@@ -249,7 +249,23 @@
 <a name='L184'></a><a href='#L184'>184</a>
 <a name='L185'></a><a href='#L185'>185</a>
 <a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -345,9 +361,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -365,9 +379,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -405,6 +417,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -521,7 +553,7 @@ export class AppointmentsService {
 &nbsp;
   async findByDoctorId(doctorUserId: number) {
     try {
-      return this.appointmentRepository.find({
+      const appointments = this.appointmentRepository.find({
         where: {
           doctor: { user_id: doctorUserId },
         },
@@ -530,10 +562,8 @@ export class AppointmentsService {
           'patient', 'patient.user',
           'status', 'slot_datetime',
         ],
-        order: {
-          id: 'ASC',
-        },
       });
+      return (await appointments).sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >a.slot_datetime.slot_id - b.slot_datetime.slot_id)</span>;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      throw new BadRequestException('Error al obtener los turnos del doctor.');</span>
     }
@@ -541,7 +571,7 @@ export class AppointmentsService {
   
   async findByPatientId(patientUserId: number) {
     try {
-      return this.appointmentRepository.find({
+      const appointments = this.appointmentRepository.find({
         where: {
           patient: { user_id: patientUserId },
         },
@@ -550,10 +580,8 @@ export class AppointmentsService {
           'patient', 'patient.user',
           'status', 'slot_datetime',
         ],
-        order: {
-          id: 'ASC',
-        },
       });
+      return (await appointments).sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >a.slot_datetime.slot_id - b.slot_datetime.slot_id)</span>;
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      throw new BadRequestException('Error al obtener los turnos del paciente.');</span>
     }
@@ -593,6 +621,26 @@ export class AppointmentsService {
     }
   }
 &nbsp;
+<span class="fstat-no" title="function not covered" >  async </span>getAppointmentsByDoctorName(name: string) {
+<span class="cstat-no" title="statement not covered" >    try {</span>
+      const appointments = <span class="cstat-no" title="statement not covered" >await this.appointmentRepository.find({</span>
+        where: {
+          doctor: { user: { nombre: name } },
+        },
+        relations: [
+          'doctor', 'doctor.user',
+          'patient', 'patient.user',
+         'status','slot_datetime',
+        ],
+        order: {
+          id: 'ASC',
+        },
+      })
+<span class="cstat-no" title="statement not covered" >      return appointments;</span>
+    } catch (error) {
+<span class="cstat-no" title="statement not covered" >      throw new BadRequestException('Error al obtener los turnos por nombre de medico.');}</span>
+  }
+&nbsp;
   async getAppointmentsByDate(date: Date) {
     try {
       const input = typeof date === 'string' ? <span class="branch-0 cbranch-no" title="branch not covered" >new Date(date + 'T00:00:00') </span>: new Date(date);
@@ -628,7 +676,7 @@ export class AppointmentsService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-23T18:50:39.449Z
+                at 2025-06-24T21:47:43.027Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

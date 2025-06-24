@@ -25,7 +25,6 @@ let DoctorsController = class DoctorsController {
     }
     async getAllDoctors() {
         const docs = await this.doctorService.getAllDoctors();
-        console.log('✅ Doctores encontrados:', docs);
         return docs;
     }
     async getDoctorById(user_id) {
