@@ -61,8 +61,18 @@ export default function ListadoTurnos() {
         {turnos.map((turno) => (
           <div key={turno.id} className="bg-white shadow-md rounded-xl p-6 border border-gray-200">
             <p className="text-lg font-semibold text-gray-800">🩺 Doctor: {turno.doctor.user.nombre} {turno.doctor.user.apellido}</p>
-            <p className="text-gray-700">📅 Fecha: {new Date(turno.slot_datetime.slot_datetime).toLocaleDateString()}</p>
-            <p className="text-gray-700">🕒 Hora: {new Date(turno.slot_datetime.slot_datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+            <p className="text-gray-700">
+              📅 Fecha: {(() => {
+                const fecha = new Date(turno.slot_datetime.slot_datetime);
+                const dia = fecha.getDate().toString().padStart(2, '0');
+                const mes = fecha.toLocaleString('es-AR', { month: 'short' }).toLowerCase();
+                const anio = fecha.getFullYear();
+                return `${dia} ${mes} ${anio}`;
+              })()}
+            </p>
+
+
+            <p className="text-gray-700">🕒 Hora: {new Date(turno.slot_datetime.slot_datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}hs</p>
             <p className="text-gray-700">📌 Motivo: {turno.motivo}</p>
             <p className="text-gray-700">📍 Estado: {turno.status.status}</p>
           </div>
