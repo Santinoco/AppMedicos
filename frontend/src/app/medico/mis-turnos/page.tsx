@@ -119,7 +119,7 @@ export default function misTurnos() {
           email: turno.patient.user.email,
           motivo: turno.motivo,
           fechaTurno: new Date(turno.slot_datetime.slot_datetime),
-          estado: turno.status.status,
+          estado: turno.status.status_id,
         }));
 
       setMisTurnos(turnosFiltrados);
