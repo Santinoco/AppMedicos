@@ -10,10 +10,10 @@ import { Turno } from "../../types/Turno";
 import { verificarTipoUsuario } from "../../services/guardService";
 
 interface Medico {
-  nombre: String;
-  especialidad: String;
+  nombre: string;
+  especialidad: string;
   numeroMatricula: number;
-  email: String;
+  email: string;
   comienzoJornada: string;
   finJornada: string;
 }
@@ -21,6 +21,9 @@ interface Medico {
 export default function MedicoDashboard() {
   const router = useRouter();
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [especialidadInput, setEspecialidadInput] = useState<string | null>(
+    null
+  );
   const [comienzoJornadaInput, setComienzoJornadaInput] = useState<
     string | null
   >(null);
@@ -39,7 +42,7 @@ export default function MedicoDashboard() {
     email: "",
     motivo: "",
     fechaTurno: new Date("2025-05-29T10:30:00"),
-    estado: "",
+    estado: 0,
   });
   const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
@@ -97,7 +100,7 @@ export default function MedicoDashboard() {
               email: pacienteData.user.email,
               motivo: turnoData.motivo,
               fechaTurno: turnoData.slot_datetime.slot_datetime,
-              estado: turnoData.status.status,
+              estado: turnoData.status.status_id,
             });
           } catch (error) {
             console.error("Error al obtener los datos del paciente:", error);
@@ -138,28 +141,54 @@ export default function MedicoDashboard() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Validar los campos de entrada
     if (
-      comienzoJornadaInput &&
-      finJornadaInput &&
-      parseInt(comienzoJornadaInput) >= 1000 &&
-      parseInt(finJornadaInput) <= 1900 &&
-      parseInt(comienzoJornadaInput) < parseInt(finJornadaInput)
+      (comienzoJornadaInput &&
+        finJornadaInput &&
+        parseInt(comienzoJornadaInput) >= 1000 &&
+        parseInt(finJornadaInput) <= 1900 &&
+        parseInt(comienzoJornadaInput) < parseInt(finJornadaInput)) ||
+      (!comienzoJornadaInput && !finJornadaInput)
     ) {
-      const comienzoJornadaFormateado: string = `${comienzoJornadaInput.slice(
-        0,
-        2
-      )}:${comienzoJornadaInput.slice(2, 4)}:00`;
-      const finJornadaFormateado: string = `${finJornadaInput.slice(
-        0,
-        2
-      )}:${finJornadaInput.slice(2, 4)}:00`;
+      var especialidadFormateada: string;
+      var especialidadActualizada: boolean = true;
+      var comienzoJornadaFormateado: string;
+      var comienzoJornadaActualizado: boolean = true;
+      var finJornadaFormateado: string;
+      var finJornadaActualizado: boolean = true;
+      // Formatear los valores de jornadas
+      if (comienzoJornadaInput && finJornadaInput) {
+        comienzoJornadaFormateado = `${comienzoJornadaInput.slice(
+          0,
+          2
+        )}:${comienzoJornadaInput.slice(2, 4)}:00`;
+        finJornadaFormateado = `${finJornadaInput.slice(
+          0,
+          2
+        )}:${finJornadaInput.slice(2, 4)}:00`;
+      } else {
+        // Si no se ingresaron valores, mantener los valores actuales
+        comienzoJornadaFormateado = medico.comienzoJornada;
+        comienzoJornadaActualizado = false;
+        finJornadaFormateado = medico.finJornada;
+        finJornadaActualizado = false;
+      }
+      if (especialidadInput) {
+        especialidadFormateada = especialidadInput;
+      } else {
+        especialidadFormateada = medico.especialidad;
+        especialidadActualizada = false;
+      }
+
       const token = localStorage.getItem("access_token");
       const userId = getUserId();
 
       try {
+        // Actualizar la jornada del médico en el backend
         await axios.patch(
           `http://localhost:3000/doctors/${userId}`,
           {
+            specialty: especialidadFormateada,
             shift_start: comienzoJornadaFormateado,
             shift_end: finJornadaFormateado,
           },
@@ -168,18 +197,23 @@ export default function MedicoDashboard() {
           }
         );
       } catch (error) {
-        console.error("Error al actualizar la jornada:", error);
+        console.error("Error al actualizar los datos:", error);
       }
 
       try {
         getMedico(token, userId); // Actualizar los datos del médico después de la modificación
       } catch (error) {
-        console.error("Error al actualizar la jornada:", error);
+        console.error("Error al obtener datos actualizados del medico:", error);
       }
-
-      alert(
-        `Jornada actualizada: ${comienzoJornadaFormateado} - ${finJornadaFormateado}`
-      );
+      // Mostrar mensaje de éxito
+      if (especialidadActualizada) {
+        alert(`Especialidad actualizada: ${especialidadFormateada}`);
+      }
+      if (comienzoJornadaActualizado && finJornadaActualizado) {
+        alert(
+          `Jornada actualizada: ${comienzoJornadaFormateado} - ${finJornadaFormateado}`
+        );
+      }
     } else {
       alert("Por favor, ingrese valores válidos.");
     }
@@ -206,7 +240,7 @@ export default function MedicoDashboard() {
         turno.motivo === "" &&
         turno.fechaTurno.getTime() ===
           new Date("2025-05-29T10:30:00").getTime() &&
-        turno.estado === "" ? (
+        turno.estado === 0 ? (
           <p className="text-gray-500">No hay turnos pendientes.</p>
         ) : (
           <div>
@@ -240,11 +274,34 @@ export default function MedicoDashboard() {
         onClick={toggleFormulario}
         className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
       >
-        {mostrarFormulario ? "Ocultar formulario" : "Editar jornada"}
+        {mostrarFormulario ? "Ocultar formulario" : "Editar tus Datos"}
       </button>
 
       {mostrarFormulario && (
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div>
+            <label htmlFor="especialidad" className="block font-bold">
+              Especialidad:
+            </label>
+            <select
+              id="especialidad"
+              value={especialidadInput || ""}
+              onChange={(e) => setEspecialidadInput(e.target.value)}
+              className="border border-gray-300 rounded p-2 w-full"
+            >
+              <option value="" disabled>
+                Seleccione una especialidad
+              </option>
+              <option value="Pediatría">Pediatría</option>
+              <option value="Cardiología">Cardiología</option>
+              <option value="Dermatología">Dermatología</option>
+              <option value="Ginecología">Ginecología</option>
+              <option value="Neurología">Neurología</option>
+              <option value="Traumatología">Traumatología</option>
+              <option value="Oftalmología">Oftalmología</option>
+              <option value="Oncología">Oncología</option>
+            </select>
+          </div>
           <div>
             <label htmlFor="comienzoJornada" className="block font-bold">
               Comienzo Jornada:
