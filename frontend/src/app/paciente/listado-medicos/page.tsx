@@ -84,9 +84,9 @@ export default function ListaMedicosConFiltro() {
         <p className="text-center text-gray-600">No hay médicos para la especialidad seleccionada.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {medicosFiltrados.map((doc) => (
+          {medicosFiltrados.map((doc, index) => (
             <div
-              key={doc.id}
+            key={`${doc.id ?? index}-${doc.user?.nombre}`}
               className="bg-white shadow-md p-6 rounded-lg hover:shadow-lg transition"
             >
               <h2 className="text-xl font-semibold text-green-800 mb-1">
