@@ -42,7 +42,7 @@ export default function MedicoDashboard() {
     email: "",
     motivo: "",
     fechaTurno: new Date("2025-05-29T10:30:00"),
-    estado: "",
+    estado: 0,
   });
   const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
 
@@ -100,7 +100,7 @@ export default function MedicoDashboard() {
               email: pacienteData.user.email,
               motivo: turnoData.motivo,
               fechaTurno: turnoData.slot_datetime.slot_datetime,
-              estado: turnoData.status.status,
+              estado: turnoData.status.status_id,
             });
           } catch (error) {
             console.error("Error al obtener los datos del paciente:", error);
@@ -240,7 +240,7 @@ export default function MedicoDashboard() {
         turno.motivo === "" &&
         turno.fechaTurno.getTime() ===
           new Date("2025-05-29T10:30:00").getTime() &&
-        turno.estado === "" ? (
+        turno.estado === 0 ? (
           <p className="text-gray-500">No hay turnos pendientes.</p>
         ) : (
           <div>

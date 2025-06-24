@@ -14,7 +14,7 @@ const misTurnosInicial: Turno[] = [
     email: "",
     motivo: "",
     fechaTurno: new Date("0001-01-01T10:00:00"),
-    estado: "",
+    estado: 0,
   },
 ];
 
@@ -61,7 +61,7 @@ export default function misTurnos() {
           email: turno.patient?.user?.email || "",
           motivo: turno.motivo,
           fechaTurno: new Date(turno.slot_datetime.slot_datetime),
-          estado: turno.status.status,
+          estado: turno.status.status_id,
         })
       );
 
@@ -179,9 +179,8 @@ export default function misTurnos() {
             {misTurnos
               .filter((turno) =>
                 mostrarPendientes
-                  ? turno.estado === "pending"
-                  : turno.estado === "cancelled" ||
-                    turno.estado === "rescheduled"
+                  ? turno.estado === 1
+                  : turno.estado === 2 || turno.estado === 3
               )
               .map((turno) => (
                 <li
@@ -204,8 +203,18 @@ export default function misTurnos() {
                       }).format(turno.fechaTurno)}
                     </div>
                     <div className="mb-1">
-                      <span className="font-bold mr-1">Estado:</span>
-                      <span>{turno.estado}</span>
+                      <span className="font-bold">Estado: </span>
+                      {turno.estado === 1 ? (
+                        <span>Pendiente</span>
+                      ) : turno.estado === 2 ? (
+                        <span>Completado</span>
+                      ) : turno.estado === 3 ? (
+                        <span>Cancelado</span>
+                      ) : turno.estado === 4 ? (
+                        <span>Reprogramado</span>
+                      ) : (
+                        <span></span>
+                      )}
                     </div>
                     <div className="mb-1">
                       <div className="font-bold">Motivo de consulta:</div>
