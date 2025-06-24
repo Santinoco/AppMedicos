@@ -185,7 +185,7 @@ export default function AdminDashboard() {
     if (nombre != "") {
       try {
         const responseFiltrado = await axios.get(
-          `http://localhost:3000/${rol}}/by-name/${nombre}`,
+          `http://localhost:3000/${rol}/by-name/${nombre}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
