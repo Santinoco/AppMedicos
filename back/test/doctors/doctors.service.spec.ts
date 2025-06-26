@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DoctorsService } from './doctors.service';
+import { DoctorsService } from '../../src/doctors/doctors.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Doctor } from './entities/doctor.model'; 
-import { Appointment } from '../appointments/entities/appointment.model'; 
+import { Doctor } from '../../src/doctors/entities/doctor.model'; 
+import { Appointment } from '../../src/appointments/entities/appointment.model'; 
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 

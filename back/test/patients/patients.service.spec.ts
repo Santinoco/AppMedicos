@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PatientService } from './patients.service';
+import { PatientService } from '../../src/patients/patients.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Patient } from './entities/patient.model';      
-import { Appointment } from '../appointments/entities/appointment.model'; 
+import { Patient } from '../../src/patients/entities/patient.model';      
+import { Appointment } from '../../src/appointments/entities/appointment.model'; 
 import { NotFoundException } from '@nestjs/common';
 
 describe('PatientService', () => {

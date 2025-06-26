@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppointmentsService } from './appointments.service';
+import { AppointmentsService } from '../../src/appointments/appointments.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Appointment } from './entities/appointment.model';
-import { Calendar } from '../calendar/entities/calendar.model';
-import { CalendarService } from '../calendar/calendar.service';
+import { Appointment } from '../../src/appointments/entities/appointment.model';
+import { Calendar } from '../../src/calendar/entities/calendar.model';
+import { CalendarService } from '../../src/calendar/calendar.service';
 
 const mockRepository = () => ({
   find: jest.fn(),

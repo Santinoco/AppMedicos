@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
+import { AuthService } from '../../src/auth/auth.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserType } from '../user-type/entities/user-type.model'; 
-import { UserService } from '../users/user.service'; 
+import { UserType } from '../../src/user-type/entities/user-type.model'; 
+import { UserService } from '../../src/users/user.service'; 
 import { JwtService } from '@nestjs/jwt';
 import { ConflictException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';

@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CalendarService } from './calendar.service';
+import { CalendarService } from '../../src/calendar/calendar.service';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Calendar } from './entities/calendar.model'; 
-import { Appointment } from '../appointments/entities/appointment.model';
-import { Doctor } from '../doctors/entities/doctor.model';
+import { Calendar } from '../../src/calendar/entities/calendar.model'; 
+import { Appointment } from '../../src/appointments/entities/appointment.model';
+import { Doctor } from '../../src/doctors/entities/doctor.model';
 import { NotFoundException } from '@nestjs/common';
 
 describe('CalendarService', () => {

@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { AppointmentStatusService } from './appointment-status.service';
-import { AppointmentStatus } from './entities/appointment-status.model';
-import { Repository } from 'typeorm';
+import { AppointmentStatusService } from '../../src/appointment-statuses/appointment-status.service';
+import { AppointmentStatus } from '../../src/appointment-statuses/entities/appointment-status.model';
 
 const mockRepository = () => ({
   find: jest.fn(),

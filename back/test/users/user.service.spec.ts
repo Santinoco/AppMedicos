@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from './user.service'; 
+import { UserService } from '../../src/users/user.service'; 
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from './entities/user.model'; 
-import { DoctorsService } from '../doctors/doctors.service';
-import { PatientService } from '../patients/patients.service';
+import { User } from '../../src/users/entities/user.model'; 
+import { DoctorsService } from '../../src/doctors/doctors.service';
+import { PatientService } from '../../src/patients/patients.service';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { UserType } from 'src/user-type/entities/user-type.model';

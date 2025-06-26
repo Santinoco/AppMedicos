@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppointmentsController } from './appointments.controller';
-import { AppointmentsService } from './appointments.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles/roles.guard';
+import { AppointmentsController } from '../../src/appointments/appointments.controller';
+import { AppointmentsService } from '../../src/appointments/appointments.service';
+import { JwtAuthGuard } from '../../src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../src/auth/roles/roles.guard';
 
 describe('AppointmentsController', () => {
   let controller: AppointmentsController;
