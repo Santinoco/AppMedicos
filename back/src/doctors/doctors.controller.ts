@@ -8,6 +8,7 @@ import {
     Patch,
     Delete,
     UseGuards,
+    Query,
   } from "@nestjs/common";
   import { DoctorsService } from "./doctors.service";
   import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -20,10 +21,12 @@ import {
     constructor(private readonly doctorService: DoctorsService) {}
   
     @Get()
-    async getAllDoctors() {
-      const docs = await this.doctorService.getAllDoctors();
-      return docs;
-    }
+  async getAllDoctors(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 5
+  ) {
+    return this.doctorService.getAllDoctors(Number(page), Number(limit));
+  }
   
     @Get(":user_id")
     async getDoctorById(@Param("user_id", ParseIntPipe) user_id: number) {
@@ -58,8 +61,12 @@ import {
     }
 
     @Get("by-name/:nombre")
-    async getDoctorsByName(@Param("nombre") nombre: string) {
-      return this.doctorService.getDoctorByName(nombre);
-    }
+  async getDoctorsByName(
+    @Param("nombre") nombre: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 5
+  ) {
+    return this.doctorService.getDoctorByName(nombre, Number(page), Number(limit));
+  }
 
   }

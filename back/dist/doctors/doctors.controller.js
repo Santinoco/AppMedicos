@@ -23,9 +23,8 @@ let DoctorsController = class DoctorsController {
     constructor(doctorService) {
         this.doctorService = doctorService;
     }
-    async getAllDoctors() {
-        const docs = await this.doctorService.getAllDoctors();
-        return docs;
+    async getAllDoctors(page = 1, limit = 5) {
+        return this.doctorService.getAllDoctors(Number(page), Number(limit));
     }
     async getDoctorById(user_id) {
         return this.doctorService.getDoctorById(user_id);
@@ -42,15 +41,17 @@ let DoctorsController = class DoctorsController {
     async getDoctorsBySpecialty(specialty) {
         return this.doctorService.getDoctorBySpeciality(specialty);
     }
-    async getDoctorsByName(nombre) {
-        return this.doctorService.getDoctorByName(nombre);
+    async getDoctorsByName(nombre, page = 1, limit = 5) {
+        return this.doctorService.getDoctorByName(nombre, Number(page), Number(limit));
     }
 };
 exports.DoctorsController = DoctorsController;
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], DoctorsController.prototype, "getAllDoctors", null);
 __decorate([
@@ -94,8 +95,10 @@ __decorate([
 __decorate([
     (0, common_1.Get)("by-name/:nombre"),
     __param(0, (0, common_1.Param)("nombre")),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Number, Number]),
     __metadata("design:returntype", Promise)
 ], DoctorsController.prototype, "getDoctorsByName", null);
 exports.DoctorsController = DoctorsController = __decorate([
