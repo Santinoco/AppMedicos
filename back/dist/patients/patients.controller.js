@@ -23,8 +23,8 @@ let PatientController = class PatientController {
     constructor(patientService) {
         this.patientService = patientService;
     }
-    async getAllPatients(page = 1, limit = 5) {
-        return this.patientService.getAllPatients(page, limit);
+    async getAllPatients() {
+        return this.patientService.getAllPatients();
     }
     async getPatientById(user_id) {
         return this.patientService.getPatientById(user_id);
@@ -38,17 +38,15 @@ let PatientController = class PatientController {
     async deletePatient(user_id) {
         return this.patientService.deletePatient(user_id);
     }
-    async getPatientsByName(nombre, page = 1, limit = 5) {
-        return this.patientService.getPatientByName(nombre, Number(page), Number(limit));
+    async getPatientsByName(nombre) {
+        return this.patientService.getPatientByName(nombre);
     }
 };
 exports.PatientController = PatientController;
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('page')),
-    __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], PatientController.prototype, "getAllPatients", null);
 __decorate([
@@ -84,10 +82,8 @@ __decorate([
 __decorate([
     (0, common_1.Get)("by-name/:nombre"),
     __param(0, (0, common_1.Param)("nombre")),
-    __param(1, (0, common_1.Query)('page')),
-    __param(2, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number, Number]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], PatientController.prototype, "getPatientsByName", null);
 exports.PatientController = PatientController = __decorate([

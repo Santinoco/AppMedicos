@@ -13,30 +13,9 @@ export class PatientService {
     private appointmentRepository: Repository<Appointment>
   ) {}
 
-  async getAllPatients(page: number = 1, limit: number = 5) {
+  async getAllPatients() {
     try {
-      const skip = (page - 1) * limit;
-      
-      const [patients, total] = await this.patientRepository.findAndCount({
-        relations: ["user"],
-        order: { user_id: "ASC" },
-        skip,
-        take: limit
-      });
-
-      const totalPages = Math.ceil(total / limit);
-
-      return {
-        data: patients,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalItems: total,
-          itemsPerPage: limit,
-          hasNextPage: page < totalPages,
-          hasPreviousPage: page > 1
-        }
-      };
+      return this.patientRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
     } catch (error) {
       throw new Error(`Failed to retrieve patients: ${error.message}`);
     }
@@ -89,33 +68,16 @@ export class PatientService {
     }
   }
 
-  async getPatientByName(name: string, page: number = 1, limit: number = 5) {
+  async getPatientByName(name: string) {
     try {
-      const skip = (page - 1) * limit;
-      
-      const [patients, total] = await this.patientRepository.findAndCount({
+      const patients = await this.patientRepository.find({
         where: {
           user: { nombre: name },
         },
         relations: ["user"],
         order: { user_id: "ASC" },
-        skip,
-        take: limit
       });
-
-      const totalPages = Math.ceil(total / limit);
-
-      return {
-        data: patients,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalItems: total,
-          itemsPerPage: limit,
-          hasNextPage: page < totalPages,
-          hasPreviousPage: page > 1
-        }
-      };
+      return patients;
     } catch (error) {
       throw new Error(`Failed to retrieve patients by name ${name}: ${error.message}`);
     }

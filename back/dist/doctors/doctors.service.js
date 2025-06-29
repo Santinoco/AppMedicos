@@ -25,27 +25,9 @@ let DoctorsService = class DoctorsService {
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
     }
-    async getAllDoctors(page = 1, limit = 5) {
+    async getAllDoctors() {
         try {
-            const skip = (page - 1) * limit;
-            const [doctors, total] = await this.doctorRepository.findAndCount({
-                relations: ["user"],
-                order: { user_id: "ASC" },
-                skip,
-                take: limit
-            });
-            const totalPages = Math.ceil(total / limit);
-            return {
-                data: doctors,
-                pagination: {
-                    currentPage: page,
-                    totalPages,
-                    totalItems: total,
-                    itemsPerPage: limit,
-                    hasNextPage: page < totalPages,
-                    hasPreviousPage: page > 1
-                }
-            };
+            return await this.doctorRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
         }
         catch (error) {
             throw new Error('Error al obtener los médicos: ' + error.message);
@@ -107,28 +89,12 @@ let DoctorsService = class DoctorsService {
             throw new Error('Error al obtener médicos por especialidad: ' + error.message);
         }
     }
-    async getDoctorByName(name, page = 1, limit = 5) {
+    async getDoctorByName(name) {
         try {
-            const skip = (page - 1) * limit;
-            const [doctors, total] = await this.doctorRepository.findAndCount({
+            return await this.doctorRepository.find({
                 where: { user: { nombre: name } },
                 relations: ["user"],
-                order: { user_id: "ASC" },
-                skip,
-                take: limit
             });
-            const totalPages = Math.ceil(total / limit);
-            return {
-                data: doctors,
-                pagination: {
-                    currentPage: page,
-                    totalPages,
-                    totalItems: total,
-                    itemsPerPage: limit,
-                    hasNextPage: page < totalPages,
-                    hasPreviousPage: page > 1
-                }
-            };
         }
         catch (error) {
             throw new Error('Error al obtener médicos por nombre: ' + error.message);

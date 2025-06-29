@@ -13,30 +13,9 @@ export class DoctorsService {
     private appointmentRepository: Repository<Appointment>,
   ) {}
 
-  async getAllDoctors(page: number = 1, limit: number = 5) {
+  async getAllDoctors() {
     try {
-      const skip = (page - 1) * limit;
-      
-      const [doctors, total] = await this.doctorRepository.findAndCount({
-        relations: ["user"],
-        order: { user_id: "ASC" },
-        skip,
-        take: limit
-      });
-
-      const totalPages = Math.ceil(total / limit);
-
-      return {
-        data: doctors,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalItems: total,
-          itemsPerPage: limit,
-          hasNextPage: page < totalPages,
-          hasPreviousPage: page > 1
-        }
-      };
+      return await this.doctorRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
     } catch (error) {
       throw new Error('Error al obtener los médicos: ' + error.message);
     }
@@ -97,31 +76,12 @@ export class DoctorsService {
     }
   }
 
-  async getDoctorByName(name: string, page: number = 1, limit: number = 5) {
+  async getDoctorByName(name: string) {
     try {
-      const skip = (page - 1) * limit;
-      
-      const [doctors, total] = await this.doctorRepository.findAndCount({
+      return await this.doctorRepository.find({
         where: { user: { nombre: name } },
         relations: ["user"],
-        order: { user_id: "ASC" },
-        skip,
-        take: limit
       });
-
-      const totalPages = Math.ceil(total / limit);
-
-      return {
-        data: doctors,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalItems: total,
-          itemsPerPage: limit,
-          hasNextPage: page < totalPages,
-          hasPreviousPage: page > 1
-        }
-      };
     } catch (error) {
       throw new Error('Error al obtener médicos por nombre: ' + error.message);
     }

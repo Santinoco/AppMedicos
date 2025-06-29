@@ -25,27 +25,9 @@ let PatientService = class PatientService {
         this.patientRepository = patientRepository;
         this.appointmentRepository = appointmentRepository;
     }
-    async getAllPatients(page = 1, limit = 5) {
+    async getAllPatients() {
         try {
-            const skip = (page - 1) * limit;
-            const [patients, total] = await this.patientRepository.findAndCount({
-                relations: ["user"],
-                order: { user_id: "ASC" },
-                skip,
-                take: limit
-            });
-            const totalPages = Math.ceil(total / limit);
-            return {
-                data: patients,
-                pagination: {
-                    currentPage: page,
-                    totalPages,
-                    totalItems: total,
-                    itemsPerPage: limit,
-                    hasNextPage: page < totalPages,
-                    hasPreviousPage: page > 1
-                }
-            };
+            return this.patientRepository.find({ relations: ["user"], order: { user_id: "ASC" } });
         }
         catch (error) {
             throw new Error(`Failed to retrieve patients: ${error.message}`);
@@ -98,30 +80,16 @@ let PatientService = class PatientService {
             throw new Error(`Failed to delete patient with user_id ${user_id}: ${error.message}`);
         }
     }
-    async getPatientByName(name, page = 1, limit = 5) {
+    async getPatientByName(name) {
         try {
-            const skip = (page - 1) * limit;
-            const [patients, total] = await this.patientRepository.findAndCount({
+            const patients = await this.patientRepository.find({
                 where: {
                     user: { nombre: name },
                 },
                 relations: ["user"],
                 order: { user_id: "ASC" },
-                skip,
-                take: limit
             });
-            const totalPages = Math.ceil(total / limit);
-            return {
-                data: patients,
-                pagination: {
-                    currentPage: page,
-                    totalPages,
-                    totalItems: total,
-                    itemsPerPage: limit,
-                    hasNextPage: page < totalPages,
-                    hasPreviousPage: page > 1
-                }
-            };
+            return patients;
         }
         catch (error) {
             throw new Error(`Failed to retrieve patients by name ${name}: ${error.message}`);
