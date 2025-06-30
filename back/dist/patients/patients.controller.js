@@ -26,6 +26,9 @@ let PatientController = class PatientController {
     async getAllPatients() {
         return this.patientService.getAllPatients();
     }
+    async getAllPatientsLimit(page = 1, limit = 5) {
+        return this.patientService.getAllPatientsLimit(page, limit);
+    }
     async getPatientById(user_id) {
         return this.patientService.getPatientById(user_id);
     }
@@ -41,6 +44,9 @@ let PatientController = class PatientController {
     async getPatientsByName(nombre) {
         return this.patientService.getPatientByName(nombre);
     }
+    async getPatientsByNameLimit(nombre, page = 1, limit = 5) {
+        return this.patientService.getPatientByNameLimit(nombre, Number(page), Number(limit));
+    }
 };
 exports.PatientController = PatientController;
 __decorate([
@@ -49,6 +55,14 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], PatientController.prototype, "getAllPatients", null);
+__decorate([
+    (0, common_1.Get)("limit"),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], PatientController.prototype, "getAllPatientsLimit", null);
 __decorate([
     (0, common_1.Get)(":user_id"),
     __param(0, (0, common_1.Param)("user_id", common_1.ParseIntPipe)),
@@ -86,6 +100,15 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], PatientController.prototype, "getPatientsByName", null);
+__decorate([
+    (0, common_1.Get)("limit/by-name/:nombre"),
+    __param(0, (0, common_1.Param)("nombre")),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number, Number]),
+    __metadata("design:returntype", Promise)
+], PatientController.prototype, "getPatientsByNameLimit", null);
 exports.PatientController = PatientController = __decorate([
     (0, common_1.Controller)("patients"),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
