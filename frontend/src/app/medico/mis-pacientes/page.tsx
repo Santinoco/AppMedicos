@@ -4,50 +4,27 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { verificarTipoUsuario } from "../../../services/guardService";
 import { getUserId } from "../../../services/userIdService";
-import axios from "axios";
-import { Turno } from "../../../types/Turno";
-import { BackTurno } from "../../../types/backTurno";
+import { Paciente } from "../../../types/Paciente";
+import {
+  getPatientsByDoctor,
+  findPatientsByName,
+} from "../../../services/doctorService";
+import {
+  updatePatient,
+  UpdatePatientData,
+} from "../../../services/patientService";
 
-interface Paciente {
-  id: number;
-  nombre: string;
-  email: string;
-  consultasCompletadas: number;
-  seguroMedico: string;
-  historialMedico: string;
-  peso: number;
-  altura: number;
-  tipoSangre: string;
-}
-
-const listaPacientesInicial: Paciente[] = [
-  {
-    id: 0,
-    nombre: "",
-    email: "",
-    consultasCompletadas: 0,
-    seguroMedico: "",
-    historialMedico: "",
-    peso: 0,
-    altura: 0,
-    tipoSangre: "",
-  },
-];
 export default function misPacientes() {
   const router = useRouter();
-  const [isVerified, setIsVerified] = useState<boolean>(false); // Estado para controlar la verificación
-  const [listaPacientes, setListaPacientes] = useState<Paciente[]>(
-    listaPacientesInicial
-  );
+  const [isVerified, setIsVerified] = useState<boolean>(false);
+  const [listaPacientes, setListaPacientes] = useState<Paciente[]>([]);
+  const [pacientesBase, setPacientesBase] = useState<Paciente[]>([]);
   const [pacienteEnEdicion, setPacienteEnEdicion] = useState<number | null>(
     null
-  ); // Estado para controlar qué formulario mostrar
-  const [seguroMedicoInput, setSeguroMedicoInput] = useState<string>(null);
-  const [historialMedicoInput, setHistorialMedicoInput] =
-    useState<string>(null);
-  const [pesoInput, setPesoInput] = useState<number>(null);
-  const [alturaInput, setAlturaInput] = useState<number>(null);
-  const [tipoSangreInput, setTipoSangreInput] = useState<string>(null);
+  );
+  const [formData, setFormData] = useState<UpdatePatientData>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const verificarAcceso = async () => {
@@ -64,151 +41,68 @@ export default function misPacientes() {
   }, [router]);
 
   useEffect(() => {
-    fetchPacientes();
+    if (isVerified) {
+      fetchPacientes();
+    }
   }, [isVerified]);
 
   const fetchPacientes = async () => {
-    const token = localStorage.getItem("access_token") || "";
-    // Obtener el ID del usuario logueado
     const userId = getUserId();
+    if (!userId) return;
+
+    setIsLoading(true);
+    setError(null);
     try {
-      const responseTurnos = await axios.get(
-        `http://localhost:3000/appointments/doctor/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      // Crear una lista de pacientes únicos
-      const pacientesData: Paciente[] = [];
-      responseTurnos.data.forEach((turno: BackTurno) => {
-        const existePaciente = pacientesData.some(
-          (paciente) => paciente.id === turno.patient.user_id
-        );
-        if (!existePaciente) {
-          pacientesData.push({
-            id: turno.patient.user_id,
-            nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
-            email: turno.patient.user.email,
-            consultasCompletadas: turno.patient.completed_consultations,
-            seguroMedico: turno.patient.health_insurance,
-            historialMedico: turno.patient.medical_history,
-            peso: turno.patient.weight,
-            altura: turno.patient.height,
-            tipoSangre: turno.patient.blood_type,
-          });
-        }
-      });
+      const pacientesData = await getPatientsByDoctor(userId);
       setListaPacientes(pacientesData);
+      setPacientesBase(pacientesData);
     } catch (error) {
       console.error("Error al obtener los pacientes:", error);
+      setError("No se pudieron cargar los pacientes. Intente más tarde.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const filtrarPorNombre = async (nombre: string) => {
-    const token = localStorage.getItem("access_token");
     const userId = getUserId();
-    if (nombre.trim() === "") {
-      fetchPacientes(); // Si el campo está vacío, recargar todos los turnos
-    } else {
-      const responseFiltrado = await axios.get(
-        `http://localhost:3000/appointments/appointments-by-patient-name/${nombre}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+    if (!userId) return;
 
-      // Crear una lista de pacientes únicos
-      const pacientesData: Paciente[] = [];
-      responseFiltrado.data.forEach((turno: BackTurno) => {
-        const existePaciente = pacientesData.some(
-          (paciente) => paciente.id === turno.patient.user_id
-        );
-        if (!existePaciente) {
-          pacientesData.push({
-            id: turno.patient.user_id,
-            nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
-            email: turno.patient.user.email,
-            consultasCompletadas: turno.patient.completed_consultations,
-            seguroMedico: turno.patient.health_insurance,
-            historialMedico: turno.patient.medical_history,
-            peso: turno.patient.weight,
-            altura: turno.patient.height,
-            tipoSangre: turno.patient.blood_type,
-          });
-        }
-      });
-      setListaPacientes(pacientesData);
+    if (nombre.trim() === "") {
+      setListaPacientes(pacientesBase);
+    } else {
+      const pacientesFiltrados = await findPatientsByName(nombre, userId);
+      setListaPacientes(pacientesFiltrados);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent, paciente: Paciente) => {
+  const handleEditClick = (paciente: Paciente) => {
+    if (pacienteEnEdicion === paciente.id) {
+      setPacienteEnEdicion(null);
+      setFormData({});
+    } else {
+      setPacienteEnEdicion(paciente.id);
+      setFormData({
+        health_insurance: paciente.seguroMedico,
+        medical_history: paciente.historialMedico,
+        weight: paciente.peso,
+        height: paciente.altura,
+        blood_type: paciente.tipoSangre,
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent, pacienteId: number) => {
     e.preventDefault();
-    var seguroMedico: string;
-    var seguroMedicoActualizado: boolean = false;
-    var peso: number;
-    var pesoActualizado: boolean = false;
-    var altura: number;
-    var alturaActualizada: boolean = false;
-    var tipoSangre: string;
-    var tipoSangreActualizada: boolean = false;
-    var historialMedico: string;
-    var historialMedicoActualizado: boolean = false;
-
-    if (seguroMedicoInput) {
-      seguroMedico = seguroMedicoInput;
-      seguroMedicoActualizado = true;
-    } else {
-      seguroMedico = paciente.seguroMedico;
-    }
-    if (pesoInput) {
-      peso = pesoInput;
-      pesoActualizado = true;
-    } else {
-      peso = paciente.peso;
-    }
-    if (alturaInput) {
-      altura = alturaInput;
-      alturaActualizada = true;
-    } else {
-      altura = paciente.altura;
-    }
-    if (tipoSangreInput) {
-      tipoSangre = tipoSangreInput;
-      tipoSangreActualizada = true;
-    } else {
-      tipoSangre = paciente.tipoSangre;
-    }
-    if (historialMedicoInput) {
-      historialMedico = historialMedicoInput;
-      historialMedicoActualizado = true;
-    } else {
-      historialMedico = paciente.historialMedico;
-    }
-
-    const token = localStorage.getItem("access_token");
     try {
-      await axios.patch(
-        `http://localhost:3000/patients/${paciente.id}`,
-        {
-          health_insurance: seguroMedico,
-          weight: peso,
-          height: altura,
-          blood_type: tipoSangre,
-          medical_history: historialMedico,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await updatePatient(pacienteId, formData);
+      alert(`Paciente actualizado con éxito.`);
+      setPacienteEnEdicion(null);
+      fetchPacientes(); // Recargar la lista para mostrar los datos actualizados
     } catch (error) {
       console.error("Error al actualizar los datos del paciente:", error);
+      alert("No se pudo actualizar el paciente. Inténtelo más tarde.");
     }
-    try {
-      fetchPacientes();
-    } catch (error) {
-      console.error("Error al obtener los pacientes actualizados:", error);
-    }
-    alert(`Paciente ${paciente.nombre} actualizado`);
   };
 
   return (
@@ -231,8 +125,12 @@ export default function misPacientes() {
           />
         </div>
 
-        {listaPacientes.length === 0 ? (
-          <p className="text-gray-500">No tenés pacientes asignados.</p>
+        {isLoading ? (
+          <p className="text-gray-500">Cargando pacientes...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : listaPacientes.length === 0 ? (
+          <p className="text-gray-500">No tienes pacientes asignados.</p>
         ) : (
           <ul className="space-y-4">
             {listaPacientes.map((paciente) => (
@@ -276,11 +174,7 @@ export default function misPacientes() {
                 </div>
                 <div className="flex flex-col gap-4 items-center">
                   <button
-                    onClick={() =>
-                      setPacienteEnEdicion(
-                        pacienteEnEdicion === paciente.id ? null : paciente.id
-                      )
-                    } // Alternar el formulario del paciente actual
+                    onClick={() => handleEditClick(paciente)}
                     className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition ml-auto"
                   >
                     {pacienteEnEdicion === paciente.id
@@ -289,7 +183,7 @@ export default function misPacientes() {
                   </button>
                   {pacienteEnEdicion === paciente.id && ( // Mostrar el formulario solo si este paciente está en edición
                     <form
-                      onSubmit={(e) => handleSubmit(e, paciente)}
+                      onSubmit={(e) => handleSubmit(e, paciente.id)}
                       className="mt-4 space-y-4"
                     >
                       <div>
@@ -302,8 +196,13 @@ export default function misPacientes() {
                         <input
                           type="text"
                           id="seguroMedico"
-                          value={seguroMedicoInput || ""}
-                          onChange={(e) => setSeguroMedicoInput(e.target.value)}
+                          value={formData.health_insurance || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              health_insurance: e.target.value,
+                            })
+                          }
                           className="border border-gray-300 rounded p-2 w-full"
                           placeholder="Ingrese el seguro médico"
                         />
@@ -315,8 +214,13 @@ export default function misPacientes() {
                         <input
                           type="number"
                           id="peso"
-                          value={pesoInput || ""}
-                          onChange={(e) => setPesoInput(Number(e.target.value))}
+                          value={formData.weight || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              weight: Number(e.target.value),
+                            })
+                          }
                           className="border border-gray-300 rounded p-2 w-full"
                           placeholder="Ingrese el peso"
                         />
@@ -328,9 +232,12 @@ export default function misPacientes() {
                         <input
                           type="number"
                           id="altura"
-                          value={alturaInput || ""}
+                          value={formData.height || ""}
                           onChange={(e) =>
-                            setAlturaInput(Number(e.target.value))
+                            setFormData({
+                              ...formData,
+                              height: Number(e.target.value),
+                            })
                           }
                           className="border border-gray-300 rounded p-2 w-full"
                           placeholder="Ingrese la altura"
@@ -343,8 +250,13 @@ export default function misPacientes() {
                         <input
                           type="text"
                           id="tipoSangre"
-                          value={tipoSangreInput || ""}
-                          onChange={(e) => setTipoSangreInput(e.target.value)}
+                          value={formData.blood_type || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              blood_type: e.target.value,
+                            })
+                          }
                           className="border border-gray-300 rounded p-2 w-full"
                           placeholder="Ingrese el tipo de sangre"
                         />
@@ -358,9 +270,12 @@ export default function misPacientes() {
                         </label>
                         <textarea
                           id="historialMedico"
-                          value={historialMedicoInput || ""}
+                          value={formData.medical_history || ""}
                           onChange={(e) =>
-                            setHistorialMedicoInput(e.target.value)
+                            setFormData({
+                              ...formData,
+                              medical_history: e.target.value,
+                            })
                           }
                           className="border border-gray-300 rounded p-2 w-full"
                           placeholder="Ingrese el historial médico"

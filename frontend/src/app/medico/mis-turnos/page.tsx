@@ -1,29 +1,23 @@
 "use client";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { getUserId } from "../../../services/userIdService";
-import { BackTurno } from "../../../types/backTurno";
 import { Turno } from "../../../types/Turno";
 import { useRouter } from "next/navigation";
 import { verificarTipoUsuario } from "../../../services/guardService";
-
-const misTurnosInicial: Turno[] = [
-  {
-    id: 0,
-    nombre: "",
-    email: "",
-    motivo: "",
-    fechaTurno: new Date("0001-01-01T10:00:00"),
-    estado: 0,
-  },
-];
+import {
+  getDoctorAppointments,
+  cancelAppointment,
+  getAppointmentsByPatientName,
+} from "../../../services/appointmentService";
 
 export default function misTurnos() {
   const router = useRouter();
-  const [misTurnos, setMisTurnos] = useState<Turno[]>(misTurnosInicial);
-  const [turnosBase, setTurnosBase] = useState<Turno[]>(misTurnosInicial);
+  const [misTurnos, setMisTurnos] = useState<Turno[]>([]);
+  const [turnosBase, setTurnosBase] = useState<Turno[]>([]);
   const [mostrarPendientes, setMostrarPendientes] = useState(true);
   const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
+  const [isLoading, setIsLoading] = useState(true); // Estado para la carga
+  const [error, setError] = useState<string | null>(null); // Estado para errores
 
   useEffect(() => {
     const verificarAcceso = async () => {
@@ -40,89 +34,70 @@ export default function misTurnos() {
   }, [router]);
 
   useEffect(() => {
-    fetchTurnos();
+    if (isVerified) {
+      fetchTurnos();
+    }
   }, [isVerified]);
 
   const fetchTurnos = async () => {
-    const token = localStorage.getItem("access_token") || "";
-    // Obtener el ID del usuario logueado
     const userId = getUserId();
+    if (!userId) {
+      setError(
+        "No se pudo obtener la información del usuario. Por favor, inicie sesión de nuevo."
+      );
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
     try {
-      const responseTurnos = await axios.get(
-        `http://localhost:3000/appointments/doctor/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const turnosData: Turno[] = responseTurnos.data.map(
-        (turno: BackTurno) => ({
-          id: turno.id,
-          nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
-          email: turno.patient?.user?.email || "",
-          motivo: turno.motivo,
-          fechaTurno: new Date(turno.slot_datetime.slot_datetime),
-          estado: turno.status.status_id,
-        })
-      );
-
+      const turnosData = await getDoctorAppointments(userId);
       setMisTurnos(turnosData);
       setTurnosBase(turnosData);
     } catch (error) {
       console.error("Error al obtener los turnos:", error);
+      setError(
+        "No se pudieron cargar los turnos. Inténtelo de nuevo más tarde."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const cancelarTurno = async (id: number) => {
-    const token = localStorage.getItem("access_token");
-    const turnoCancelado = misTurnos.find((turno) => turno.id === id);
     if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
-      if (turnoCancelado) {
-        try {
-          await axios.patch(
-            `http://localhost:3000/appointments/${id}/status`,
-            {
-              estado: 3, // Cambiar el estado del turno a cancelado
-            },
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-
-          fetchTurnos(); // Actualizar la lista de turnos después de cancelar
-          alert(`Turno con ID ${id} cancelado.`);
-        } catch (error) {
-          console.error("Error al cancelar el turno:", error);
-          alert("No se pudo cancelar el turno. Inténtalo más tarde.");
-        }
+      try {
+        await cancelAppointment(id);
+        fetchTurnos(); // Actualizar la lista de turnos después de cancelar
+        alert(`Turno con ID ${id} cancelado.`);
+      } catch (error) {
+        console.error("Error al cancelar el turno:", error);
+        alert("No se pudo cancelar el turno. Inténtalo más tarde.");
       }
     }
   };
 
   const filtrarPorNombre = async (nombre: string) => {
-    const token = localStorage.getItem("access_token");
     const userId = getUserId();
+    if (!userId) return;
+
     if (nombre.trim() === "") {
       setMisTurnos(turnosBase);
     } else {
-      const responseFiltrado = await axios.get(
-        `http://localhost:3000/appointments/appointments-by-patient-name/${nombre}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const turnosFiltrados: Turno[] = responseFiltrado.data
-        .filter((turno: BackTurno) => turno.doctor.user_id === userId)
-        .map((turno: BackTurno) => ({
-          id: turno.id,
-          nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
-          email: turno.patient.user.email,
-          motivo: turno.motivo,
-          fechaTurno: new Date(turno.slot_datetime.slot_datetime),
-          estado: turno.status.status_id,
-        }));
-
-      setMisTurnos(turnosFiltrados);
+      setIsLoading(true);
+      setError(null);
+      try {
+        const turnosFiltrados = await getAppointmentsByPatientName(
+          nombre,
+          userId
+        );
+        setMisTurnos(turnosFiltrados);
+      } catch (error) {
+        console.error("Error al filtrar los turnos:", error);
+        setError("No se pudo realizar la búsqueda. Inténtelo de nuevo.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -172,8 +147,18 @@ export default function misTurnos() {
           />
         </div>
 
-        {misTurnos.length === 0 ? (
-          <p className="text-gray-500">No tenés turnos pendientes.</p>
+        {isLoading ? (
+          <p className="text-gray-500">Cargando turnos...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : misTurnos.filter((turno) =>
+            mostrarPendientes
+              ? turno.estado === 1
+              : turno.estado === 2 || turno.estado === 3
+          ).length === 0 ? (
+          <p className="text-gray-500">
+            No hay turnos para mostrar en esta sección.
+          </p>
         ) : (
           <ul className="space-y-4">
             {misTurnos
