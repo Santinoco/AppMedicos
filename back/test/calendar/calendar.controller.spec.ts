@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CalendarController } from './calendar.controller';
-import { CalendarService } from './calendar.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CalendarController } from '../../src/calendar/calendar.controller';
+import { CalendarService } from '../../src/calendar/calendar.service';
+import { JwtAuthGuard } from '../../src/auth/guards/jwt-auth.guard';
 
 describe('CalendarController', () => {
   let controller: CalendarController;

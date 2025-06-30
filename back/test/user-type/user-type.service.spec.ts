@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserTypeService } from './user-type.service';
-import { UserType } from './entities/user-type.model';
+import { UserTypeService } from '../../src/user-type/user-type.service';
+import { UserType } from '../../src/user-type/entities/user-type.model';
 import { Repository, DeleteResult } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 

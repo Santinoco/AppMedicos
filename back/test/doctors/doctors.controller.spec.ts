@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DoctorsController } from './doctors.controller';      
-import { DoctorsService } from './doctors.service';           
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';  
-import { RolesGuard } from '../auth/roles/roles.guard';        
+import { DoctorsController } from '../../src/doctors/doctors.controller';      
+import { DoctorsService } from '../../src/doctors/doctors.service';           
+import { JwtAuthGuard } from '../../src/auth/guards/jwt-auth.guard';  
+import { RolesGuard } from '../../src/auth/roles/roles.guard';        
 
 describe('DoctorsController', () => {
   let controller: DoctorsController;
