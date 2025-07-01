@@ -6,7 +6,7 @@ import axios from "axios";
 import { BackMedico } from "../../types/backMedico";
 import { BackPaciente } from "../../types/backPaciente";
 import { verificarTipoUsuario } from "../../services/guardService";
-
+import {toast} from "sonner";
 interface Medico {
   especialidad: string;
   matricula: string;
@@ -138,6 +138,7 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
+      toast.error("No se pudieron obtener los usuarios. Intente más tarde")
     } finally {
       setLoading(false);
     }

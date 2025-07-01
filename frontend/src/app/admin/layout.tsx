@@ -1,10 +1,5 @@
-import Sidebar from "./sidebar";
+"use client";
 import { Toaster} from 'sonner';
-export const metadata = {
-  title: "App Medicos",
-  description: "App de turnos medicos",
-};
-
 export default function RootLayout({
   children,
 }: {
@@ -12,7 +7,6 @@ export default function RootLayout({
 }) {
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-800">
-      <Sidebar></Sidebar>
        <main className="flex-1 p-10 space-y-6">
             {children}
             <Toaster richColors position="top-right"
