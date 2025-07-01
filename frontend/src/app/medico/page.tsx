@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { BackMedico } from "../../types/backMedico";
-import { getUserId } from "../../services/userIdService";
+import { getUserId } from "../../services/userService";
 import { Turno } from "../../types/Turno";
 import { verificarTipoUsuario } from "../../services/guardService";
 import {
@@ -10,7 +10,7 @@ import {
   updateDoctor,
   UpdateDoctorData,
 } from "../../services/doctorService";
-import { getNextPendingAppointment } from "../../services/appointmentService";
+import { getNextPendingAppointmentForDoctor } from "../../services/appointmentService";
 import TimeSelect from "../../components/TimeSelect";
 
 export default function MedicoDashboard() {
@@ -54,9 +54,8 @@ export default function MedicoDashboard() {
       // Ejecutar ambas peticiones en paralelo para mayor eficiencia
       const [medicoData, proximoTurnoData] = await Promise.all([
         getDoctorById(userId),
-        getNextPendingAppointment(userId),
+        getNextPendingAppointmentForDoctor(userId),
       ]);
-
       setMedico(medicoData);
       setTurno(proximoTurnoData);
     } catch (err) {

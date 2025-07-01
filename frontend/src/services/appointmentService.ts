@@ -110,7 +110,7 @@ export const getAppointmentsByDoctorName = async (
 /**
  * Obtiene el próximo turno pendiente para un doctor.
  */
-export const getNextPendingAppointment = async (
+export const getNextPendingAppointmentForDoctor = async (
   doctorId: string
 ): Promise<Turno | null> => {
   const response = await api.get<BackTurno[]>(
@@ -124,6 +124,29 @@ export const getNextPendingAppointment = async (
 
   if (nextAppointment) {
     return mapBackTurnoToTurnoForDoctorView(nextAppointment);
+  }
+
+  return null;
+};
+
+/**
+ * Obtiene el próximo turno pendiente para un paciente.
+ */
+export const getNextPendingAppointmentForPatient = async (
+  patientId: string
+): Promise<Turno | null> => {
+  const response = await api.get<BackTurno[]>(
+    `/appointments/patient/${patientId}`
+  );
+
+  // El backend ya devuelve los turnos ordenados por fecha.
+  // Busco el primer turno que tenga el estado "pendiente" (ID 1).
+  const nextAppointment = response.data.find(
+    (turno) => turno.status.status_id === 1
+  );
+
+  if (nextAppointment) {
+    return mapBackTurnoToTurnoForPatientView(nextAppointment);
   }
 
   return null;

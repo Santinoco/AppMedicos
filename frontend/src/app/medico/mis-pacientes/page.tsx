@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { verificarTipoUsuario } from "../../../services/guardService";
-import { getUserId } from "../../../services/userIdService";
+import { getUserId } from "../../../services/userService";
 import { Paciente } from "../../../types/Paciente";
 import {
   getPatientsByDoctor,

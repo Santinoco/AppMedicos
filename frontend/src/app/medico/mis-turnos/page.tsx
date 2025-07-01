@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getUserId } from "../../../services/userIdService";
+import { getUserId } from "../../../services/userService";
 import { Turno } from "../../../types/Turno";
 import { useRouter } from "next/navigation";
 import { verificarTipoUsuario } from "../../../services/guardService";
