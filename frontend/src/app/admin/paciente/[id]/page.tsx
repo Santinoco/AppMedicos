@@ -6,7 +6,7 @@ import axios from "axios";
 import { BackPaciente } from "../../../../types/backPaciente";
 import { BackTurno } from "../../../../types/backTurno";
 import { verificarTipoUsuario } from "../../../../services/guardService";
-
+import {toast} from "sonner";
 interface Turno {
   id: number;
   nombre: string;
@@ -163,10 +163,10 @@ export default function AdminUserView() {
 
           const nuevaLista = turnos.filter((turno) => turno.id !== id);
           setTurnos(nuevaLista);
-          alert(`Turno con ID ${id} cancelado.`);
+          toast.success(`Turno con ID ${id} cancelado exitosamente`);
         } catch (error) {
           console.error("Error al cancelar el turno:", error);
-          alert("No se pudo cancelar el turno. Inténtalo más tarde.");
+          toast.error("No se pudo cancelar el turno. Intentalo más tarde");
         }
       }
     }

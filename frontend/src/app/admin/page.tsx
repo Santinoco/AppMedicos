@@ -221,10 +221,10 @@ export default function AdminDashboard() {
           fetchUsuarios(current_page);
         }
         
-        alert(`Usuario eliminado correctamente.`);
+        toast.success(`Usuario eliminado correctamente`);
       } catch (error) {
         console.error("Error al eliminar el usuario:", error);
-        alert("No se pudo eliminar el usuario. Inténtalo más tarde.");
+        toast.error("No se pudo eliminar el usuario. Intentalo más tarde");
       }
     }
   };
