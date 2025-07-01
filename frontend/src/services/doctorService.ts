@@ -8,6 +8,11 @@ export interface UpdateDoctorData {
   shift_start?: string;
   shift_end?: string;
 }
+// Obtiene todos los doctores del sistema y devuelve un array de objetos BackMedico.
+export const getAllDoctors = async (): Promise<BackMedico[]> => {
+  const response = await api.get<BackMedico[]>("/doctors");
+  return response.data;
+};
 
 /**
  * Obtiene los datos de un doctor por su ID de usuario.
@@ -77,4 +82,13 @@ export const updateDoctor = async (
   data: UpdateDoctorData
 ): Promise<void> => {
   await api.patch(`/doctors/${doctorId}`, data);
+};
+
+/**
+ * Obtiene médicos filtrados por nombre.
+ * @param name - El nombre a buscar.
+ */
+export const getDoctorsByName = async (name: string): Promise<BackMedico[]> => {
+  const response = await api.get<BackMedico[]>(`/doctors/by-name/${name}`);
+  return response.data;
 };

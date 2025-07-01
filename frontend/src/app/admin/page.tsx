@@ -2,10 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { verificarTipoUsuario } from "../../services/guardService";
 import { Paciente } from "../../types/Paciente";
 import { Medico } from "../../types/Medico";
+import { getAllDoctors, getDoctorsByName } from "../../services/doctorService";
+import {
+  getAllPatients,
+  getPatientsByName,
+} from "../../services/patientService";
+import { BackPaciente } from "../../types/backPaciente";
+import { deleteUser } from "../../services/userService";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -17,6 +23,8 @@ export default function AdminDashboard() {
   const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
   const [isLoading, setIsLoading] = useState(true); // Estado para indicar el fin de la carga de datos
   const [error, setError] = useState<string | null>(null); // Estado para manejar errores
+
+  const [filtroNombre, setFiltroNombre] = useState("");
 
   useEffect(() => {
     const verificarAcceso = async () => {
@@ -43,29 +51,27 @@ export default function AdminDashboard() {
       try {
         // Usamos Promise.all para realizar las peticiones en paralelo
         const [responseMedicos, responsePacientes] = await Promise.all([
-          axios.get(`http://localhost:3000/doctors`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`http://localhost:3000/patients`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+          getAllDoctors(), // Llamada al servicio para obtener médicos
+          getAllPatients(), // Llamada al servicio para obtener pacientes
         ]);
 
-        const medicosData: Medico[] = responseMedicos.data.map(
-          (medico: any) => ({
-            especialidad: medico.specialty,
-            matricula: medico.license_number,
-            usuario: medico.user,
-          })
-        );
+        const medicosData: Medico[] = responseMedicos.map((medico: any) => ({
+          especialidad: medico.specialty,
+          matricula: medico.license_number,
+          usuario: medico.user,
+        }));
 
         setMedicos(medicosData);
         setMedicosAux(medicosData);
 
-        const pacientesData: Paciente[] = responsePacientes.data.map(
-          (paciente: any) => ({
+        const pacientesData: Paciente[] = responsePacientes.map(
+          (paciente: BackPaciente) => ({
             consultasCompletadas: paciente.completed_consultations,
             seguroMedico: paciente.health_insurance,
+            historialMedico: paciente.medical_history,
+            peso: paciente.weight,
+            altura: paciente.height,
+            tipoSangre: paciente.blood_type,
             usuario: paciente.user,
           })
         );
@@ -87,30 +93,28 @@ export default function AdminDashboard() {
 
   const eliminarUsuario = async (idUsuario: number, tipo: string) => {
     if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-      const token = localStorage.getItem("access_token");
-      // Realiza la solicitud DELETE al backend para eliminar el usuario
       try {
-        await axios.delete(`http://localhost:3000/users/${idUsuario}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await deleteUser(idUsuario);
+        alert(`Usuario con ID ${idUsuario} eliminado.`);
+
+        // Modificacion visual de la lista de usuarios local
+        if (tipo === "medico") {
+          const nuevaListaMedicos = medicos.filter(
+            (medico) => medico.usuario.id !== idUsuario
+          );
+          setMedicos(nuevaListaMedicos);
+          setMedicosAux(nuevaListaMedicos);
+        } else if (tipo === "paciente") {
+          const nuevaListaPacientes = pacientes.filter(
+            (paciente) => paciente.usuario.id !== idUsuario
+          );
+          setPacientes(nuevaListaPacientes);
+          setPacientesAux(nuevaListaPacientes);
+        }
       } catch (error) {
         console.error("Error al eliminar el usuario:", error);
         alert("No se pudo eliminar el usuario. Inténtalo más tarde.");
-        return;
       }
-      // Modificacion visual de la lista de usuarios local
-      if (tipo === "medico") {
-        const nuevaListaMedicos = medicos.filter(
-          (medico) => medico.usuario.id !== idUsuario
-        );
-        setMedicos(nuevaListaMedicos);
-      } else if (tipo === "paciente") {
-        const nuevaListaPacientes = pacientes.filter(
-          (paciente) => paciente.usuario.id !== idUsuario
-        );
-        setPacientes(nuevaListaPacientes);
-      }
-      alert(`Usuario con ID ${idUsuario} eliminado.`);
     }
   };
 
@@ -123,40 +127,38 @@ export default function AdminDashboard() {
   };
 
   const filtrarPorNombre = async (nombre: string) => {
-    const token = localStorage.getItem("access_token");
-    const rol = mostrarMedicos ? "doctors" : "patients";
-    if (nombre != "") {
-      try {
-        const responseFiltrado = await axios.get(
-          `http://localhost:3000/${rol}/by-name/${nombre}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (mostrarMedicos) {
-          const medicosFiltrados: Medico[] = responseFiltrado.data.map(
-            (medico: any) => ({
-              especialidad: medico.specialty,
-              matricula: medico.license_number,
-              usuario: medico.user,
-            })
-          );
-          setMedicos(medicosFiltrados);
-        } else {
-          const pacientesFiltrados: Paciente[] = responseFiltrado.data.map(
-            (paciente: any) => ({
-              consultasCompletadas: paciente.completed_consultations,
-              seguroMedico: paciente.health_insurance,
-              usuario: paciente.user,
-            })
-          );
-          setPacientes(pacientesFiltrados);
-        }
-      } catch (error) {
-        console.error("Error al filtrar por nombre:", error);
-      }
-    } else {
+    if (nombre === "") {
       reestablecerListas();
+      return;
+    }
+
+    try {
+      if (mostrarMedicos) {
+        const medicosData = await getDoctorsByName(nombre);
+        const medicosFiltrados: Medico[] = medicosData.map((medico: any) => ({
+          especialidad: medico.specialty,
+          matricula: medico.license_number,
+          usuario: medico.user,
+        }));
+        setMedicos(medicosFiltrados);
+      } else {
+        const pacientesData = await getPatientsByName(nombre);
+        const pacientesFiltrados: Paciente[] = pacientesData.map(
+          (paciente: BackPaciente) => ({
+            consultasCompletadas: paciente.completed_consultations,
+            seguroMedico: paciente.health_insurance,
+            historialMedico: paciente.medical_history,
+            peso: paciente.weight,
+            altura: paciente.height,
+            tipoSangre: paciente.blood_type,
+            usuario: paciente.user,
+          })
+        );
+        setPacientes(pacientesFiltrados);
+      }
+    } catch (err) {
+      console.error("Error al filtrar por nombre:", err);
+      setError("Error al realizar la búsqueda. Intente de nuevo.");
     }
   };
 
@@ -167,6 +169,12 @@ export default function AdminDashboard() {
       setPacientes(pacientesAux);
     }
   };
+
+  useEffect(() => {
+    // Cada vez que se cambia de pestaña, se resetea el filtro y la lista.
+    setFiltroNombre("");
+    reestablecerListas();
+  }, [mostrarMedicos]);
 
   return (
     <main className="flex-1 p-10 space-y-6">
@@ -217,7 +225,11 @@ export default function AdminDashboard() {
             type="text"
             id="nombre"
             placeholder="Ingrese un nombre"
-            onChange={(e) => filtrarPorNombre(e.target.value)}
+            value={filtroNombre}
+            onChange={(e) => {
+              setFiltroNombre(e.target.value);
+              filtrarPorNombre(e.target.value);
+            }}
             className="border border-gray-300 rounded p-2"
           />
         </div>
