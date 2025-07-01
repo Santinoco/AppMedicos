@@ -1,55 +1,60 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getUserId } from "../../../../services/userService";
-
-interface Turno {
-  id: number;
-  motivo: string;
-  slot_datetime: {
-    slot_datetime: string;
-  };
-  doctor: {
-    user: {
-      nombre: string;
-      apellido: string;
-    };
-  };
-  status: {
-    status: string;
-  };
-}
+import { getPatientAppointments } from "../../../../services/appointmentService";
+import { Turno } from "../../../../types/Turno";
 
 export default function ListadoTurnos() {
   const [turnos, setTurnos] = useState<Turno[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
+  const fetchTurnos = useCallback(async () => {
     const patientId = getUserId();
 
-    if (!token || !patientId) {
-      setLoading(false);
+    if (!patientId) {
+      setError("No se pudo identificar al usuario.");
+      setIsLoading(false);
       return;
     }
 
-    fetch(`http://localhost:3000/appointments/patient/${patientId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setTurnos(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error al traer los turnos:", err);
-        setLoading(false);
-      });
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const turnosData = await getPatientAppointments(patientId);
+      setTurnos(turnosData);
+    } catch (err) {
+      console.error("Error al traer los turnos:", err);
+      setError("No se pudieron cargar los turnos. Intente de nuevo más tarde.");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  if (loading) return <p className="text-center mt-10">Cargando turnos...</p>;
+  useEffect(() => {
+    fetchTurnos();
+  }, []);
+
+  const getStatusText = (statusId: number) => {
+    switch (statusId) {
+      case 1:
+        return "Pendiente";
+      case 2:
+        return "Completado";
+      case 3:
+        return "Cancelado";
+      case 4:
+        return "Reprogramado";
+      default:
+        return "Desconocido";
+    }
+  };
+
+  if (isLoading) return <p className="text-center mt-10">Cargando turnos...</p>;
+
+  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
   if (turnos.length === 0)
     return <p className="text-center mt-10">No hay turnos agendados.</p>;
@@ -64,31 +69,26 @@ export default function ListadoTurnos() {
             className="bg-white shadow-md rounded-xl p-6 border border-gray-200"
           >
             <p className="text-lg font-semibold text-gray-800">
-              🩺 Doctor: {turno.doctor.user.nombre} {turno.doctor.user.apellido}
+              🩺 Doctor: {turno.nombre}
             </p>
             <p className="text-gray-700">
               📅 Fecha:{" "}
-              {(() => {
-                const fecha = new Date(turno.slot_datetime.slot_datetime);
-                const dia = fecha.getDate().toString().padStart(2, "0");
-                const mes = fecha
-                  .toLocaleString("es-AR", { month: "short" })
-                  .toLowerCase();
-                const anio = fecha.getFullYear();
-                return `${dia} ${mes} ${anio}`;
-              })()}
+              {new Intl.DateTimeFormat("es-ES", {
+                dateStyle: "medium",
+              }).format(new Date(turno.fechaTurno))}
             </p>
 
             <p className="text-gray-700">
               🕒 Hora:{" "}
-              {new Date(turno.slot_datetime.slot_datetime).toLocaleTimeString(
-                [],
-                { hour: "2-digit", minute: "2-digit", hour12: false }
-              )}
+              {new Intl.DateTimeFormat("es-ES", {
+                timeStyle: "short",
+              }).format(new Date(turno.fechaTurno))}{" "}
               hs
             </p>
             <p className="text-gray-700">📌 Motivo: {turno.motivo}</p>
-            <p className="text-gray-700">📍 Estado: {turno.status.status}</p>
+            <p className="text-gray-700">
+              📍 Estado: {getStatusText(turno.estado)}
+            </p>
           </div>
         ))}
       </div>
