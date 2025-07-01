@@ -147,11 +147,11 @@ export default function MisPacientes() {
   };
 
   return (
-    <div className="flex-1 p-10 space-y-6">
+    <div className="flex-1 p-10 space-y-6 relative">
       {/*  Botón Volver */}
       <button
         onClick={() => router.push('/medico')}
-        className="absolute top-9 left-72 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
+        className="absolute top-9 left-10 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

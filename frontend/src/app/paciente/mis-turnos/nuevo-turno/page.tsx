@@ -116,7 +116,8 @@ export default function NuevoTurno() {
   const agendarTurno = async () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (!user?.id) {
-      toast.error('No autenticado o paciente no definido');
+      console.error('No autenticado o paciente no definido');
+      toast.error('Error de autenticación');
       return;
     }
 
@@ -140,7 +141,7 @@ export default function NuevoTurno() {
       setTimeout(() => router.push('/paciente/mis-turnos/listado-turnos'), 2000);
     } catch (e: any) {
       console.error('Error al agendar turno: ', e);
-      toast.error('No se pudo agendar turno');
+      toast.error('No se pudo agendar turno. Intente más tarde');
     }
   };
 

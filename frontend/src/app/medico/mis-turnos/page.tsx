@@ -7,7 +7,8 @@ import { BackTurno } from "../../../types/backTurno";
 import { Turno } from "../../../types/Turno";
 import { useRouter } from "next/navigation";
 import { verificarTipoUsuario } from "../../../services/guardService";
-import { toast } from 'sonner';
+import { toast } from "sonner";
+
 const misTurnosInicial: Turno[] = [
   {
     id: 0,
@@ -26,6 +27,10 @@ export default function misTurnos() {
   const [mostrarPendientes, setMostrarPendientes] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
   const [nombreBusqueda, setNombreBusqueda] = useState("");
+
+  // Estado para el modal
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [turnoSeleccionado, setTurnoSeleccionado] = useState<number | null>(null);
 
   useEffect(() => {
     const verificarAcceso = async () => {
@@ -63,28 +68,33 @@ export default function misTurnos() {
       setTurnosBase(turnosData);
     } catch (error) {
       console.error("Error al obtener los turnos:", error);
-      toast.error('No se pudo obtener los turnos. Intentalo mas tarde')
+      toast.error("No se pudo obtener los turnos. Intentalo más tarde.");
     }
   };
-/*Cancelar turno */
-  const cancelarTurno = async (id: number) => {
+
+  const confirmarCancelacion = (id: number) => {
+    setTurnoSeleccionado(id);
+    setMostrarModal(true);
+  };
+
+  const cancelarTurno = async () => {
     const token = localStorage.getItem("access_token");
-    if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
-      try {
-        await axios.patch(
-          `http://localhost:3000/appointments/${id}/status`,
-          { estado: 3 },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        fetchTurnos();
-          toast.info(`Turno cancelado`);
-      } catch (error) {
-        console.error("Error al cancelar el turno:", error);
-        toast.error("No se pudo cancelar el turno. Inténtalo más tarde.");
-      }
+    try {
+      await axios.patch(
+        `http://localhost:3000/appointments/${turnoSeleccionado}/status`,
+        { estado: 3 },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMostrarModal(false);
+      setTurnoSeleccionado(null);
+      fetchTurnos();
+      toast.success("Turno cancelado");
+    } catch (error) {
+      console.error("Error al cancelar el turno:", error);
+      toast.error("No se pudo cancelar el turno. Inténtalo más tarde.");
     }
   };
-/*Filtrado de turnos */
+
   const filtrarPorNombre = async (nombre: string) => {
     const token = localStorage.getItem("access_token");
     const userId = getUserId();
@@ -114,19 +124,13 @@ export default function misTurnos() {
   };
 
   return (
-    <div className="flex-1 p-10 space-y-6">
+    <div className="flex-1 p-10 space-y-6 relative">
+      {/* Botón volver */}
       <button
         onClick={() => router.push("/medico")}
-        className="absolute top-9 left-72 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
+        className="absolute top-9 left-10 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
         Volver a inicio
@@ -137,25 +141,10 @@ export default function misTurnos() {
       </section>
 
       <section className="bg-white p-6 rounded-lg shadow-md">
+        {/* Filtros */}
         <div className="flex space-x-4 mb-4">
-          <button
-            className={`py-2 px-4 rounded ${
-              mostrarPendientes ? "bg-green-600 text-white cursor-default" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-            disabled={mostrarPendientes}
-            onClick={() => setMostrarPendientes(true)}
-          >
-            Pendientes
-          </button>
-          <button
-            className={`py-2 px-4 rounded ${
-              !mostrarPendientes ? "bg-green-600 text-white cursor-default" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-            disabled={!mostrarPendientes}
-            onClick={() => setMostrarPendientes(false)}
-          >
-            Historial
-          </button>
+          <button className={`py-2 px-4 rounded ${mostrarPendientes ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`} onClick={() => setMostrarPendientes(true)} disabled={mostrarPendientes}>Pendientes</button>
+          <button className={`py-2 px-4 rounded ${!mostrarPendientes ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`} onClick={() => setMostrarPendientes(false)} disabled={!mostrarPendientes}>Historial</button>
         </div>
 
         <div className="my-4 flex items-center gap-4">
@@ -189,21 +178,16 @@ export default function misTurnos() {
           <ul className="space-y-4">
             {misTurnos
               .filter((turno) =>
-                mostrarPendientes ? turno.estado === 1 : turno.estado === 2 || turno.estado === 3
+                mostrarPendientes
+                  ? turno.estado === 1
+                  : turno.estado === 2 || turno.estado === 3
               )
               .map((turno) => (
-                <li
-                  className="border p-4 rounded-lg flex justify-between items-start"
-                  key={turno.id}
-                >
+                <li className="border p-4 rounded-lg flex justify-between items-start" key={turno.id}>
                   <div>
+                    <div className="mb-1 font-bold">{turno.nombre} <span className="text-gray-500 font-light">- {turno.email}</span></div>
                     <div className="mb-1">
-                      <span className="font-bold">{turno.nombre}</span>{" "}
-                      <span className="text-gray-500 font-light">- {turno.email}</span>
-                    </div>
-                    <div className="mb-1">
-                      <span className="font-bold mr-1">Fecha:</span>
-                      📅{" "}
+                      <span className="font-bold mr-1">Fecha:</span> 📅{" "}
                       {new Intl.DateTimeFormat("es-ES", {
                         dateStyle: "medium",
                         timeStyle: "short",
@@ -211,15 +195,7 @@ export default function misTurnos() {
                     </div>
                     <div className="mb-1">
                       <span className="font-bold">Estado: </span>
-                      {turno.estado === 1
-                        ? "Pendiente"
-                        : turno.estado === 2
-                        ? "Completado"
-                        : turno.estado === 3
-                        ? "Cancelado"
-                        : turno.estado === 4
-                        ? "Reprogramado"
-                        : ""}
+                      {turno.estado === 1 ? "Pendiente" : turno.estado === 2 ? "Completado" : turno.estado === 3 ? "Cancelado" : "Otro"}
                     </div>
                     <div className="mb-1">
                       <div className="font-bold">Motivo de consulta:</div>
@@ -229,7 +205,7 @@ export default function misTurnos() {
                   {mostrarPendientes && (
                     <div className="flex gap-4 items-center">
                       <button
-                        onClick={() => cancelarTurno(turno.id)}
+                        onClick={() => confirmarCancelacion(turno.id)}
                         className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                       >
                         Cancelar Turno
@@ -241,6 +217,29 @@ export default function misTurnos() {
           </ul>
         )}
       </section>
+
+      {mostrarModal && (
+        <div className="fixed inset-0 bg-gray-200/40 backdrop-blur-xs flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full border border-gray-300">
+            <p className="text-gray-800 text-lg mb-6 text-center">¿Estás seguro de que deseas cancelar este turno?</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={cancelarTurno}
+                className="px-4 py-1 bg-red-500 hover:bg-red-700 text-white rounded-md"
+              >
+                Confirmar
+              </button>
+              <button
+                onClick={() => setMostrarModal(false)}
+                className="px-4 py-1 bg-gray-300 hover:bg-gray-400 rounded-md"
+              >
+                Cancelar
+              </button>
+              
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
