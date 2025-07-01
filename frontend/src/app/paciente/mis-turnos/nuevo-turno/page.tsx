@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface Doctor {
   user_id: number;
@@ -31,6 +32,7 @@ export default function NuevoTurno() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -43,7 +45,7 @@ export default function NuevoTurno() {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setDoctores(res.data))
-      .catch((err) => setError('Error al obtener doctores'));
+      .catch(() => setError('Error al obtener doctores'));
   }, []);
 
   useEffect(() => {
@@ -56,12 +58,12 @@ export default function NuevoTurno() {
     const token = localStorage.getItem('access_token');
 
     axios
-      .get(`http://localhost:3000/calendar/doctor-available-slots`, {
+      .get('http://localhost:3000/calendar/doctor-available-slots', {
         headers: { Authorization: `Bearer ${token}` },
         params: { doctorUserId: medicoSeleccionado.user_id },
       })
       .then((res) => setSlots(res.data))
-      .catch((err) => setError('Error al obtener slots'))
+      .catch(() => setError('Error al obtener horarios'))
       .finally(() => setLoading(false));
   }, [medicoSeleccionado]);
 
@@ -89,9 +91,7 @@ export default function NuevoTurno() {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
-    })
-      .format(date)
-      .replace(/ de /g, ' ');
+    }).format(date).replace(/ de /g, ' ');
   };
 
   const slotsFiltrados = fechaSeleccionada
@@ -112,11 +112,11 @@ export default function NuevoTurno() {
     setHoraSeleccionada('');
     setDropdownAbierto(false);
   };
-{/*Hago post del turno seleccionado*/ }
+
   const agendarTurno = async () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (!user?.id) {
-      alert('No autenticado o paciente no definido.');
+      toast.error('No autenticado o paciente no definido');
       return;
     }
 
@@ -134,20 +134,21 @@ export default function NuevoTurno() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      alert('Turno agendado correctamente');
+      toast.success('Turno agendado correctamente');
       limpiarFiltros();
+      // redirigir después de agendar
+      setTimeout(() => router.push('/paciente/mis-turnos/listado-turnos'), 2000);
     } catch (e: any) {
-      alert('Error al agendar turno');
+      toast.error('Error al agendar turno');
     }
   };
 
   return (
-    
-    <div className="p-6 max-w-3xl mx-auto">
-       {/* Botón Volver */}
+    <div className="p-6 max-w-3xl mx-auto relative">
+      {/* Botón Volver */}
       <button
         onClick={() => router.push('/paciente/mis-turnos')}
-        className="absolute top-9 left-80 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
+        className="absolute top-6 left-4 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -161,12 +162,14 @@ export default function NuevoTurno() {
         </svg>
         Volver
       </button>
-      <h1 className="text-3xl font-bold text-green-700 mb-6">
+
+      <h1 className="text-3xl font-bold text-green-700 mb-6 text-center">
         Agendar Nuevo Turno
       </h1>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
 
+      {/* Filtros */}
       <div className="mb-4">
         <label className="block font-medium mb-1">Seleccione especialidad:</label>
         <select
@@ -204,6 +207,7 @@ export default function NuevoTurno() {
         </select>
       </div>
 
+      {/* Fecha y hora */}
       <div className="mb-6 relative">
         <label className="block font-medium mb-1">Seleccione fecha y hora:</label>
         <button
@@ -229,7 +233,6 @@ export default function NuevoTurno() {
               maxDate={new Date(new Date().setMonth(new Date().getMonth() + 3))}
               tileDisabled={({ date }) => date.getDay() === 0 || date.getDay() === 6}
             />
-
             <div>
               <p className="font-semibold mb-2">Horarios disponibles:</p>
               {loading ? (
@@ -284,21 +287,10 @@ export default function NuevoTurno() {
           <h2 className="text-lg font-semibold mb-2 text-green-700">
             Turno Seleccionado
           </h2>
-          <p>
-            <span className="font-medium">Médico:</span>{' '}
-            {medicoSeleccionado?.user.nombre} {medicoSeleccionado?.user.apellido}
-          </p>
-          <p>
-            <span className="font-medium">Especialidad:</span>{' '}
-            {medicoSeleccionado?.specialty || 'No especificada'}
-          </p>
-          <p>
-            <span className="font-medium">Fecha:</span> {formatFecha(fechaSeleccionada)}
-          </p>
-          <p>
-            <span className="font-medium">Hora:</span>{' '}
-            {formatHoraUTC(horaSeleccionada)} hs
-          </p>
+          <p><span className="font-medium">Médico:</span> {medicoSeleccionado?.user.nombre} {medicoSeleccionado?.user.apellido}</p>
+          <p><span className="font-medium">Especialidad:</span> {medicoSeleccionado?.specialty || 'No especificada'}</p>
+          <p><span className="font-medium">Fecha:</span> {formatFecha(fechaSeleccionada)}</p>
+          <p><span className="font-medium">Hora:</span> {formatHoraUTC(horaSeleccionada)} hs</p>
         </div>
       )}
 
@@ -313,6 +305,5 @@ export default function NuevoTurno() {
         </button>
       </div>
     </div>
-    
   );
 }

@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
+import { Toaster } from 'sonner';
 
 export default function PacienteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -46,8 +47,8 @@ export default function PacienteLayout({ children }: { children: React.ReactNode
                 : 'text-green-700 hover:bg-green-200 hover:text-green-900'
             )}
             onClick={() => {
-              localStorage.removeItem('access_token');          
-              localStorage.removeItem('user');          
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('user');
               localStorage.removeItem('user_id');
             }}
           >
@@ -58,6 +59,15 @@ export default function PacienteLayout({ children }: { children: React.ReactNode
 
       <main className="flex-1 p-10 space-y-6">
         {children}
+        <Toaster richColors position="top-right"
+          toastOptions={{
+            className: 'text-base p-4 text-[1.1rem] max-w-md',
+            style: {
+              fontSize: '1.1rem',
+              padding: '1rem 1.25rem',
+              borderRadius: '0.75rem',
+            },
+          }} />
       </main>
     </div>
   );
