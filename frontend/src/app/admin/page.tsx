@@ -12,6 +12,7 @@ import {
 } from "../../services/patientService";
 import { BackPaciente } from "../../types/backPaciente";
 import { deleteUser } from "../../services/userService";
+import { BackMedico } from "../../types/backMedico";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -55,11 +56,15 @@ export default function AdminDashboard() {
           getAllPatients(), // Llamada al servicio para obtener pacientes
         ]);
 
-        const medicosData: Medico[] = responseMedicos.map((medico: any) => ({
-          especialidad: medico.specialty,
-          matricula: medico.license_number,
-          usuario: medico.user,
-        }));
+        const medicosData: Medico[] = responseMedicos.map(
+          (medico: BackMedico) => ({
+            especialidad: medico.specialty,
+            matricula: medico.license_number,
+            comienzoJornada: medico.shift_start,
+            finJornada: medico.shift_end,
+            usuario: medico.user,
+          })
+        );
 
         setMedicos(medicosData);
         setMedicosAux(medicosData);
@@ -135,11 +140,15 @@ export default function AdminDashboard() {
     try {
       if (mostrarMedicos) {
         const medicosData = await getDoctorsByName(nombre);
-        const medicosFiltrados: Medico[] = medicosData.map((medico: any) => ({
-          especialidad: medico.specialty,
-          matricula: medico.license_number,
-          usuario: medico.user,
-        }));
+        const medicosFiltrados: Medico[] = medicosData.map(
+          (medico: BackMedico) => ({
+            especialidad: medico.specialty,
+            matricula: medico.license_number,
+            comienzoJornada: medico.shift_start,
+            finJornada: medico.shift_end,
+            usuario: medico.user,
+          })
+        );
         setMedicos(medicosFiltrados);
       } else {
         const pacientesData = await getPatientsByName(nombre);

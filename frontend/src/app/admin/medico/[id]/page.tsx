@@ -2,58 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import axios from "axios";
-import { BackMedico } from "../../../../types/backMedico";
-import { BackTurno } from "../../../../types/backTurno";
 import { verificarTipoUsuario } from "../../../../services/guardService";
-
-interface Turno {
-  id: number;
-  nombre: string;
-  email: string;
-  fechaTurno: Date;
-  motivo: string;
-  estado: number;
-}
-
-interface Medico {
-  especialidad: string;
-  numeroMatricula: number;
-  comienzoJornada: string;
-  finJornada: string;
-  usuario: {
-    id: number;
-    nombre: string;
-    apellido: string;
-    email: string;
-    activo: boolean;
-  };
-}
-
-const medicoInicial: Medico = {
-  especialidad: "",
-  numeroMatricula: 0,
-  comienzoJornada: "",
-  finJornada: "",
-  usuario: {
-    id: 0,
-    nombre: "",
-    apellido: "",
-    email: "",
-    activo: false,
-  },
-};
-
-const turnosInicial: Turno[] = [
-  {
-    id: 2,
-    nombre: "",
-    email: "",
-    motivo: "",
-    fechaTurno: new Date("1000-01-01T11:00:00"),
-    estado: 0, // 1 Pendiente, 2 Completado, 3 Cancelado, 4 Reprogramado
-  },
-];
+import { getDoctorById } from "../../../../services/doctorService";
+import {
+  cancelAppointment,
+  getAppointmentsByPatientName,
+  getDoctorAppointments,
+} from "../../../../services/appointmentService";
+import { Turno } from "../../../../types/Turno";
+import { Medico } from "../../../../types/Medico";
 
 export default function AdminUserView() {
   const router = useRouter();
@@ -61,9 +18,11 @@ export default function AdminUserView() {
   const params = useParams();
   const idUsuario = params.id;
 
-  const [medico, setMedico] = useState<Medico>(medicoInicial);
-  const [turnos, setTurnos] = useState<Turno[]>(turnosInicial);
+  const [medico, setMedico] = useState<Medico | null>(null);
+  const [turnos, setTurnos] = useState<Turno[]>([]);
   const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const verificarAcceso = async () => {
@@ -80,119 +39,93 @@ export default function AdminUserView() {
   }, [router]);
 
   useEffect(() => {
-    const fetchTurnos = async () => {
-      const token = localStorage.getItem("access_token");
+    if (!isVerified || !idUsuario) return;
 
-      // Obtener los datos del médico por ID
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
-        const medicoResponse = await axios.get(
-          `http://localhost:3000/doctors/${idUsuario}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const medicoData: BackMedico = medicoResponse.data;
+        const [medicoData, turnosData] = await Promise.all([
+          getDoctorById(idUsuario as string),
+          getDoctorAppointments(idUsuario as string),
+        ]);
 
         setMedico({
           especialidad: medicoData.specialty,
-          numeroMatricula: medicoData.license_number,
+          matricula: medicoData.license_number,
           comienzoJornada: medicoData.shift_start,
           finJornada: medicoData.shift_end,
-          usuario: {
-            id: medicoData.user.id,
-            nombre: medicoData.user.nombre,
-            apellido: medicoData.user.apellido,
-            email: medicoData.user.email,
-            activo: medicoData.user.activo,
-          },
+          usuario: medicoData.user,
         });
-      } catch (error) {
-        console.error("Error al obtener los datos del médico:", error);
-      }
 
-      // Obtener los turnos del medico
-      try {
-        obtenerTurnosMedico(token);
+        setTurnos(turnosData);
       } catch (error) {
-        console.error("Error al obtener los turnos del usuario:", error);
+        console.error("Error al obtener los datos:", error);
+        setError(
+          "No se pudieron cargar los datos. Intente de nuevo más tarde."
+        );
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchTurnos();
-  }, [isVerified]);
-
-  const obtenerTurnosMedico = async (token) => {
-    const turnosResponse = await axios.get(
-      `http://localhost:3000/appointments/doctor/${idUsuario}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    const turnosData: Turno[] = turnosResponse.data.map((turno: BackTurno) => ({
-      id: turno.id,
-      nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
-      email: turno.patient.user.email,
-      motivo: turno.motivo,
-      fechaTurno: new Date(turno.slot_datetime.slot_datetime),
-      estado: turno.status.status_id,
-    }));
-
-    setTurnos(turnosData);
-  };
+    fetchData();
+  }, [isVerified, idUsuario]);
 
   const cancelarTurno = async (id: number) => {
-    const turnoCancelado = turnos.find((turno) => turno.id === id);
     if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
-      if (turnoCancelado) {
-        const token = localStorage.getItem("access_token");
-        try {
-          await axios.patch(
-            `http://localhost:3000/appointments/${id}/status`,
-            {
-              estado: 3, // Cambiar el estado del turno a cancelado
-            },
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+      try {
+        await cancelAppointment(id);
 
-          const nuevaLista = turnos.filter((turno) => turno.id !== id);
-          setTurnos(nuevaLista);
-          alert(`Turno con ID ${id} cancelado.`);
-        } catch (error) {
-          console.error("Error al cancelar el turno:", error);
-          alert("No se pudo cancelar el turno. Inténtalo más tarde.");
-        }
+        // Actualiza el estado del turno en la lista local en lugar de eliminarlo
+        setTurnos((prevTurnos) =>
+          prevTurnos.map((t) => (t.id === id ? { ...t, estado: 3 } : t))
+        );
+
+        alert(`Turno con ID ${id} cancelado.`);
+      } catch (error) {
+        console.error("Error al cancelar el turno:", error);
+        alert("No se pudo cancelar el turno. Inténtalo más tarde.");
       }
     }
   };
 
   const filtrarPorNombre = async (nombre: string) => {
-    const token = localStorage.getItem("access_token");
-    const userId = medico.usuario.id;
-    if (nombre.trim() === "") {
-      obtenerTurnosMedico(token); // Si el campo está vacío, obtener todos los turnos
-    } else {
-      const responseFiltrado = await axios.get(
-        `http://localhost:3000/appointments/appointments-by-patient-name/${nombre}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+    if (!idUsuario) return;
 
-      const turnosFiltrados: Turno[] = responseFiltrado.data
-        .filter((turno: BackTurno) => turno.doctor.user_id === userId)
-        .map((turno: BackTurno) => ({
-          id: turno.id,
-          nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
-          email: turno.patient.user.email,
-          motivo: turno.motivo,
-          fechaTurno: new Date(turno.slot_datetime.slot_datetime),
-          estado: turno.status.status_id,
-        }));
-
-      setTurnos(turnosFiltrados);
+    try {
+      if (nombre.trim() === "") {
+        const allTurnos = await getDoctorAppointments(idUsuario as string);
+        setTurnos(allTurnos);
+      } else {
+        const turnosFiltrados = await getAppointmentsByPatientName(
+          nombre,
+          idUsuario as string
+        );
+        setTurnos(turnosFiltrados);
+      }
+    } catch (err) {
+      console.error("Error al filtrar turnos:", err);
+      setError("No se pudo realizar la búsqueda. Intente de nuevo.");
     }
   };
+
+  if (isLoading) {
+    return (
+      <main className="flex-1 p-10 flex justify-center items-center">
+        <p className="text-gray-500 text-xl">Cargando datos del médico...</p>
+      </main>
+    );
+  }
+
+  if (error || !medico) {
+    return (
+      <main className="flex-1 p-10 flex justify-center items-center">
+        <p className="text-red-500 text-xl">
+          {error || "Médico no encontrado."}
+        </p>
+      </main>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-800">
@@ -242,7 +175,7 @@ export default function AdminUserView() {
           </p>
           <p>
             <span className="font-bold mr-1">Matricula:</span>
-            {medico.numeroMatricula}
+            {medico.matricula}
           </p>
           <p>
             <span className="font-bold mr-1">Jornada laboral:</span>
