@@ -139,7 +139,8 @@ export default function NuevoTurno() {
       // redirigir después de agendar
       setTimeout(() => router.push('/paciente/mis-turnos/listado-turnos'), 2000);
     } catch (e: any) {
-      toast.error('Error al agendar turno');
+      console.error('Error al agendar turno: ', e);
+      toast.error('No se pudo agendar turno');
     }
   };
 
