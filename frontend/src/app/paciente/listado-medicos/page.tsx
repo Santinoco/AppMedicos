@@ -1,54 +1,39 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-
-interface Doctor {
-  id: number;
-  user: {
-    nombre: string;
-    apellido: string;
-  };
-  specialty?: string;
-}
+import { useEffect, useState, useCallback } from "react";
+import { getAllDoctors } from "../../../services/doctorService";
+import { BackMedico } from "../../../types/backMedico";
 
 export default function ListaMedicosConFiltro() {
-  const [medicos, setMedicos] = useState<Doctor[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [medicos, setMedicos] = useState<BackMedico[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [especialidadFiltro, setEspecialidadFiltro] = useState<string>('');
+  const [especialidadFiltro, setEspecialidadFiltro] = useState<string>("");
 
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setError('No autenticado. Por favor inicia sesión.');
-      setLoading(false);
-      return;
+  const fetchMedicos = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getAllDoctors();
+      setMedicos(data);
+    } catch (err) {
+      setError(
+        "No se pudieron cargar los médicos. Intente de nuevo más tarde."
+      );
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-
-    fetch(`http://localhost:3000/doctors`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const errMsg = await res.text();
-          throw new Error(errMsg || 'Error al obtener doctores');
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setMedicos(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message || 'Error inesperado');
-        setLoading(false);
-      });
   }, []);
 
-  if (loading) return <p className="text-center mt-10">Cargando doctores...</p>;
-  if (error) return <p className="text-red-600 text-center mt-10">Error: {error}</p>;
+  useEffect(() => {
+    fetchMedicos();
+  }, [fetchMedicos]);
+
+  if (isLoading)
+    return <p className="text-center mt-10">Cargando doctores...</p>;
+  if (error)
+    return <p className="text-red-600 text-center mt-10">Error: {error}</p>;
 
   // Obtener especialidades únicas para el select
   const especialidadesUnicas = Array.from(
@@ -62,10 +47,14 @@ export default function ListaMedicosConFiltro() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-10 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold text-green-800 mb-6 text-center">Cartilla de Médicos</h1>
+      <h1 className="text-3xl font-bold text-green-800 mb-6 text-center">
+        Cartilla de Médicos
+      </h1>
 
       <div className="mb-6 max-w-xs mx-auto sm:mx-0">
-        <label className="block mb-2 text-gray-700 font-medium">Filtrar por especialidad:</label>
+        <label className="block mb-2 text-gray-700 font-medium">
+          Filtrar por especialidad:
+        </label>
         <select
           className="border border-gray-300 rounded px-4 py-2 w-full"
           value={especialidadFiltro}
@@ -81,18 +70,22 @@ export default function ListaMedicosConFiltro() {
       </div>
 
       {medicosFiltrados.length === 0 ? (
-        <p className="text-center text-gray-600">No hay médicos para la especialidad seleccionada.</p>
+        <p className="text-center text-gray-600">
+          No hay médicos para la especialidad seleccionada.
+        </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {medicosFiltrados.map((doc, index) => (
+          {medicosFiltrados.map((doc) => (
             <div
-            key={`${doc.id ?? index}-${doc.user?.nombre}`}
+              key={doc.user.id}
               className="bg-white shadow-md p-6 rounded-lg hover:shadow-lg transition"
             >
               <h2 className="text-xl font-semibold text-green-800 mb-1">
                 {doc.user?.nombre} {doc.user?.apellido}
               </h2>
-              {doc.specialty && <p className="text-gray-600">Especialidad: {doc.specialty}</p>}
+              {doc.specialty && (
+                <p className="text-gray-600">Especialidad: {doc.specialty}</p>
+              )}
             </div>
           ))}
         </div>
