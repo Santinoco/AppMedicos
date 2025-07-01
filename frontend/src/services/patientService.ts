@@ -34,3 +34,14 @@ export const getPatientsByName = async (
   const response = await api.get<BackPaciente[]>(`/patients/by-name/${name}`);
   return response.data;
 };
+
+/**
+ * Obtiene un paciente por su ID.
+ * @param patientId - El ID del paciente.
+ */
+export const getPatientById = async (
+  patientId: string
+): Promise<BackPaciente> => {
+  const response = await api.get<BackPaciente>(`/patients/${patientId}`);
+  return response.data;
+};

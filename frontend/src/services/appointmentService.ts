@@ -3,12 +3,24 @@ import { Turno } from "../types/Turno";
 import api from "./api";
 
 /**
- * Mapea la respuesta del backend a la estructura que usa el frontend.
+ * Mapea la respuesta del backend a la estructura que usa el frontend (vista de médico).
  */
-const mapBackTurnoToTurno = (turno: BackTurno): Turno => ({
+const mapBackTurnoToTurnoForDoctorView = (turno: BackTurno): Turno => ({
   id: turno.id,
   nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
   email: turno.patient?.user?.email || "No especificado",
+  motivo: turno.motivo,
+  fechaTurno: new Date(turno.slot_datetime.slot_datetime),
+  estado: turno.status.status_id,
+});
+
+/**
+ * Mapea la respuesta del backend a la estructura que usa el frontend (vista de paciente).
+ */
+const mapBackTurnoToTurnoForPatientView = (turno: BackTurno): Turno => ({
+  id: turno.id,
+  nombre: `${turno.doctor.user.nombre} ${turno.doctor.user.apellido}`,
+  email: turno.doctor?.user?.email || "No especificado",
   motivo: turno.motivo,
   fechaTurno: new Date(turno.slot_datetime.slot_datetime),
   estado: turno.status.status_id,
@@ -23,7 +35,19 @@ export const getDoctorAppointments = async (
   const response = await api.get<BackTurno[]>(
     `/appointments/doctor/${doctorId}`
   );
-  return response.data.map(mapBackTurnoToTurno);
+  return response.data.map(mapBackTurnoToTurnoForDoctorView);
+};
+
+/**
+ * Obtiene todos los turnos asignados a un paciente específico.
+ */
+export const getPatientAppointments = async (
+  patientId: string
+): Promise<Turno[]> => {
+  const response = await api.get<BackTurno[]>(
+    `/appointments/patient/${patientId}`
+  );
+  return response.data.map(mapBackTurnoToTurnoForPatientView);
 };
 
 /**
@@ -56,7 +80,31 @@ export const getAppointmentsByPatientName = async (
   // así que filtro para mostrar solo los del doctor actual.
   return response.data
     .filter((turno) => turno.doctor && turno.doctor.user_id === numericDoctorId)
-    .map(mapBackTurnoToTurno);
+    .map(mapBackTurnoToTurnoForDoctorView);
+};
+
+/**
+ * Filtra los turnos de un paciente por el nombre del doctor.
+ */
+export const getAppointmentsByDoctorName = async (
+  doctorName: string,
+  patientId: string
+): Promise<Turno[]> => {
+  const response = await api.get<BackTurno[]>(
+    `/appointments/appointments-by-doctor-name/${doctorName}`
+  );
+
+  const numericPatientId = parseInt(patientId, 10);
+  if (isNaN(numericPatientId)) {
+    console.error("ID de paciente inválido:", patientId);
+    return [];
+  }
+
+  return response.data
+    .filter(
+      (turno) => turno.patient && turno.patient.user_id === numericPatientId
+    )
+    .map(mapBackTurnoToTurnoForPatientView);
 };
 
 /**
@@ -75,7 +123,7 @@ export const getNextPendingAppointment = async (
   );
 
   if (nextAppointment) {
-    return mapBackTurnoToTurno(nextAppointment);
+    return mapBackTurnoToTurnoForDoctorView(nextAppointment);
   }
 
   return null;

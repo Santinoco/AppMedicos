@@ -76,7 +76,7 @@ export default function AdminUserView() {
       try {
         await cancelAppointment(id);
 
-        // Actualiza el estado del turno en la lista local en lugar de eliminarlo
+        // Actualiza el estado del turno en la lista local
         setTurnos((prevTurnos) =>
           prevTurnos.map((t) => (t.id === id ? { ...t, estado: 3 } : t))
         );
