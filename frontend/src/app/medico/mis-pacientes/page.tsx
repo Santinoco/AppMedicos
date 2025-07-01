@@ -77,11 +77,11 @@ export default function misPacientes() {
   };
 
   const handleEditClick = (paciente: Paciente) => {
-    if (pacienteEnEdicion === paciente.id) {
+    if (pacienteEnEdicion === paciente.usuario.id) {
       setPacienteEnEdicion(null);
       setFormData({});
     } else {
-      setPacienteEnEdicion(paciente.id);
+      setPacienteEnEdicion(paciente.usuario.id);
       setFormData({
         health_insurance: paciente.seguroMedico,
         medical_history: paciente.historialMedico,
@@ -136,13 +136,13 @@ export default function misPacientes() {
             {listaPacientes.map((paciente) => (
               <li
                 className="border p-4 rounded-lg flex justify-between items-start"
-                key={paciente.id}
+                key={paciente.usuario.id}
               >
                 <div>
                   <div className="mb-1">
-                    <span className="font-bold">{paciente.nombre}</span>{" "}
+                    <span className="font-bold">{paciente.usuario.nombre}</span>{" "}
                     <span className="text-gray-500 font-light">
-                      - {paciente.email}
+                      - {paciente.usuario.email}
                     </span>
                   </div>
                   <div className="mb-1">
@@ -177,13 +177,13 @@ export default function misPacientes() {
                     onClick={() => handleEditClick(paciente)}
                     className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition ml-auto"
                   >
-                    {pacienteEnEdicion === paciente.id
+                    {pacienteEnEdicion === paciente.usuario.id
                       ? "Ocultar formulario"
                       : "Editar Datos"}
                   </button>
-                  {pacienteEnEdicion === paciente.id && ( // Mostrar el formulario solo si este paciente está en edición
+                  {pacienteEnEdicion === paciente.usuario.id && ( // Mostrar el formulario solo si este paciente está en edición
                     <form
-                      onSubmit={(e) => handleSubmit(e, paciente.id)}
+                      onSubmit={(e) => handleSubmit(e, paciente.usuario.id)}
                       className="mt-4 space-y-4"
                     >
                       <div>

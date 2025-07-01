@@ -10,6 +10,14 @@ export interface UpdateDoctorData {
 }
 
 /**
+ * Obtiene los datos de un doctor por su ID de usuario.
+ */
+export const getDoctorById = async (doctorId: string): Promise<BackMedico> => {
+  const response = await api.get<BackMedico>(`/doctors/${doctorId}`);
+  return response.data;
+};
+
+/**
  * Extrae una lista de pacientes únicos a partir de una lista de turnos.
  */
 const mapTurnosToUniquePacientes = (turnos: BackTurno[]): Paciente[] => {
@@ -20,15 +28,13 @@ const mapTurnosToUniquePacientes = (turnos: BackTurno[]): Paciente[] => {
     if (turno.patient && !pacienteIds.has(turno.patient.user_id)) {
       pacienteIds.add(turno.patient.user_id);
       pacientesData.push({
-        id: turno.patient.user_id,
-        nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
-        email: turno.patient.user.email,
         consultasCompletadas: turno.patient.completed_consultations,
         seguroMedico: turno.patient.health_insurance,
         historialMedico: turno.patient.medical_history,
         peso: turno.patient.weight,
         altura: turno.patient.height,
         tipoSangre: turno.patient.blood_type,
+        usuario: turno.patient.user,
       });
     }
   });
@@ -61,14 +67,6 @@ export const findPatientsByName = async (
     (turno) => turno.doctor.user_id === parseInt(doctorId, 10)
   );
   return mapTurnosToUniquePacientes(doctorTurnos);
-};
-
-/**
- * Obtiene los datos de un doctor por su ID de usuario.
- */
-export const getDoctorById = async (doctorId: string): Promise<BackMedico> => {
-  const response = await api.get<BackMedico>(`/doctors/${doctorId}`);
-  return response.data;
 };
 
 /**

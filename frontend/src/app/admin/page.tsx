@@ -3,71 +3,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { BackMedico } from "../../types/backMedico";
-import { BackPaciente } from "../../types/backPaciente";
 import { verificarTipoUsuario } from "../../services/guardService";
-import { BackUser } from "../../types/backUser";
-
-interface Medico {
-  especialidad: string;
-  matricula: string;
-  usuario: {
-    id: 0;
-    nombre: "";
-    apellido: "";
-    email: "";
-    activo: false;
-  };
-}
-
-interface Paciente {
-  consultasCompletadas: number;
-  seguroMedico: string;
-  usuario: {
-    id: number;
-    nombre: string;
-    apellido: string;
-    email: string;
-    activo: boolean;
-  };
-}
-
-const pacientesInicial: Paciente[] = [
-  {
-    consultasCompletadas: 0,
-    seguroMedico: "",
-    usuario: {
-      id: 0,
-      nombre: "",
-      apellido: "",
-      email: "",
-      activo: false,
-    },
-  },
-];
-
-const medicosInicial: Medico[] = [
-  {
-    especialidad: "",
-    matricula: "",
-    usuario: {
-      id: 0,
-      nombre: "",
-      apellido: "",
-      email: "",
-      activo: false,
-    },
-  },
-];
+import { Paciente } from "../../types/Paciente";
+import { Medico } from "../../types/Medico";
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [medicos, setMedicos] = useState<Medico[]>(medicosInicial);
-  const [pacientes, setPacientes] = useState<Paciente[]>(pacientesInicial);
+  const [medicos, setMedicos] = useState<Medico[]>([]);
+  const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [medicosAux, setMedicosAux] = useState<Medico[]>([]);
   const [pacientesAux, setPacientesAux] = useState<Paciente[]>([]);
   const [mostrarMedicos, setMostrarMedicos] = useState(true);
   const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
+  const [isLoading, setIsLoading] = useState(true); // Estado para indicar el fin de la carga de datos
+  const [error, setError] = useState<string | null>(null); // Estado para manejar errores
 
   useEffect(() => {
     const verificarAcceso = async () => {
@@ -85,62 +34,56 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchUsuarios = async () => {
+      if (!isVerified) return; // No hacer nada si el usuario no está verificado
+
       const token = localStorage.getItem("access_token");
+      setIsLoading(true);
+      setError(null);
+
       try {
-        const responseMedicos = await axios.get(
-          `http://localhost:3000/doctors`,
-          {
+        // Usamos Promise.all para realizar las peticiones en paralelo
+        const [responseMedicos, responsePacientes] = await Promise.all([
+          axios.get(`http://localhost:3000/doctors`, {
             headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+          }),
+          axios.get(`http://localhost:3000/patients`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
         const medicosData: Medico[] = responseMedicos.data.map(
-          (medico: BackMedico) => ({
+          (medico: any) => ({
             especialidad: medico.specialty,
             matricula: medico.license_number,
-            usuario: {
-              id: medico.user.id,
-              nombre: medico.user.nombre,
-              apellido: medico.user.apellido,
-              email: medico.user.email,
-              activo: medico.user.activo,
-            },
+            usuario: medico.user,
           })
         );
 
         setMedicos(medicosData);
         setMedicosAux(medicosData);
-      } catch (error) {
-        console.error("Error al obtener los medicos:", error);
-      }
-      try {
-        const responsePacientes = await axios.get(
-          `http://localhost:3000/patients`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+
         const pacientesData: Paciente[] = responsePacientes.data.map(
-          (paciente: BackPaciente) => ({
+          (paciente: any) => ({
             consultasCompletadas: paciente.completed_consultations,
             seguroMedico: paciente.health_insurance,
-            usuario: {
-              id: paciente.user.id,
-              nombre: paciente.user.nombre,
-              apellido: paciente.user.apellido,
-              email: paciente.user.email,
-              activo: paciente.user.activo,
-            },
+            usuario: paciente.user,
           })
         );
 
         setPacientes(pacientesData);
         setPacientesAux(pacientesData);
-      } catch (error) {
-        console.error("Error al obtener los pacientes:", error);
+      } catch (err) {
+        console.error("Error al obtener los usuarios:", err);
+        setError(
+          "No se pudieron cargar los datos. Por favor, intente de nuevo más tarde."
+        );
+      } finally {
+        setIsLoading(false);
       }
     };
+
     fetchUsuarios();
-  }, [isVerified]); // Solo ejecuta la lógica de usuarios si está verificado
+  }, [isVerified]);
 
   const eliminarUsuario = async (idUsuario: number, tipo: string) => {
     if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
@@ -192,32 +135,19 @@ export default function AdminDashboard() {
         );
         if (mostrarMedicos) {
           const medicosFiltrados: Medico[] = responseFiltrado.data.map(
-            (medico: BackMedico) => ({
+            (medico: any) => ({
               especialidad: medico.specialty,
               matricula: medico.license_number,
-              usuario: {
-                id: medico.user.id,
-                nombre: medico.user.nombre,
-                apellido: medico.user.apellido,
-                email: medico.user.email,
-                activo: medico.user.activo,
-              },
+              usuario: medico.user,
             })
           );
           setMedicos(medicosFiltrados);
-        }
-        if (!mostrarMedicos) {
+        } else {
           const pacientesFiltrados: Paciente[] = responseFiltrado.data.map(
-            (paciente: BackPaciente) => ({
+            (paciente: any) => ({
               consultasCompletadas: paciente.completed_consultations,
               seguroMedico: paciente.health_insurance,
-              usuario: {
-                id: paciente.user.id,
-                nombre: paciente.user.nombre,
-                apellido: paciente.user.apellido,
-                email: paciente.user.email,
-                activo: paciente.user.activo,
-              },
+              usuario: paciente.user,
             })
           );
           setPacientes(pacientesFiltrados);
@@ -291,7 +221,11 @@ export default function AdminDashboard() {
             className="border border-gray-300 rounded p-2"
           />
         </div>
-        {mostrarMedicos ? (
+        {isLoading ? (
+          <p className="text-gray-500">Cargando usuarios...</p>
+        ) : error ? (
+          <p className="text-red-600 font-semibold">{error}</p>
+        ) : mostrarMedicos ? (
           <div>
             {medicos.length === 0 ? (
               <p className="text-gray-500">No se encuentra ningun medico.</p>
