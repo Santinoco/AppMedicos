@@ -213,8 +213,25 @@ export default function misPacientes() {
 
   return (
     <div className="flex-1 p-10 space-y-6">
+      {/* Botón Volver */}
+      <button
+        onClick={() => router.push('/medico')}
+        className="absolute top-9 left-80 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Volver a inicio
+      </button>
       <section id="misTurnos" className=" mx-2 flex flex-col items-center ">
-        <h1 className="text-3xl">Mis Pacientes</h1>
+        <h1 className="text-3xl font-bold text-green-800 mb-6 text-center">Mis Pacientes</h1>
       </section>
       <section className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold mb-4">Pacientes asignados</h2>
