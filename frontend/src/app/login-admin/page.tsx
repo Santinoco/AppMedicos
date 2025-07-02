@@ -2,42 +2,29 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { login } from "../../services/loginService";
+import axios from "axios";
 
-interface User {
-  id: number;
-  email: string;
-  rol: "paciente" | "medico" | "administrator";
-}
-
-export default function LoginMedico() {
+export default function LoginAdmin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await login({ email, password });
 
-      if (!res.ok) {
-        const { message } = await res.json();
-        setError(message || "Credenciales inválidas");
-        return;
-      }
+      const userRol = data.user?.type?.name;
 
-      const data = await res.json();
-      const userRol =
-        data.user?.type?.name || data.user?.role || data.user?.rol || "";
-
-      if (userRol.toLowerCase() !== "administrator") {
-        setError("Solo los usuarios con rol de admin pueden ingresar aquí");
+      if (userRol?.toLowerCase() !== "administrator") {
+        setError("Acceso denegado. Solo administradores permitidos.");
+        setIsLoading(false);
         return;
       }
 
@@ -45,8 +32,15 @@ export default function LoginMedico() {
       localStorage.setItem("access_token", data.access_token);
 
       router.push("/admin");
-    } catch (error) {
-      setError("Error al conectar con el servidor");
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(err.response.data.message || "Credenciales inválidas.");
+      } else {
+        setError("Error al conectar con el servidor. Intente más tarde.");
+      }
+      console.error("Login error:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -103,9 +97,10 @@ export default function LoginMedico() {
           />
           <button
             type="submit"
-            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded text-lg"
+            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading}
           >
-            Entrar
+            {isLoading ? "Ingresando..." : "Entrar"}
           </button>
         </form>
       </div>
