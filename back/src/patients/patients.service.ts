@@ -21,6 +21,35 @@ export class PatientService {
     }
   }
 
+  async getAllPatientsLimit(page: number = 1, limit: number = 5) {
+    try {
+      const skip = (page - 1) * limit;
+      
+      const [patients, total] = await this.patientRepository.findAndCount({
+        relations: ["user"],
+        order: { user_id: "ASC" },
+        skip,
+        take: limit
+      });
+
+      const total_pages = Math.ceil(total / limit);
+
+      return {
+        data: patients,
+        pagination: {
+          current_page: page,
+          total_pages,
+          total_items: total,
+          items_per_page: limit,
+          has_next_page: page < total_pages,
+          has_previous_page: page > 1
+        }
+      };
+    } catch (error) {
+      throw new Error(`Failed to retrieve patients: ${error.message}`);
+    }
+  }
+
   async getPatientById(user_id: number) {
     try {
       return this.patientRepository.findOne({
@@ -78,6 +107,38 @@ export class PatientService {
         order: { user_id: "ASC" },
       });
       return patients;
+    } catch (error) {
+      throw new Error(`Failed to retrieve patients by name ${name}: ${error.message}`);
+    }
+  }
+
+  async getPatientByNameLimit(name: string, page: number = 1, limit: number = 5) {
+    try {
+      const skip = (page - 1) * limit;
+      
+      const [patients, total] = await this.patientRepository.findAndCount({
+        where: {
+          user: { nombre: name },
+        },
+        relations: ["user"],
+        order: { user_id: "ASC" },
+        skip,
+        take: limit
+      });
+
+      const total_pages = Math.ceil(total / limit);
+
+      return {
+        data: patients,
+        pagination: {
+          current_page: page,
+          total_pages,
+          total_items: total,
+          items_per_page: limit,
+          has_next_page: page < total_pages,
+          has_previous_page: page > 1
+        }
+      };
     } catch (error) {
       throw new Error(`Failed to retrieve patients by name ${name}: ${error.message}`);
     }

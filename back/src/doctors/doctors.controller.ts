@@ -8,6 +8,7 @@ import {
     Patch,
     Delete,
     UseGuards,
+    Query,
   } from "@nestjs/common";
   import { DoctorsService } from "./doctors.service";
   import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -23,6 +24,11 @@ import {
     async getAllDoctors() {
       const docs = await this.doctorService.getAllDoctors();
       return docs;
+    }
+
+    @Get("limit")
+    async getAllDoctorsLimit(@Query('page') page: number = 1, @Query('limit') limit: number = 5) {
+      return this.doctorService.getAllDoctorsLimit(Number(page), Number(limit));
     }
   
     @Get(":user_id")
@@ -60,6 +66,11 @@ import {
     @Get("by-name/:nombre")
     async getDoctorsByName(@Param("nombre") nombre: string) {
       return this.doctorService.getDoctorByName(nombre);
+    }
+
+    @Get("limit/by-name/:nombre")
+    async getDoctorsByNameLimit(@Param("nombre") nombre: string, @Query('page') page: number = 1, @Query('limit') limit: number = 5) {
+      return this.doctorService.getDoctorByNameLimit(nombre, Number(page), Number(limit));
     }
 
   }

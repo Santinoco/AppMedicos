@@ -27,6 +27,9 @@ let DoctorsController = class DoctorsController {
         const docs = await this.doctorService.getAllDoctors();
         return docs;
     }
+    async getAllDoctorsLimit(page = 1, limit = 5) {
+        return this.doctorService.getAllDoctorsLimit(Number(page), Number(limit));
+    }
     async getDoctorById(user_id) {
         return this.doctorService.getDoctorById(user_id);
     }
@@ -45,6 +48,9 @@ let DoctorsController = class DoctorsController {
     async getDoctorsByName(nombre) {
         return this.doctorService.getDoctorByName(nombre);
     }
+    async getDoctorsByNameLimit(nombre, page = 1, limit = 5) {
+        return this.doctorService.getDoctorByNameLimit(nombre, Number(page), Number(limit));
+    }
 };
 exports.DoctorsController = DoctorsController;
 __decorate([
@@ -53,6 +59,14 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], DoctorsController.prototype, "getAllDoctors", null);
+__decorate([
+    (0, common_1.Get)("limit"),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], DoctorsController.prototype, "getAllDoctorsLimit", null);
 __decorate([
     (0, common_1.Get)(":user_id"),
     __param(0, (0, common_1.Param)("user_id", common_1.ParseIntPipe)),
@@ -98,6 +112,15 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], DoctorsController.prototype, "getDoctorsByName", null);
+__decorate([
+    (0, common_1.Get)("limit/by-name/:nombre"),
+    __param(0, (0, common_1.Param)("nombre")),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number, Number]),
+    __metadata("design:returntype", Promise)
+], DoctorsController.prototype, "getDoctorsByNameLimit", null);
 exports.DoctorsController = DoctorsController = __decorate([
     (0, common_1.Controller)("doctors"),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
