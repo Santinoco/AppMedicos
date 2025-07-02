@@ -2,6 +2,7 @@ import api from "./api";
 import { BackTurno } from "../types/backTurno";
 import { Paciente } from "../types/Paciente";
 import { BackMedico } from "../types/backMedico";
+import { PaginatedResponse } from "../types/PaginatedResponse";
 
 export interface UpdateDoctorData {
   specialty?: string;
@@ -90,5 +91,32 @@ export const updateDoctor = async (
  */
 export const getDoctorsByName = async (name: string): Promise<BackMedico[]> => {
   const response = await api.get<BackMedico[]>(`/doctors/by-name/${name}`);
+  return response.data;
+};
+
+/**
+ * Obtiene todos los médicos con paginación.
+ */
+export const getDoctorsPaginated = async (
+  page: number,
+  limit: number
+): Promise<PaginatedResponse<BackMedico>> => {
+  const response = await api.get<PaginatedResponse<BackMedico>>(
+    `/doctors/limit?page=${page}&limit=${limit}`
+  );
+  return response.data;
+};
+
+/**
+ * Obtiene médicos filtrados por nombre con paginación.
+ */
+export const getDoctorsByNamePaginated = async (
+  name: string,
+  page: number,
+  limit: number
+): Promise<PaginatedResponse<BackMedico>> => {
+  const response = await api.get<PaginatedResponse<BackMedico>>(
+    `/doctors/limit/by-name/${name}?page=${page}&limit=${limit}`
+  );
   return response.data;
 };

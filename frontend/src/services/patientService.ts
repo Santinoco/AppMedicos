@@ -1,4 +1,5 @@
 import { BackPaciente } from "../types/backPaciente";
+import { PaginatedResponse } from "../types/PaginatedResponse";
 import api from "./api";
 
 export interface UpdatePatientData {
@@ -43,5 +44,29 @@ export const getPatientById = async (
   patientId: string
 ): Promise<BackPaciente> => {
   const response = await api.get<BackPaciente>(`/patients/${patientId}`);
+  return response.data;
+};
+
+export const getPatientsPaginated = async (
+  page: number,
+  limit: number
+): Promise<PaginatedResponse<BackPaciente>> => {
+  const response = await api.get<PaginatedResponse<BackPaciente>>(
+    `/patients/limit?page=${page}&limit=${limit}`
+  );
+  return response.data;
+};
+
+/**
+ * Obtiene pacientes filtrados por nombre con paginación.
+ */
+export const getPatientsByNamePaginated = async (
+  name: string,
+  page: number,
+  limit: number
+): Promise<PaginatedResponse<BackPaciente>> => {
+  const response = await api.get<PaginatedResponse<BackPaciente>>(
+    `/patients/limit/by-name/${name}?page=${page}&limit=${limit}`
+  );
   return response.data;
 };

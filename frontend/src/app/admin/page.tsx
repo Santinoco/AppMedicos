@@ -3,22 +3,21 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { verificarTipoUsuario } from "../../services/guardService";
-
+import axios from "axios";
 import { Paciente } from "../../types/Paciente";
 import { Medico } from "../../types/Medico";
 import { BackPaciente } from "../../types/backPaciente";
 import { deleteUser } from "../../services/userService";
 import { BackMedico } from "../../types/backMedico";
-import axios from "axios";
-
-interface PaginationInfo {
-  current_page: number;
-  total_pages: number;
-  total_items: number;
-  items_per_page: number;
-  has_next_page: boolean;
-  has_previous_page: boolean;
-}
+import {
+  getDoctorsByNamePaginated,
+  getDoctorsPaginated,
+} from "../../services/doctorService";
+import {
+  getPatientsByNamePaginated,
+  getPatientsPaginated,
+} from "../../services/patientService";
+import { PaginationInfo } from "../../types/PaginatedResponse";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -61,7 +60,6 @@ export default function AdminDashboard() {
         fetchUsuarios(currentPage);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   const fetchUsuarios = async (page: number) => {
@@ -70,16 +68,9 @@ export default function AdminDashboard() {
     const token = localStorage.getItem("access_token");
 
     try {
-      const endpoint = mostrarMedicos
-        ? `/doctors/limit?page=${page}&limit=${ITEMS_PER_PAGE}`
-        : `/patients/limit?page=${page}&limit=${ITEMS_PER_PAGE}`;
-
-      const response = await axios.get(`http://localhost:3000${endpoint}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
       if (mostrarMedicos) {
-        const medicosData: Medico[] = response.data.data.map(
+        const medicosData = await getDoctorsPaginated(page, ITEMS_PER_PAGE);
+        const medicosMapeado: Medico[] = medicosData.data.map(
           (medico: BackMedico) => ({
             especialidad: medico.specialty,
             matricula: medico.license_number,
@@ -89,9 +80,11 @@ export default function AdminDashboard() {
           })
         );
 
-        setMedicos(medicosData);
+        setMedicos(medicosMapeado);
+        setPagination(medicosData.pagination);
       } else {
-        const pacientesData: Paciente[] = response.data.data.map(
+        const pacientesData = await getPatientsPaginated(page, ITEMS_PER_PAGE);
+        const pacientesMapeado: Paciente[] = pacientesData.data.map(
           (paciente: BackPaciente) => ({
             consultasCompletadas: paciente.completed_consultations,
             seguroMedico: paciente.health_insurance,
@@ -102,9 +95,9 @@ export default function AdminDashboard() {
             usuario: paciente.user,
           })
         );
-        setPacientes(pacientesData);
+        setPacientes(pacientesMapeado);
+        setPagination(pacientesData.pagination);
       }
-      setPagination(response.data.pagination);
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
       setError("No se pudieron cargar los usuarios. Intente de nuevo.");
@@ -117,19 +110,14 @@ export default function AdminDashboard() {
     setIsLoading(true);
     setError(null);
 
-    const token = localStorage.getItem("access_token");
-    const rol = mostrarMedicos ? "doctors" : "patients";
-
     try {
-      const response = await axios.get(
-        `http://localhost:3000/${rol}/limit/by-name/${nombre}?page=${page}&limit=${ITEMS_PER_PAGE}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
       if (mostrarMedicos) {
-        const medicosFiltrados: Medico[] = response.data.data.map(
+        const medicosData = await getDoctorsByNamePaginated(
+          nombre,
+          page,
+          ITEMS_PER_PAGE
+        );
+        const medicosMapeado: Medico[] = medicosData.data.map(
           (medico: BackMedico) => ({
             especialidad: medico.specialty,
             matricula: medico.license_number,
@@ -138,9 +126,15 @@ export default function AdminDashboard() {
             usuario: medico.user,
           })
         );
-        setMedicos(medicosFiltrados);
+        setMedicos(medicosMapeado);
+        setPagination(medicosData.pagination);
       } else {
-        const pacientesFiltrados: Paciente[] = response.data.data.map(
+        const pacientesData = await getPatientsByNamePaginated(
+          nombre,
+          page,
+          ITEMS_PER_PAGE
+        );
+        const pacientesMapeado: Paciente[] = pacientesData.data.map(
           (paciente: BackPaciente) => ({
             consultasCompletadas: paciente.completed_consultations,
             seguroMedico: paciente.health_insurance,
@@ -151,9 +145,9 @@ export default function AdminDashboard() {
             usuario: paciente.user,
           })
         );
-        setPacientes(pacientesFiltrados);
+        setPacientes(pacientesMapeado);
+        setPagination(pacientesData.pagination);
       }
-      setPagination(response.data.pagination);
     } catch (error) {
       console.error("Error al filtrar por nombre:", error);
       setError("No se pudo realizar la búsqueda. Intente de nuevo.");
