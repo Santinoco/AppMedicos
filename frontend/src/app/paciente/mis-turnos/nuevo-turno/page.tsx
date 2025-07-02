@@ -1,19 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-
-interface Doctor {
-  user_id: number;
-  user: {
-    nombre: string;
-    apellido: string;
-  };
-  specialty?: string;
-  shift_start?: string;
-  shift_end?: string;
-}
+import { BackMedico } from '../../../../types/backMedico';
+import { getAllDoctors } from '../../../../services/doctorService';
 
 interface Slot {
   slot_id: number;
@@ -21,30 +12,36 @@ interface Slot {
 }
 
 export default function MisTurnos() {
-  const [doctores, setDoctores] = useState<Doctor[]>([]);
+  const [doctores, setDoctores] = useState<BackMedico[]>([]);
   const [especialidadFiltro, setEspecialidadFiltro] = useState('');
-  const [medicoSeleccionado, setMedicoSeleccionado] = useState<Doctor | null>(null);
+  const [medicoSeleccionado, setMedicoSeleccionado] =
+    useState<BackMedico | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(new Date());
   const [horaSeleccionada, setHoraSeleccionada] = useState('');
   const [dropdownAbierto, setDropdownAbierto] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isDoctorsLoading, setIsDoctorsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Cargar doctores
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setError('No autenticado. Por favor inicia sesión.');
-      return;
+  const fetchDoctors = useCallback(async () => {
+    setIsDoctorsLoading(true);
+    setError(null);
+    try {
+      const data = await getAllDoctors();
+      setDoctores(data);
+    } catch (err) {
+      console.error('Error al obtener doctores:', err);
+      setError('No se pudieron cargar los médicos. Intente de nuevo.');
+    } finally {
+      setIsDoctorsLoading(false);
     }
-    fetch(`http://localhost:3000/doctors`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => res.ok ? res.json() : Promise.reject('Error al obtener doctores'))
-      .then(data => setDoctores(data))
-      .catch(err => setError(String(err)));
   }, []);
+
+  useEffect(() => {
+    fetchDoctors();
+  }, [fetchDoctors]);
 
   // Cargar slots cuando cambia el médico
   useEffect(() => {
@@ -100,6 +97,10 @@ export default function MisTurnos() {
         );
       })
     : [];
+
+  if (isDoctorsLoading) {
+    return <p className="text-center mt-10">Cargando doctores...</p>;
+  }
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
