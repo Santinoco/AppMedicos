@@ -72,16 +72,26 @@ export default function AdminUserView() {
     fetchData();
   }, [isVerified, idUsuario]);
 
-  const cancelarTurno = async (id: number) => {
-    try {
-      await cancelAppointment(id);
+  const confirmarCancelacion = (id: number) => {
+    setTurnoSeleccionado(id);
+    setMostrarModal(true);
+  };
 
-      // Actualiza el estado del turno en la lista local
+  const cancelarTurno = async () => {
+    if (turnoSeleccionado === null) return;
+
+    try {
+      await cancelAppointment(turnoSeleccionado);
+
       setTurnos((prevTurnos) =>
-        prevTurnos.map((t) => (t.id === id ? { ...t, estado: 3 } : t))
+        prevTurnos.map((t) =>
+          t.id === turnoSeleccionado ? { ...t, estado: 3 } : t
+        )
       );
 
-      toast.success(`Turno con ID ${id} cancelado exitosamente`);
+      setMostrarModal(false);
+      setTurnoSeleccionado(null);
+      toast.success(`Turno cancelado exitosamente`);
     } catch (error) {
       console.error("Error al cancelar el turno:", error);
       toast.error("No se pudo cancelar el turno. Intentalo más tarde");
@@ -233,7 +243,7 @@ export default function AdminUserView() {
         <div className="fixed inset-0 bg-gray-200/40 backdrop-blur-xs flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full border border-gray-300">
             <p className="text-gray-800 text-lg mb-6 text-center">
-              ¿Estás seguro de que deseas cancelar este turno?
+              ¿Deseas cancelar este turno?
             </p>
             <div className="flex justify-center gap-4">
               <button
@@ -243,7 +253,10 @@ export default function AdminUserView() {
                 Confirmar
               </button>
               <button
-                onClick={() => setMostrarModal(false)}
+                onClick={() => {
+                  setMostrarModal(false);
+                  setTurnoSeleccionado(null);
+                }}
                 className="px-4 py-1 bg-gray-300 hover:bg-gray-400 rounded-md"
               >
                 Cancelar
