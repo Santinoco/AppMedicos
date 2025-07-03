@@ -1,82 +1,66 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { toast } from 'sonner';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { verificarTipoUsuario } from "../../../services/guardService";
+import { getUserId } from "../../../services/userService";
+import { Paciente } from "../../../types/Paciente";
+import {
+  getPatientsByDoctor,
+  findPatientsByName,
+} from "../../../services/doctorService";
+import {
+  updatePatient,
+  UpdatePatientData,
+} from "../../../services/patientService";
+import { toast } from "sonner";
 
-import { verificarTipoUsuario } from '../../../services/guardService';
-import { getUserId } from '../../../services/userIdService';
-
-import { BackTurno } from '../../../types/backTurno';
-import { Turno } from '../../../types/Turno';
-
-interface Paciente {
-  id: number;
-  nombre: string;
-  email: string;
-  consultasCompletadas: number;
-  seguroMedico: string;
-  historialMedico: string;
-  peso: number;
-  altura: number;
-  tipoSangre: string;
-}
-
-export default function MisPacientes() {
+export default function misPacientes() {
   const router = useRouter();
-  const [isVerified, setIsVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState<boolean>(false);
   const [listaPacientes, setListaPacientes] = useState<Paciente[]>([]);
-  const [pacienteEnEdicion, setPacienteEnEdicion] = useState<number | null>(null);
-  const [seguroMedicoInput, setSeguroMedicoInput] = useState<string>('');
-  const [historialMedicoInput, setHistorialMedicoInput] = useState<string>('');
-  const [pesoInput, setPesoInput] = useState<number | null>(null);
-  const [alturaInput, setAlturaInput] = useState<number | null>(null);
-  const [tipoSangreInput, setTipoSangreInput] = useState<string>('');
+  const [pacientesBase, setPacientesBase] = useState<Paciente[]>([]);
+  const [pacienteEnEdicion, setPacienteEnEdicion] = useState<number | null>(
+    null
+  );
+  const [formData, setFormData] = useState<UpdatePatientData>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   /* estado del filtro y del input */
-  const [nombreBusqueda, setNombreBusqueda] = useState<string>('');
+  const [nombreBusqueda, setNombreBusqueda] = useState<string>("");
 
   useEffect(() => {
     const verificarAcceso = () => {
-      const esMedico = verificarTipoUsuario('doctor');
-      if (!esMedico) router.push('/');
+      const esMedico = verificarTipoUsuario("doctor");
+      if (!esMedico) router.push("/");
       else setIsVerified(true);
     };
     verificarAcceso();
   }, [router]);
 
-  /* Obtener pacientes*/
+  useEffect(() => {
+    if (isVerified) {
+      fetchPacientes();
+    }
+  }, [isVerified]);
+
   const fetchPacientes = async () => {
-    const token = localStorage.getItem('access_token') || '';
     const userId = getUserId();
+    if (!userId) return;
+
+    setIsLoading(true);
+    setError(null);
     try {
-      const { data } = await axios.get<BackTurno[]>(
-        `http://localhost:3000/appointments/doctor/${userId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      const pacientesUnicos: Paciente[] = [];
-      data.forEach((turno) => {
-        if (!pacientesUnicos.some((p) => p.id === turno.patient.user_id)) {
-          pacientesUnicos.push({
-            id: turno.patient.user_id,
-            nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
-            email: turno.patient.user.email,
-            consultasCompletadas: turno.patient.completed_consultations,
-            seguroMedico: turno.patient.health_insurance,
-            historialMedico: turno.patient.medical_history,
-            peso: turno.patient.weight,
-            altura: turno.patient.height,
-            tipoSangre: turno.patient.blood_type,
-          });
-        }
-      });
-
-      setListaPacientes(pacientesUnicos);
-    } catch (err) {
-      console.error("Error al obtener los pacientes:", err);
-      toast.error('No se pudo obtener los pacientes. Intentalo más tarde');
+      const pacientesData = await getPatientsByDoctor(userId);
+      setListaPacientes(pacientesData);
+      setPacientesBase(pacientesData);
+    } catch (error) {
+      console.error("Error al obtener los pacientes:", error);
+      setError("No se pudieron cargar los pacientes. Intente más tarde.");
+      toast.error("No se pudo obtener los pacientes. Intentalo más tarde");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -85,64 +69,43 @@ export default function MisPacientes() {
   }, [isVerified]);
 
   const filtrarPorNombre = async (nombre: string) => {
-    if (nombre.trim() === '') {
-      fetchPacientes();
-      return;
-    }
+    const userId = getUserId();
+    if (!userId) return;
 
-    const token = localStorage.getItem('access_token') || '';
-    try {
-      const { data } = await axios.get<BackTurno[]>(
-        `http://localhost:3000/appointments/appointments-by-patient-name/${nombre}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      const pacientesFiltrados: Paciente[] = [];
-      data.forEach((turno) => {
-        if (!pacientesFiltrados.some((p) => p.id === turno.patient.user_id)) {
-          pacientesFiltrados.push({
-            id: turno.patient.user_id,
-            nombre: `${turno.patient.user.nombre} ${turno.patient.user.apellido}`,
-            email: turno.patient.user.email,
-            consultasCompletadas: turno.patient.completed_consultations,
-            seguroMedico: turno.patient.health_insurance,
-            historialMedico: turno.patient.medical_history,
-            peso: turno.patient.weight,
-            altura: turno.patient.height,
-            tipoSangre: turno.patient.blood_type,
-          });
-        }
-      });
-
+    if (nombre.trim() === "") {
+      setListaPacientes(pacientesBase);
+    } else {
+      const pacientesFiltrados = await findPatientsByName(nombre, userId);
       setListaPacientes(pacientesFiltrados);
-    } catch (err) {
-      console.error('Error al filtrar los pacientes:', err);
-      toast.error('No se pudo filtrar los pacientes. Intentalo más tarde');
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent, paciente: Paciente) => {
-    e.preventDefault();
-    const token = localStorage.getItem('access_token') || '';
-
-    try {
-      await axios.patch(
-        `http://localhost:3000/patients/${paciente.id}`,
-        {
-          health_insurance: seguroMedicoInput || paciente.seguroMedico,
-          weight: pesoInput ?? paciente.peso,
-          height: alturaInput ?? paciente.altura,
-          blood_type: tipoSangreInput || paciente.tipoSangre,
-          medical_history: historialMedicoInput || paciente.historialMedico,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success(`Datos del paciente ${paciente.nombre} actualizados`);
+  const handleEditClick = (paciente: Paciente) => {
+    if (pacienteEnEdicion === paciente.usuario.id) {
       setPacienteEnEdicion(null);
-      fetchPacientes();
-    } catch (err) {
-      toast.error('No se pudo actualizar el paciente. Intentalo más tarde');
-      console.error("Error al actualizar el paciente:", err);
+      setFormData({});
+    } else {
+      setPacienteEnEdicion(paciente.usuario.id);
+      setFormData({
+        health_insurance: paciente.seguroMedico,
+        medical_history: paciente.historialMedico,
+        weight: paciente.peso,
+        height: paciente.altura,
+        blood_type: paciente.tipoSangre,
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent, pacienteId: number) => {
+    e.preventDefault();
+    try {
+      await updatePatient(pacienteId, formData);
+      toast.success(`Datos del paciente actualizados`);
+      setPacienteEnEdicion(null);
+      fetchPacientes(); // Recargar la lista para mostrar los datos actualizados
+    } catch (error) {
+      console.error("Error al actualizar los datos del paciente:", error);
+      toast.error("No se pudo actualizar el paciente. Intentalo más tarde");
     }
   };
 
@@ -150,7 +113,7 @@ export default function MisPacientes() {
     <div className="flex-1 p-10 space-y-6 relative">
       {/*  Botón Volver */}
       <button
-        onClick={() => router.push('/medico')}
+        onClick={() => router.push("/medico")}
         className="absolute top-9 left-10 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
       >
         <svg
@@ -161,7 +124,11 @@ export default function MisPacientes() {
           stroke="currentColor"
           strokeWidth={2}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
         Volver a inicio
       </button>
@@ -193,7 +160,7 @@ export default function MisPacientes() {
           {/*Boton limpiar */}
           <button
             onClick={() => {
-              setNombreBusqueda('');
+              setNombreBusqueda("");
               fetchPacientes();
             }}
             className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded transition"
@@ -202,64 +169,67 @@ export default function MisPacientes() {
           </button>
         </div>
 
-        {/* listado pacientes */}
-        {listaPacientes.length === 0 ? (
-          <p className="text-gray-500">No tenés pacientes asignados.</p>
+        {isLoading ? (
+          <p className="text-gray-500">Cargando pacientes...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : listaPacientes.length === 0 ? (
+          <p className="text-gray-500">No tienes pacientes asignados.</p>
         ) : (
           <ul className="space-y-4">
             {listaPacientes.map((paciente) => (
               <li
-                key={paciente.id}
                 className="border p-4 rounded-lg flex justify-between items-start"
+                key={paciente.usuario.id}
               >
-            
                 <div>
-                  <p className="font-bold">
-                    {paciente.nombre}{' '}
-                    <span className="text-gray-500 font-light">- {paciente.email}</span>
-                  </p>
-                  <p>
-                    <span className="font-bold">Consultas completadas:</span>{' '}
-                    {paciente.consultasCompletadas}
-                  </p>
-                  <p>
-                    <span className="font-bold">Seguro Médico:</span>{' '}
-                    {paciente.seguroMedico}
-                  </p>
-                  <p>
-                    <span className="font-bold">Peso:</span> {paciente.peso}
-                  </p>
-                  <p>
-                    <span className="font-bold">Altura:</span> {paciente.altura}
-                  </p>
-                  <p>
-                    <span className="font-bold">Tipo de sangre:</span>{' '}
-                    {paciente.tipoSangre}
-                  </p>
-                  <p>
-                    <span className="font-bold">Historial Médico:</span>{' '}
-                    {paciente.historialMedico}
-                  </p>
+                  <div className="mb-1">
+                    <span className="font-bold">{paciente.usuario.nombre}</span>{" "}
+                    <span className="text-gray-500 font-light">
+                      - {paciente.usuario.email}
+                    </span>
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold mr-1">
+                      Consultas completadas:
+                    </span>
+                    <span>{paciente.consultasCompletadas}</span>
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold mr-1">Seguro Medico:</span>
+                    <span>{paciente.seguroMedico}</span>
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold mr-1">Peso:</span>
+                    <span>{paciente.peso}</span>
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold mr-1">Altura:</span>
+                    <span>{paciente.altura}</span>
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold mr-1">Tipo de sangre:</span>
+                    <span>{paciente.tipoSangre}</span>
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold mr-1">Historial Medico:</span>
+                    <p>{paciente.historialMedico}</p>
+                  </div>
                 </div>
 
                 {/*formulario actualizar información paciente */}
                 <div className="flex flex-col gap-4 items-center">
                   <button
-                    onClick={() =>
-                      setPacienteEnEdicion(
-                        pacienteEnEdicion === paciente.id ? null : paciente.id
-                      )
-                    }
+                    onClick={() => handleEditClick(paciente)}
                     className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition ml-auto"
                   >
-                    {pacienteEnEdicion === paciente.id
-                      ? 'Ocultar formulario'
-                      : 'Editar Datos'}
+                    {pacienteEnEdicion === paciente.usuario.id
+                      ? "Ocultar formulario"
+                      : "Editar Datos"}
                   </button>
-
-                  {pacienteEnEdicion === paciente.id && (
+                  {pacienteEnEdicion === paciente.usuario.id && ( // Mostrar el formulario solo si este paciente está en edición
                     <form
-                      onSubmit={(e) => handleSubmit(e, paciente)}
+                      onSubmit={(e) => handleSubmit(e, paciente.usuario.id)}
                       className="mt-4 space-y-4"
                     >
                       <div>
@@ -267,10 +237,15 @@ export default function MisPacientes() {
                           Seguro Médico
                         </label>
                         <input
-                          id="seguro"
                           type="text"
-                          value={seguroMedicoInput}
-                          onChange={(e) => setSeguroMedicoInput(e.target.value)}
+                          id="seguroMedico"
+                          value={formData.health_insurance || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              health_insurance: e.target.value,
+                            })
+                          }
                           className="border border-gray-300 rounded p-2 w-full"
                         />
                       </div>
@@ -281,9 +256,13 @@ export default function MisPacientes() {
                         </label>
                         <input
                           id="peso"
-                          type="number"
-                          value={pesoInput ?? ''}
-                          onChange={(e) => setPesoInput(Number(e.target.value))}
+                          value={formData.weight || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              weight: Number(e.target.value),
+                            })
+                          }
                           className="border border-gray-300 rounded p-2 w-full"
                         />
                       </div>
@@ -294,10 +273,12 @@ export default function MisPacientes() {
                         </label>
                         <input
                           id="altura"
-                          type="number"
-                          value={alturaInput ?? ''}
+                          value={formData.height || ""}
                           onChange={(e) =>
-                            setAlturaInput(Number(e.target.value))
+                            setFormData({
+                              ...formData,
+                              height: Number(e.target.value),
+                            })
                           }
                           className="border border-gray-300 rounded p-2 w-full"
                         />
@@ -307,10 +288,15 @@ export default function MisPacientes() {
                           Tipo de Sangre
                         </label>
                         <input
-                          id="sangre"
                           type="text"
-                          value={tipoSangreInput}
-                          onChange={(e) => setTipoSangreInput(e.target.value)}
+                          id="tipoSangre"
+                          value={formData.blood_type || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              blood_type: e.target.value,
+                            })
+                          }
                           className="border border-gray-300 rounded p-2 w-full"
                         />
                       </div>
@@ -319,10 +305,13 @@ export default function MisPacientes() {
                           Historial Médico
                         </label>
                         <textarea
-                          id="historial"
-                          value={historialMedicoInput}
+                          id="historialMedico"
+                          value={formData.medical_history || ""}
                           onChange={(e) =>
-                            setHistorialMedicoInput(e.target.value)
+                            setFormData({
+                              ...formData,
+                              medical_history: e.target.value,
+                            })
                           }
                           className="border border-gray-300 rounded p-2 w-full"
                         />

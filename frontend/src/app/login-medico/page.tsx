@@ -1,64 +1,52 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-
-interface User {
-  id: number;
-  email: string;
-  rol: 'paciente' | 'medico' | 'admin';
-}
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { login } from "../../services/loginService";
+import axios from "axios";
 
 export default function LoginMedico() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
+    setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:3000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await login({ email, password });
+      const userRol = data.user?.type?.name;
 
-      if (!res.ok) {
-        const { message } = await res.json();
-        setError(message || 'Credenciales inválidas');
+      if (userRol.toLowerCase() !== "doctor") {
+        setError("Solo los usuarios con rol de médico pueden ingresar aquí");
+        setIsLoading(false);
         return;
       }
 
-      const data = await res.json();
-      const userRol =
-        data.user?.type?.name ||
-        data.user?.role ||
-        data.user?.rol ||
-        '';
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("access_token", data.access_token);
 
-      if (
-        userRol.toLowerCase() !== 'doctor'
-      ) {
-        setError('Solo los usuarios con rol de médico pueden ingresar aquí');
-        return;
+      router.push("/medico");
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(err.response.data.message || "Credenciales inválidas.");
+      } else {
+        setError("Error al conectar con el servidor. Intente más tarde.");
       }
-
-      localStorage.setItem('user', JSON.stringify(data.user));
-      localStorage.setItem('access_token', data.access_token);
-
-      router.push('/medico');
-    } catch (error) {
-      setError('Error al conectar con el servidor');
+      console.error("Login error:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 bg-gray-50">
       <button
-        onClick={() => router.push('/')}
+        onClick={() => router.push("/")}
         className="absolute top-4 left-4 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
       >
         <svg
@@ -69,15 +57,21 @@ export default function LoginMedico() {
           stroke="currentColor"
           strokeWidth={2}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
         Volver al inicio
       </button>
 
-  {/*caja inicio de sesion*/}
+      {/*caja inicio de sesion*/}
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md z-10">
         <h1 className="text-2xl font-bold text-center mb-4">Iniciar sesión</h1>
-        <p className="text-center mb-6">Ingresá para administrar tu agenda y pacientes</p>
+        <p className="text-center mb-6">
+          Ingresá para administrar tu agenda y pacientes
+        </p>
 
         {error && <p className="text-red-600 mb-4 text-center">{error}</p>}
 
@@ -98,11 +92,12 @@ export default function LoginMedico() {
             onChange={(e) => setPassword(e.target.value)}
             className="p-3 rounded border border-gray-300 text-base"
           />
-          <button 
+          <button
             type="submit"
-            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded text-lg"
+            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading}
           >
-            Entrar
+            {isLoading ? "Ingresando..." : "Entrar"}
           </button>
         </form>
       </div>

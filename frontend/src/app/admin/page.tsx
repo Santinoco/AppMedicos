@@ -2,61 +2,42 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
-import { BackMedico } from "../../types/backMedico";
-import { BackPaciente } from "../../types/backPaciente";
 import { verificarTipoUsuario } from "../../services/guardService";
+import axios from "axios";
+import { Paciente } from "../../types/Paciente";
+import { Medico } from "../../types/Medico";
+import { BackPaciente } from "../../types/backPaciente";
+import { deleteUser } from "../../services/userService";
+import { BackMedico } from "../../types/backMedico";
+import {
+  getDoctorsByNamePaginated,
+  getDoctorsPaginated,
+} from "../../services/doctorService";
+import {
+  getPatientsByNamePaginated,
+  getPatientsPaginated,
+} from "../../services/patientService";
+import { PaginationInfo } from "../../types/PaginatedResponse";
 import { toast } from "sonner";
-
-interface Medico {
-  especialidad: string;
-  matricula: string;
-  usuario: {
-    id: number;
-    nombre: string;
-    apellido: string;
-    email: string;
-    activo: boolean;
-  };
-}
-
-interface Paciente {
-  consultasCompletadas: number;
-  seguroMedico: string;
-  usuario: {
-    id: number;
-    nombre: string;
-    apellido: string;
-    email: string;
-    activo: boolean;
-  };
-}
-
-interface PaginationInfo {
-  current_page: number;
-  total_pages: number;
-  total_items: number;
-  items_per_page: number;
-  has_next_page: boolean;
-  has_previous_page: boolean;
-}
 
 export default function AdminDashboard() {
   const router = useRouter();
   const [medicos, setMedicos] = useState<Medico[]>([]);
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [mostrarMedicos, setMostrarMedicos] = useState(true);
-  const [isVerified, setIsVerified] = useState(false);
-  const [current_page, setCurrent_page] = useState(1);
-  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
+  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
+  const [isLoading, setIsLoading] = useState(true); // Estado para indicar el fin de la carga de datos
+  const [error, setError] = useState<string | null>(null); // Estado para manejar errores
   const [filtroNombre, setFiltroNombre] = useState("");
-  const [loading, setLoading] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
+  const ITEMS_PER_PAGE = 5;
   // Estado para el modal de confirmación
   const [mostrarModalConfirm, setMostrarModalConfirm] = useState(false);
-  const [usuarioAEliminar, setUsuarioAEliminar] = useState<{ id: number; tipo: string } | null>(null);
-
-  const ITEMS_PER_PAGE = 5;
+  const [usuarioAEliminar, setUsuarioAEliminar] = useState<{
+    id: number;
+    tipo: string;
+  } | null>(null);
 
   useEffect(() => {
     const verificarAcceso = async () => {
@@ -72,7 +53,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (isVerified) {
-      setCurrent_page(1);
+      setCurrentPage(1);
       setFiltroNombre("");
       fetchUsuarios(1);
     }
@@ -81,161 +62,134 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (isVerified) {
       if (filtroNombre.trim()) {
-        filtrarPorNombre(filtroNombre, current_page);
+        filtrarPorNombre(filtroNombre, currentPage);
       } else {
-        fetchUsuarios(current_page);
+        fetchUsuarios(currentPage);
       }
     }
-  }, [current_page]);
+  }, [currentPage]);
 
   const fetchUsuarios = async (page: number) => {
-    setLoading(true);
+    setIsLoading(true);
+    setError(null);
     const token = localStorage.getItem("access_token");
 
     try {
       if (mostrarMedicos) {
-        const response = await axios.get(
-          `http://localhost:3000/doctors/limit?page=${page}&limit=${ITEMS_PER_PAGE}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        const medicosData: Medico[] = response.data.data.map(
+        const medicosData = await getDoctorsPaginated(page, ITEMS_PER_PAGE);
+        const medicosMapeado: Medico[] = medicosData.data.map(
           (medico: BackMedico) => ({
             especialidad: medico.specialty,
             matricula: medico.license_number,
-            usuario: {
-              id: medico.user.id,
-              nombre: medico.user.nombre,
-              apellido: medico.user.apellido,
-              email: medico.user.email,
-              activo: medico.user.activo,
-            },
+            comienzoJornada: medico.shift_start,
+            finJornada: medico.shift_end,
+            usuario: medico.user,
           })
         );
 
-        setMedicos(medicosData);
-        setPagination(response.data.pagination);
+        setMedicos(medicosMapeado);
+        setPagination(medicosData.pagination);
       } else {
-        const response = await axios.get(
-          `http://localhost:3000/patients/limit?page=${page}&limit=${ITEMS_PER_PAGE}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        const pacientesData: Paciente[] = response.data.data.map(
+        const pacientesData = await getPatientsPaginated(page, ITEMS_PER_PAGE);
+        const pacientesMapeado: Paciente[] = pacientesData.data.map(
           (paciente: BackPaciente) => ({
             consultasCompletadas: paciente.completed_consultations,
             seguroMedico: paciente.health_insurance,
-            usuario: {
-              id: paciente.user.id,
-              nombre: paciente.user.nombre,
-              apellido: paciente.user.apellido,
-              email: paciente.user.email,
-              activo: paciente.user.activo,
-            },
+            historialMedico: paciente.medical_history,
+            peso: paciente.weight,
+            altura: paciente.height,
+            tipoSangre: paciente.blood_type,
+            usuario: paciente.user,
           })
         );
-
-        setPacientes(pacientesData);
-        setPagination(response.data.pagination);
+        setPacientes(pacientesMapeado);
+        setPagination(pacientesData.pagination);
       }
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
+      setError("No se pudieron cargar los usuarios. Intente de nuevo.");
+
       toast.error("No se pudieron obtener los usuarios. Intente más tarde");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const filtrarPorNombre = async (nombre: string, page: number = 1) => {
-    setLoading(true);
-    const token = localStorage.getItem("access_token");
-    const rol = mostrarMedicos ? "doctors" : "patients";
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const response = await axios.get(
-        `http://localhost:3000/${rol}/limit/by-name/${nombre}?page=${page}&limit=${ITEMS_PER_PAGE}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
       if (mostrarMedicos) {
-        const medicosFiltrados: Medico[] = response.data.data.map(
+        const medicosData = await getDoctorsByNamePaginated(
+          nombre,
+          page,
+          ITEMS_PER_PAGE
+        );
+        const medicosMapeado: Medico[] = medicosData.data.map(
           (medico: BackMedico) => ({
             especialidad: medico.specialty,
             matricula: medico.license_number,
-            usuario: {
-              id: medico.user.id,
-              nombre: medico.user.nombre,
-              apellido: medico.user.apellido,
-              email: medico.user.email,
-              activo: medico.user.activo,
-            },
+            comienzoJornada: medico.shift_start,
+            finJornada: medico.shift_end,
+            usuario: medico.user,
           })
         );
-        setMedicos(medicosFiltrados);
+        setMedicos(medicosMapeado);
+        setPagination(medicosData.pagination);
       } else {
-        const pacientesFiltrados: Paciente[] = response.data.data.map(
+        const pacientesData = await getPatientsByNamePaginated(
+          nombre,
+          page,
+          ITEMS_PER_PAGE
+        );
+        const pacientesMapeado: Paciente[] = pacientesData.data.map(
           (paciente: BackPaciente) => ({
             consultasCompletadas: paciente.completed_consultations,
             seguroMedico: paciente.health_insurance,
-            usuario: {
-              id: paciente.user.id,
-              nombre: paciente.user.nombre,
-              apellido: paciente.user.apellido,
-              email: paciente.user.email,
-              activo: paciente.user.activo,
-            },
+            historialMedico: paciente.medical_history,
+            peso: paciente.weight,
+            altura: paciente.height,
+            tipoSangre: paciente.blood_type,
+            usuario: paciente.user,
           })
         );
-        setPacientes(pacientesFiltrados);
+        setPacientes(pacientesMapeado);
+        setPagination(pacientesData.pagination);
       }
-      setPagination(response.data.pagination);
     } catch (error) {
       console.error("Error al filtrar por nombre:", error);
+      setError("No se pudo realizar la búsqueda. Intente de nuevo.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const handleFiltroChange = (nombre: string) => {
     setFiltroNombre(nombre);
-    setCurrent_page(1);
+    setCurrentPage(1);
     if (nombre.trim()) {
       filtrarPorNombre(nombre, 1);
     } else {
       fetchUsuarios(1);
     }
   };
-
   // Mostrar modal confirmación antes de eliminar
   const confirmarEliminacion = (idUsuario: number, tipo: string) => {
     setUsuarioAEliminar({ id: idUsuario, tipo });
     setMostrarModalConfirm(true);
   };
 
-  // Ejecutar eliminación confirmada
-  const eliminarUsuario = async () => {
-    if (!usuarioAEliminar) return;
-
-    const token = localStorage.getItem("access_token");
+  const eliminarUsuario = async (idUsuario: number) => {
     try {
-      await axios.delete(`http://localhost:3000/users/${usuarioAEliminar.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      await deleteUser(idUsuario);
       setMostrarModalConfirm(false);
       setUsuarioAEliminar(null);
 
-      // Refrescar lista después de eliminar
       if (filtroNombre.trim()) {
-        filtrarPorNombre(filtroNombre, current_page);
+        filtrarPorNombre(filtroNombre, currentPage);
       } else {
-        fetchUsuarios(current_page);
+        fetchUsuarios(currentPage);
       }
 
       toast.success(`Usuario eliminado correctamente`);
@@ -247,29 +201,28 @@ export default function AdminDashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("access_token");
     router.push("/");
   };
 
   const cambiarTipo = (esMedico: boolean) => {
     setMostrarMedicos(esMedico);
-    setCurrent_page(1);
-    setFiltroNombre("");
   };
 
   const goToNextPage = () => {
     if (pagination?.has_next_page) {
-      setCurrent_page(current_page + 1);
+      setCurrentPage(currentPage + 1);
     }
   };
 
   const goToPreviousPage = () => {
     if (pagination?.has_previous_page) {
-      setCurrent_page(current_page - 1);
+      setCurrentPage(currentPage - 1);
     }
   };
 
   const goToPage = (page: number) => {
-    setCurrent_page(page);
+    setCurrentPage(page);
   };
 
   const getPageNumbers = () => {
@@ -279,9 +232,11 @@ export default function AdminDashboard() {
     const total_pages = pagination.total_pages;
     const current = pagination.current_page;
 
+    // Mostrar máximo 5 páginas
     let startPage = Math.max(1, current - 2);
     let endPage = Math.min(total_pages, current + 2);
 
+    // Ajustar si estamos cerca del inicio o final
     if (current <= 3) {
       endPage = Math.min(5, total_pages);
     }
@@ -354,13 +309,11 @@ export default function AdminDashboard() {
           />
         </div>
 
-        {pagination && (
+        {/* Información de paginación */}
+        {pagination && !isLoading && (
           <div className="mb-4 text-sm text-gray-600">
             Mostrando{" "}
-            {pagination.total_items === 0
-              ? 0
-              : (pagination.current_page - 1) * pagination.items_per_page + 1}{" "}
-            -{" "}
+            {(pagination.current_page - 1) * pagination.items_per_page + 1} -{" "}
             {Math.min(
               pagination.current_page * pagination.items_per_page,
               pagination.total_items
@@ -368,19 +321,21 @@ export default function AdminDashboard() {
             de {pagination.total_items} resultados
           </div>
         )}
-
-        {loading && (
+        {/* Loading indicator */}
+        {isLoading ? (
           <div className="text-center py-4">
             <p className="text-gray-500">Cargando...</p>
           </div>
-        )}
-
-        {!loading && (
+        ) : error ? (
+          <p className="text-red-600 font-semibold">{error}</p>
+        ) : (
           <>
             {mostrarMedicos ? (
               <div>
                 {medicos.length === 0 ? (
-                  <p className="text-gray-500">No se encuentra ningún médico.</p>
+                  <p className="text-gray-500">
+                    No se encuentra ningún médico.
+                  </p>
                 ) : (
                   <ul className="space-y-4">
                     {medicos.map((medico) => (
@@ -408,9 +363,13 @@ export default function AdminDashboard() {
                           <div className="mb-1">
                             <span>
                               {medico.usuario.activo ? (
-                                <strong className="text-green-600">Activo</strong>
+                                <strong className="text-green-600">
+                                  Activo
+                                </strong>
                               ) : (
-                                <strong className="text-red-700">Inactivo</strong>
+                                <strong className="text-red-700">
+                                  Inactivo
+                                </strong>
                               )}
                             </span>
                           </div>
@@ -425,7 +384,9 @@ export default function AdminDashboard() {
                             Ver usuario
                           </button>
                           <button
-                            onClick={() => confirmarEliminacion(medico.usuario.id, "medico")}
+                            onClick={() =>
+                              confirmarEliminacion(medico.usuario.id, "medico")
+                            }
                             className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded transition w-full"
                           >
                             Eliminar Usuario
@@ -439,7 +400,9 @@ export default function AdminDashboard() {
             ) : (
               <div>
                 {pacientes.length === 0 ? (
-                  <p className="text-gray-500">No se encuentra ningún paciente.</p>
+                  <p className="text-gray-500">
+                    No se encuentra ningún paciente.
+                  </p>
                 ) : (
                   <ul className="space-y-4">
                     {pacientes.map((paciente) => (
@@ -450,7 +413,8 @@ export default function AdminDashboard() {
                         <div>
                           <div>
                             <span className="font-bold">
-                              {paciente.usuario.nombre} {paciente.usuario.apellido}
+                              {paciente.usuario.nombre}{" "}
+                              {paciente.usuario.apellido}
                             </span>{" "}
                             <span className="text-gray-500 font-light">
                               - {paciente.usuario.email}
@@ -467,9 +431,13 @@ export default function AdminDashboard() {
                           <div className="mb-1">
                             <span>
                               {paciente.usuario.activo ? (
-                                <strong className="text-green-600">Activo</strong>
+                                <strong className="text-green-600">
+                                  Activo
+                                </strong>
                               ) : (
-                                <strong className="text-red-700">Inactivo</strong>
+                                <strong className="text-red-700">
+                                  Inactivo
+                                </strong>
                               )}
                             </span>
                           </div>
@@ -477,14 +445,21 @@ export default function AdminDashboard() {
                         <div className="flex-col flex gap-4 items-center">
                           <button
                             onClick={() =>
-                              router.push("/admin/paciente/" + paciente.usuario.id)
+                              router.push(
+                                "/admin/paciente/" + paciente.usuario.id
+                              )
                             }
                             className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition w-full"
                           >
                             Ver usuario
                           </button>
                           <button
-                            onClick={() => confirmarEliminacion(paciente.usuario.id, "paciente")}
+                            onClick={() =>
+                              confirmarEliminacion(
+                                paciente.usuario.id,
+                                "paciente"
+                              )
+                            }
                             className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded transition w-full"
                           >
                             Eliminar Usuario
@@ -508,7 +483,7 @@ export default function AdminDashboard() {
               </p>
               <div className="flex justify-center gap-4">
                 <button
-                  onClick={eliminarUsuario}
+                  onClick={() => eliminarUsuario(usuarioAEliminar?.id)}
                   className="px-4 py-1 bg-red-500 hover:bg-red-700 text-white rounded-md"
                 >
                   Confirmar
@@ -525,8 +500,9 @@ export default function AdminDashboard() {
         )}
 
         {/* Controles de paginación */}
-        {pagination && pagination.total_pages > 1 && !loading && (
+        {pagination && pagination.total_pages > 1 && !isLoading && (
           <div className="mt-6 flex justify-center items-center space-x-2">
+            {/* Botón Anterior */}
             <button
               onClick={goToPreviousPage}
               disabled={!pagination.has_previous_page}
@@ -539,7 +515,9 @@ export default function AdminDashboard() {
               Anterior
             </button>
 
+            {/* Números de página */}
             <div className="flex space-x-1">
+              {/* Primera página si no está visible */}
               {getPageNumbers()[0] > 1 && (
                 <>
                   <button
@@ -554,6 +532,7 @@ export default function AdminDashboard() {
                 </>
               )}
 
+              {/* Páginas visibles */}
               {getPageNumbers().map((pageNum) => (
                 <button
                   key={pageNum}
@@ -568,9 +547,12 @@ export default function AdminDashboard() {
                 </button>
               ))}
 
-              {getPageNumbers()[getPageNumbers().length - 1] < pagination.total_pages && (
+              {/* Última página si no está visible */}
+              {getPageNumbers()[getPageNumbers().length - 1] <
+                pagination.total_pages && (
                 <>
-                  {getPageNumbers()[getPageNumbers().length - 1] < pagination.total_pages - 1 && (
+                  {getPageNumbers()[getPageNumbers().length - 1] <
+                    pagination.total_pages - 1 && (
                     <span className="px-2 py-2 text-gray-500">...</span>
                   )}
                   <button
@@ -583,6 +565,7 @@ export default function AdminDashboard() {
               )}
             </div>
 
+            {/* Botón Siguiente */}
             <button
               onClick={goToNextPage}
               disabled={!pagination.has_next_page}
@@ -594,6 +577,13 @@ export default function AdminDashboard() {
             >
               Siguiente
             </button>
+          </div>
+        )}
+
+        {/* Información adicional de paginación */}
+        {pagination && !isLoading && (
+          <div className="mt-4 text-center text-sm text-gray-600">
+            Página {pagination.current_page} de {pagination.total_pages}
           </div>
         )}
       </section>
