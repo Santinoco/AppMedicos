@@ -8,7 +8,7 @@ import { BackTurno } from "../../types/backTurno";
 import { getUserId } from "../../services/userIdService";
 import { Turno } from "../../types/Turno";
 import { verificarTipoUsuario } from "../../services/guardService";
-
+import {toast} from "sonner";
 interface Medico {
   nombre: string;
   especialidad: string;
@@ -207,15 +207,15 @@ export default function MedicoDashboard() {
       }
       // Mostrar mensaje de éxito
       if (especialidadActualizada) {
-        alert(`Especialidad actualizada: ${especialidadFormateada}`);
+        toast.success(`Especialidad actualizada: ${especialidadFormateada}`);
       }
       if (comienzoJornadaActualizado && finJornadaActualizado) {
-        alert(
+        toast.success(
           `Jornada actualizada: ${comienzoJornadaFormateado} - ${finJornadaFormateado}`
         );
       }
     } else {
-      alert("Por favor, ingrese valores válidos.");
+      toast.info("Por favor, ingrese valores válidos.");
     }
   };
 
@@ -312,7 +312,7 @@ export default function MedicoDashboard() {
               value={comienzoJornadaInput || ""}
               onChange={(e) => setComienzoJornadaInput(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
-              placeholder="Ingrese un número de 4 dígitos mayor o igual a 1000"
+              placeholder="Ingrese un número de 4 dígitos mayor o igual a 1000. Ejemplo: 1100 para las 11:00hs"
             />
           </div>
           <div>
@@ -325,7 +325,7 @@ export default function MedicoDashboard() {
               value={finJornadaInput || ""}
               onChange={(e) => setFinJornadaInput(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
-              placeholder="Ingrese un número de 4 dígitos menor o igual a 1900"
+              placeholder="Ingrese un número de 4 dígitos menor o igual a 1900. Ejemplo: 1900 para las 19:00hs"
             />
           </div>
           <button
