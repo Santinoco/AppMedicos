@@ -15,25 +15,23 @@ import { Turno } from "../../../../types/Turno";
 
 export default function AdminUserView() {
   const router = useRouter();
-  // La id del parametro se utilizara para realizar el get usuario by id
   const params = useParams();
   const idUsuario = params.id;
 
   const [paciente, setPaciente] = useState<Paciente | null>(null);
   const [turnos, setTurnos] = useState<Turno[]>([]);
-  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
+  const [isVerified, setIsVerified] = useState(false);
+
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [turnoSeleccionado, setTurnoSeleccionado] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const verificarAcceso = async () => {
       const esAdmin = verificarTipoUsuario("administrator");
-      if (!esAdmin) {
-        // Redirige al usuario si no es administrador
-        router.push("/");
-      } else {
-        setIsVerified(true); // Marca como verificado si es administrador
-      }
+      if (!esAdmin) router.push("/");
+      else setIsVerified(true);
     };
 
     verificarAcceso();
@@ -74,16 +72,26 @@ export default function AdminUserView() {
     fetchData();
   }, [isVerified, idUsuario]);
 
-  const cancelarTurno = async (id: number) => {
-    try {
-      await cancelAppointment(id);
+  const confirmarCancelacion = (id: number) => {
+    setTurnoSeleccionado(id);
+    setMostrarModal(true);
+  };
 
-      // Actualiza el estado del turno en la lista local
+  const cancelarTurno = async () => {
+    if (turnoSeleccionado === null) return;
+
+    try {
+      await cancelAppointment(turnoSeleccionado);
+
       setTurnos((prevTurnos) =>
-        prevTurnos.map((t) => (t.id === id ? { ...t, estado: 3 } : t))
+        prevTurnos.map((t) =>
+          t.id === turnoSeleccionado ? { ...t, estado: 3 } : t
+        )
       );
 
-      toast.success(`Turno con ID ${id} cancelado exitosamente`);
+      setMostrarModal(false);
+      setTurnoSeleccionado(null);
+      toast.success(`Turno cancelado exitosamente`);
     } catch (error) {
       console.error("Error al cancelar el turno:", error);
       toast.error("No se pudo cancelar el turno. Intentalo más tarde");
@@ -132,9 +140,7 @@ export default function AdminUserView() {
     <div className="flex min-h-screen bg-gray-100 text-gray-800">
       <main className="flex-1 p-10 space-y-6">
         <div className="flex">
-          <h1 className="text-3xl font-bold text-green-800">
-            Informacion del usuario
-          </h1>
+          <h1 className="text-3xl font-bold text-green-800">Información del usuario</h1>
           <button
             onClick={() => router.push("/admin")}
             className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition ml-auto"
@@ -142,23 +148,16 @@ export default function AdminUserView() {
             Volver
           </button>
         </div>
+
         <div>
           <span className="text-3xl font-bold text-black">
             {paciente.usuario.nombre} {paciente.usuario.apellido}
           </span>
-          <span className="text-gray-500 font-light">
-            {" "}
-            - {paciente.usuario.email}
-          </span>
+          <span className="text-gray-500 font-light"> - {paciente.usuario.email}</span>
         </div>
-        <p>
-          <span className="font-bold mr-1">Id: </span>
-          {paciente.usuario.id}
-        </p>
-        <p>
-          <span className="font-bold mr-1">Tipo de usuario:</span>
-          <span>Paciente</span>
-        </p>
+
+        <p><span className="font-bold mr-1">Id: </span>{paciente.usuario.id}</p>
+        <p><span className="font-bold mr-1">Tipo de usuario:</span>Paciente</p>
         <p>
           <span className="font-bold mr-1">Actividad:</span>
           {paciente.usuario.activo ? (
@@ -169,36 +168,19 @@ export default function AdminUserView() {
         </p>
 
         <div className="space-y-6">
-          <p>
-            <span className="font-bold mr-1">Consultas completadas:</span>
-            {paciente.consultasCompletadas}
-          </p>
-          <p>
-            <span className="font-bold mr-1">Seguro Medico:</span>
-            {paciente.seguroMedico}
-          </p>
-          <p>
-            <span className="font-bold mr-1">Historial Medico:</span>
-            {paciente.historialMedico}
-          </p>
-          <p>
-            <span className="font-bold mr-1">Peso:</span> {paciente.peso}
-          </p>
-          <p>
-            <span className="font-bold mr-1">Altura:</span> {paciente.altura}
-          </p>
-          <p>
-            <span className="font-bold mr-1">Tipo de sangre:</span>
-            {paciente.tipoSangre}
-          </p>
+          <p><span className="font-bold mr-1">Consultas completadas:</span>{paciente.consultasCompletadas}</p>
+          <p><span className="font-bold mr-1">Seguro Médico:</span>{paciente.seguroMedico}</p>
+          <p><span className="font-bold mr-1">Historial Médico:</span>{paciente.historialMedico}</p>
+          <p><span className="font-bold mr-1">Peso:</span>{paciente.peso}</p>
+          <p><span className="font-bold mr-1">Altura:</span>{paciente.altura}</p>
+          <p><span className="font-bold mr-1">Tipo de sangre:</span>{paciente.tipoSangre}</p>
         </div>
 
         <section className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">📅 Turnos agendados</h2>
+
           <div className="my-4">
-            <label htmlFor="nombre" className="mr-2">
-              Filtrar:
-            </label>
+            <label htmlFor="nombre" className="mr-2">Filtrar:</label>
             <input
               type="text"
               id="nombre"
@@ -207,26 +189,21 @@ export default function AdminUserView() {
               className="border border-gray-300 rounded p-2"
             />
           </div>
+
           {turnos.length === 0 ? (
             <p className="text-gray-500">No tenés turnos agendados.</p>
           ) : (
             <ul className="space-y-4">
               {turnos.map((turno) => (
-                <li
-                  className="border p-4 rounded-lg flex justify-between items-start"
-                  key={turno.id}
-                >
+                <li key={turno.id} className="border p-4 rounded-lg flex justify-between items-start">
                   <div>
                     <div>
-                      <span className="font-bold mr-2">Medico:</span>
-                      <span>{turno.nombre}</span>{" "}
-                      <span className="text-gray-500 font-light">
-                        - {turno.email}
-                      </span>
+                      <span className="font-bold mr-2">Médico:</span>
+                      {turno.nombre}
+                      <span className="text-gray-500 font-light"> - {turno.email}</span>
                     </div>
                     <div className="mb-1">
-                      <span className="font-bold mr-1">Fecha:</span>
-                      📅{" "}
+                      <span className="font-bold mr-1">Fecha:</span>📅{" "}
                       {new Intl.DateTimeFormat("es-ES", {
                         dateStyle: "medium",
                         timeStyle: "short",
@@ -234,39 +211,60 @@ export default function AdminUserView() {
                     </div>
                     <div className="mb-1">
                       <span className="font-bold">Estado: </span>
-                      {turno.estado === 1 ? (
-                        <span>Pendiente</span>
-                      ) : turno.estado === 2 ? (
-                        <span>Completado</span>
-                      ) : turno.estado === 3 ? (
-                        <span>Cancelado</span>
-                      ) : turno.estado === 4 ? (
-                        <span>Reprogramado</span>
-                      ) : (
-                        <span></span>
-                      )}
+                      {turno.estado === 1 ? "Pendiente" :
+                        turno.estado === 2 ? "Completado" :
+                        turno.estado === 3 ? "Cancelado" :
+                        turno.estado === 4 ? "Reprogramado" : "Desconocido"}
                     </div>
                     <div className="mb-1">
                       <div className="font-bold">Motivo de consulta:</div>
                       <p>{turno.motivo}</p>
                     </div>
                   </div>
-                  <div className="flex gap-4 items-center">
-                    {turno.estado !== 2 && turno.estado !== 3 && (
+                  {turno.estado !== 2 && turno.estado !== 3 && (
+                    <div className="flex gap-4 items-center">
                       <button
-                        onClick={() => cancelarTurno(turno.id)}
+                        onClick={() => confirmarCancelacion(turno.id)}
                         className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                       >
                         Cancelar Turno
                       </button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
           )}
         </section>
       </main>
+
+      {/* MODAL de Confirmación */}
+      {mostrarModal && (
+        <div className="fixed inset-0 bg-gray-200/40 backdrop-blur-xs flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full border border-gray-300">
+            <p className="text-gray-800 text-lg mb-6 text-center">
+              ¿Deseas cancelar este turno?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={cancelarTurno}
+                className="px-4 py-1 bg-red-500 hover:bg-red-700 text-white rounded-md"
+              >
+                Confirmar
+              </button>
+              <button
+                onClick={() => {
+                  setMostrarModal(false);
+                  setTurnoSeleccionado(null);
+                }}
+                className="px-4 py-1 bg-gray-300 hover:bg-gray-400 rounded-md"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

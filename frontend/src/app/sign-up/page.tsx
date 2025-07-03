@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
 export default function SignUp() {
   const router = useRouter();
 
@@ -55,7 +54,6 @@ export default function SignUp() {
       }
 
       setSuccess('Registro exitoso! Redirigiendo...');
-
       const data1 = await res.json();
       const userRol =
         data1.user?.type?.name ||

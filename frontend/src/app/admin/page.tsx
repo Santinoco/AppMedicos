@@ -479,7 +479,7 @@ export default function AdminDashboard() {
           <div className="fixed inset-0 bg-gray-200/40 backdrop-blur-xs flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full border border-gray-300">
               <p className="text-gray-800 text-lg mb-6 text-center">
-                ¿Estás seguro de que deseas eliminar este usuario?
+                ¿Deseas eliminar este usuario?
               </p>
               <div className="flex justify-center gap-4">
                 <button
