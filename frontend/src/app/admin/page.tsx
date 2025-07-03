@@ -6,6 +6,7 @@ import axios from "axios";
 import { BackMedico } from "../../types/backMedico";
 import { BackPaciente } from "../../types/backPaciente";
 import { verificarTipoUsuario } from "../../services/guardService";
+import { toast } from "sonner";
 
 interface Medico {
   especialidad: string;
@@ -50,6 +51,11 @@ export default function AdminDashboard() {
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [filtroNombre, setFiltroNombre] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Estado para el modal de confirmación
+  const [mostrarModalConfirm, setMostrarModalConfirm] = useState(false);
+  const [usuarioAEliminar, setUsuarioAEliminar] = useState<{ id: number; tipo: string } | null>(null);
+
   const ITEMS_PER_PAGE = 5;
 
   useEffect(() => {
@@ -85,7 +91,7 @@ export default function AdminDashboard() {
   const fetchUsuarios = async (page: number) => {
     setLoading(true);
     const token = localStorage.getItem("access_token");
-    
+
     try {
       if (mostrarMedicos) {
         const response = await axios.get(
@@ -94,7 +100,7 @@ export default function AdminDashboard() {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        
+
         const medicosData: Medico[] = response.data.data.map(
           (medico: BackMedico) => ({
             especialidad: medico.specialty,
@@ -108,7 +114,7 @@ export default function AdminDashboard() {
             },
           })
         );
-        
+
         setMedicos(medicosData);
         setPagination(response.data.pagination);
       } else {
@@ -118,7 +124,7 @@ export default function AdminDashboard() {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        
+
         const pacientesData: Paciente[] = response.data.data.map(
           (paciente: BackPaciente) => ({
             consultasCompletadas: paciente.completed_consultations,
@@ -132,12 +138,13 @@ export default function AdminDashboard() {
             },
           })
         );
-        
+
         setPacientes(pacientesData);
         setPagination(response.data.pagination);
       }
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
+      toast.error("No se pudieron obtener los usuarios. Intente más tarde");
     } finally {
       setLoading(false);
     }
@@ -147,7 +154,7 @@ export default function AdminDashboard() {
     setLoading(true);
     const token = localStorage.getItem("access_token");
     const rol = mostrarMedicos ? "doctors" : "patients";
-    
+
     try {
       const response = await axios.get(
         `http://localhost:3000/${rol}/limit/by-name/${nombre}?page=${page}&limit=${ITEMS_PER_PAGE}`,
@@ -155,7 +162,7 @@ export default function AdminDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
       if (mostrarMedicos) {
         const medicosFiltrados: Medico[] = response.data.data.map(
           (medico: BackMedico) => ({
@@ -205,26 +212,36 @@ export default function AdminDashboard() {
     }
   };
 
-  const eliminarUsuario = async (idUsuario: number, tipo: string) => {
-    if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-      const token = localStorage.getItem("access_token");
-      try {
-        await axios.delete(`http://localhost:3000/users/${idUsuario}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        
-        // Refresca la página actual después de eliminar
-        if (filtroNombre.trim()) {
-          filtrarPorNombre(filtroNombre, current_page);
-        } else {
-          fetchUsuarios(current_page);
-        }
-        
-        alert(`Usuario eliminado correctamente.`);
-      } catch (error) {
-        console.error("Error al eliminar el usuario:", error);
-        alert("No se pudo eliminar el usuario. Inténtalo más tarde.");
+  // Mostrar modal confirmación antes de eliminar
+  const confirmarEliminacion = (idUsuario: number, tipo: string) => {
+    setUsuarioAEliminar({ id: idUsuario, tipo });
+    setMostrarModalConfirm(true);
+  };
+
+  // Ejecutar eliminación confirmada
+  const eliminarUsuario = async () => {
+    if (!usuarioAEliminar) return;
+
+    const token = localStorage.getItem("access_token");
+    try {
+      await axios.delete(`http://localhost:3000/users/${usuarioAEliminar.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setMostrarModalConfirm(false);
+      setUsuarioAEliminar(null);
+
+      // Refrescar lista después de eliminar
+      if (filtroNombre.trim()) {
+        filtrarPorNombre(filtroNombre, current_page);
+      } else {
+        fetchUsuarios(current_page);
       }
+
+      toast.success(`Usuario eliminado correctamente`);
+    } catch (error) {
+      console.error("Error al eliminar el usuario:", error);
+      toast.error("No se pudo eliminar el usuario. Inténtalo más tarde");
     }
   };
 
@@ -255,35 +272,32 @@ export default function AdminDashboard() {
     setCurrent_page(page);
   };
 
-  // Función para generar números de página a mostrar
   const getPageNumbers = () => {
     if (!pagination) return [];
-    
+
     const pages = [];
     const total_pages = pagination.total_pages;
     const current = pagination.current_page;
-    
-    // Mostrar máximo 5 páginas
+
     let startPage = Math.max(1, current - 2);
     let endPage = Math.min(total_pages, current + 2);
-    
-    // Ajustar si estamos cerca del inicio o final
+
     if (current <= 3) {
       endPage = Math.min(5, total_pages);
     }
     if (current > total_pages - 3) {
       startPage = Math.max(1, total_pages - 4);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
-    
+
     return pages;
   };
 
   return (
-    <main className="flex-1 p-10 space-y-6">
+    <main className="flex-1 p-10 space-y-6 relative">
       <div className="flex">
         <h1 className="text-3xl font-bold text-green-800">
           Bienvenido, Administrador
@@ -295,7 +309,7 @@ export default function AdminDashboard() {
           Cerrar sesión
         </button>
       </div>
-      
+
       <section className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex space-x-4 mb-4">
           <button
@@ -321,11 +335,11 @@ export default function AdminDashboard() {
             Pacientes
           </button>
         </div>
-        
+
         <h2 className="text-xl font-semibold mb-4">
           {mostrarMedicos ? "Médicos registrados" : "Pacientes registrados"}
         </h2>
-        
+
         <div className="my-4">
           <label htmlFor="nombre" className="mr-2">
             Filtrar:
@@ -340,21 +354,27 @@ export default function AdminDashboard() {
           />
         </div>
 
-        {/* Información de paginación */}
         {pagination && (
           <div className="mb-4 text-sm text-gray-600">
-            Mostrando {((pagination.current_page - 1) * pagination.items_per_page) + 1} - {Math.min(pagination.current_page * pagination.items_per_page, pagination.total_items)} de {pagination.total_items} resultados
+            Mostrando{" "}
+            {pagination.total_items === 0
+              ? 0
+              : (pagination.current_page - 1) * pagination.items_per_page + 1}{" "}
+            -{" "}
+            {Math.min(
+              pagination.current_page * pagination.items_per_page,
+              pagination.total_items
+            )}{" "}
+            de {pagination.total_items} resultados
           </div>
         )}
 
-        {/* Loading indicator */}
         {loading && (
           <div className="text-center py-4">
             <p className="text-gray-500">Cargando...</p>
           </div>
         )}
 
-        {/* Lista de usuarios */}
         {!loading && (
           <>
             {mostrarMedicos ? (
@@ -405,9 +425,7 @@ export default function AdminDashboard() {
                             Ver usuario
                           </button>
                           <button
-                            onClick={() =>
-                              eliminarUsuario(medico.usuario.id, "medico")
-                            }
+                            onClick={() => confirmarEliminacion(medico.usuario.id, "medico")}
                             className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded transition w-full"
                           >
                             Eliminar Usuario
@@ -447,132 +465,138 @@ export default function AdminDashboard() {
                             {paciente.seguroMedico || "No especificado"}
                           </div>
                           <div className="mb-1">
-                          <span>Seguro médico: </span>
-                          {paciente.seguroMedico || "No especificado"}
+                            <span>
+                              {paciente.usuario.activo ? (
+                                <strong className="text-green-600">Activo</strong>
+                              ) : (
+                                <strong className="text-red-700">Inactivo</strong>
+                              )}
+                            </span>
+                          </div>
                         </div>
-                        <div className="mb-1">
-                          <span>
-                            {paciente.usuario.activo ? (
-                              <strong className="text-green-600">Activo</strong>
-                            ) : (
-                              <strong className="text-red-700">Inactivo</strong>
-                            )}
-                          </span>
+                        <div className="flex-col flex gap-4 items-center">
+                          <button
+                            onClick={() =>
+                              router.push("/admin/paciente/" + paciente.usuario.id)
+                            }
+                            className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition w-full"
+                          >
+                            Ver usuario
+                          </button>
+                          <button
+                            onClick={() => confirmarEliminacion(paciente.usuario.id, "paciente")}
+                            className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded transition w-full"
+                          >
+                            Eliminar Usuario
+                          </button>
                         </div>
-                      </div>
-                      <div className="flex-col flex gap-4 items-center">
-                        <button
-                          onClick={() =>
-                            router.push("/admin/paciente/" + paciente.usuario.id)
-                          }
-                          className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition w-full"
-                        >
-                          Ver usuario
-                        </button>
-                        <button
-                          onClick={() =>
-                            eliminarUsuario(paciente.usuario.id, "paciente")
-                          }
-                          className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded transition w-full"
-                        >
-                          Eliminar Usuario
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Modal de confirmación personalizado */}
+        {mostrarModalConfirm && (
+          <div className="fixed inset-0 bg-gray-200/40 backdrop-blur-xs flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full border border-gray-300">
+              <p className="text-gray-800 text-lg mb-6 text-center">
+                ¿Estás seguro de que deseas eliminar este usuario?
+              </p>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={eliminarUsuario}
+                  className="px-4 py-1 bg-red-500 hover:bg-red-700 text-white rounded-md"
+                >
+                  Confirmar
+                </button>
+                <button
+                  onClick={() => setMostrarModalConfirm(false)}
+                  className="px-4 py-1 bg-gray-300 hover:bg-gray-400 rounded-md"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Controles de paginación */}
+        {pagination && pagination.total_pages > 1 && !loading && (
+          <div className="mt-6 flex justify-center items-center space-x-2">
+            <button
+              onClick={goToPreviousPage}
+              disabled={!pagination.has_previous_page}
+              className={`px-4 py-2 rounded ${
+                pagination.has_previous_page
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              } transition`}
+            >
+              Anterior
+            </button>
+
+            <div className="flex space-x-1">
+              {getPageNumbers()[0] > 1 && (
+                <>
+                  <button
+                    onClick={() => goToPage(1)}
+                    className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+                  >
+                    1
+                  </button>
+                  {getPageNumbers()[0] > 2 && (
+                    <span className="px-2 py-2 text-gray-500">...</span>
+                  )}
+                </>
+              )}
+
+              {getPageNumbers().map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => goToPage(pageNum)}
+                  className={`px-3 py-2 rounded transition ${
+                    pageNum === pagination.current_page
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+
+              {getPageNumbers()[getPageNumbers().length - 1] < pagination.total_pages && (
+                <>
+                  {getPageNumbers()[getPageNumbers().length - 1] < pagination.total_pages - 1 && (
+                    <span className="px-2 py-2 text-gray-500">...</span>
+                  )}
+                  <button
+                    onClick={() => goToPage(pagination.total_pages)}
+                    className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+                  >
+                    {pagination.total_pages}
+                  </button>
+                </>
               )}
             </div>
-          )}
-        </>
-      )}
 
-      {/* Controles de paginación */}
-      {pagination && pagination.total_pages > 1 && !loading && (
-        <div className="mt-6 flex justify-center items-center space-x-2">
-          {/* Botón Anterior */}
-          <button
-            onClick={goToPreviousPage}
-            disabled={!pagination.has_previous_page}
-            className={`px-4 py-2 rounded ${
-              pagination.has_previous_page
-                ? "bg-green-600 text-white hover:bg-green-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            } transition`}
-          >
-            Anterior
-          </button>
-
-          {/* Números de página */}
-          <div className="flex space-x-1">
-            {/* Primera página si no está visible */}
-            {getPageNumbers()[0] > 1 && (
-              <>
-                <button
-                  onClick={() => goToPage(1)}
-                  className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
-                >
-                  1
-                </button>
-                {getPageNumbers()[0] > 2 && (
-                  <span className="px-2 py-2 text-gray-500">...</span>
-                )}
-              </>
-            )}
-
-            {/* Páginas visibles */}
-            {getPageNumbers().map((pageNum) => (
-              <button
-                key={pageNum}
-                onClick={() => goToPage(pageNum)}
-                className={`px-3 py-2 rounded transition ${
-                  pageNum === pagination.current_page
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                {pageNum}
-              </button>
-            ))}
-
-            {/* Última página si no está visible */}
-            {getPageNumbers()[getPageNumbers().length - 1] < pagination.total_pages && (
-              <>
-                {getPageNumbers()[getPageNumbers().length - 1] < pagination.total_pages - 1 && (
-                  <span className="px-2 py-2 text-gray-500">...</span>
-                )}
-                <button
-                  onClick={() => goToPage(pagination.total_pages)}
-                  className="px-3 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
-                >
-                  {pagination.total_pages}
-                </button>
-              </>
-            )}
+            <button
+              onClick={goToNextPage}
+              disabled={!pagination.has_next_page}
+              className={`px-4 py-2 rounded ${
+                pagination.has_next_page
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              } transition`}
+            >
+              Siguiente
+            </button>
           </div>
-
-          {/* Botón Siguiente */}
-          <button
-            onClick={goToNextPage}
-            disabled={!pagination.has_next_page}
-            className={`px-4 py-2 rounded ${
-              pagination.has_next_page
-                ? "bg-green-600 text-white hover:bg-green-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            } transition`}
-          >
-            Siguiente
-          </button>
-        </div>
-      )}
-
-      {/* Información adicional de paginación */}
-      {pagination && (
-        <div className="mt-4 text-center text-sm text-gray-600">
-          Página {pagination.current_page} de {pagination.total_pages}
-        </div>
-      )}
-    </section>
-  </main>
-);
+        )}
+      </section>
+    </main>
+  );
 }
