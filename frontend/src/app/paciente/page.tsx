@@ -1,159 +1,141 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
-interface User {
-  nombre: string;
-  apellido: string;
-  email: string;
-}
-
-interface DatosPaciente {
-  health_insurance: string;
-  medical_history: string;
-  weight: number;
-  height: number;
-  blood_type: string;
-  completed_consultations: number;
-}
-
-interface Turno {
-  id: number;
-  nombre: string;
-  email: string;
-  motivo: string;
-  fechaTurno: Date;
-  estado: number;
-}
+"use client";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { getPatientById } from "../../services/patientService";
+import { getNextPendingAppointmentForPatient } from "../../services/appointmentService";
+import { getUserId } from "../../services/userService";
+import { verificarTipoUsuario } from "../../services/guardService";
+import { Paciente } from "../../types/Paciente";
+import { Turno } from "../../types/Turno";
 
 export default function PacienteInicio() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [datosPaciente, setDatosPaciente] = useState<DatosPaciente | null>(null);
-  const [turno, setTurno] = useState<Turno | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [paciente, setPaciente] = useState<Paciente | null>(null);
+  const [proximoTurno, setProximoTurno] = useState<Turno | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('access_token');
-    const userData = localStorage.getItem('user');
-    if (!accessToken || !userData) {
-      router.push('/');
+    const verificarAcceso = () => {
+      const esPaciente = verificarTipoUsuario("patient");
+      if (!esPaciente) {
+        router.push("/");
+      } else {
+        setIsVerified(true);
+      }
+    };
+    verificarAcceso();
+  }, [router]);
+
+  const fetchData = useCallback(async () => {
+    const userId = getUserId();
+    if (!userId) {
+      setError("No se pudo obtener la información del usuario.");
+      setIsLoading(false);
       return;
     }
 
-    const parsedUser = JSON.parse(userData);
-    const userId = parsedUser.id;
+    setIsLoading(true);
+    setError(null);
 
-    axios
-      .get(`http://localhost:3000/patients/${userId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      .then((res) => {
-        setUser({
-          nombre: res.data.user.nombre,
-          apellido: res.data.user.apellido,
-          email: res.data.user.email,
-        });
+    try {
+      const [pacienteData, turnoData] = await Promise.all([
+        getPatientById(userId),
+        getNextPendingAppointmentForPatient(userId),
+      ]);
 
-        setDatosPaciente({
-          health_insurance: res.data.health_insurance,
-          medical_history: res.data.medical_history,
-          weight: res.data.weight,
-          height: res.data.height,
-          blood_type: res.data.blood_type,
-          completed_consultations: res.data.completed_consultations,
-        });
-      })
-      .catch((err) => {
-        console.error('Error al obtener datos del paciente:', err);
-        router.push('/');
+      setPaciente({
+        consultasCompletadas: pacienteData.completed_consultations,
+        seguroMedico: pacienteData.health_insurance,
+        historialMedico: pacienteData.medical_history,
+        peso: pacienteData.weight,
+        altura: pacienteData.height,
+        tipoSangre: pacienteData.blood_type,
+        usuario: pacienteData.user,
       });
 
-    axios
-      .get(`http://localhost:3000/appointments/patient/${userId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      .then((res) => {
-        const ahora = new Date();
+      setProximoTurno(turnoData);
+    } catch (err) {
+      console.error("Error al obtener datos del paciente:", err);
+      setError("No se pudieron cargar los datos. Intente de nuevo más tarde.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-        const turnosFuturosPendientes = res.data
-          .filter((t: any) => {
-            const fecha = new Date(t.slot_datetime.slot_datetime);
-            return t.status.status === 'pending' && fecha > ahora;
-          });
+  useEffect(() => {
+    if (isVerified) {
+      fetchData();
+    }
+  }, [isVerified, fetchData]);
 
-        if (turnosFuturosPendientes.length > 0) {
-          const turnoMasProximo = turnosFuturosPendientes.sort(
-            (a: any, b: any) =>
-              new Date(a.slot_datetime.slot_datetime).getTime() -
-              new Date(b.slot_datetime.slot_datetime).getTime()
-          )[0];
+  if (isLoading) {
+    return (
+      <main className="flex-1 p-10 flex justify-center items-center">
+        <p className="text-gray-500 text-xl">Cargando datos...</p>
+      </main>
+    );
+  }
 
-          setTurno({
-            id: turnoMasProximo.id,
-            nombre: `${turnoMasProximo.doctor.user.nombre} ${turnoMasProximo.doctor.user.apellido}`,
-            email: turnoMasProximo.doctor.user.email,
-            motivo: turnoMasProximo.motivo,
-            fechaTurno: new Date(turnoMasProximo.slot_datetime.slot_datetime),
-            estado: turnoMasProximo.status.status_id,
-          });
-        }
-      })
-      .catch((err) => {
-        console.error('Error al obtener el próximo turno del paciente:', err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [router]);
-
-  if (loading) return <div className="p-10 text-center">Cargando datos del paciente...</div>;
+  if (error || !paciente) {
+    return (
+      <main className="flex-1 p-10 flex justify-center items-center">
+        <p className="text-red-500 text-xl">
+          {error || "No se pudieron cargar los datos del paciente."}
+        </p>
+      </main>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen bg-gray-100 text-gray-800">
-      <main className="flex-1 p-10 space-y-6">
-        <h1 className="text-3xl font-bold text-green-800">Bienvenido, {user?.nombre ?? 'Paciente'}</h1>
-        <p>👤 Apellido: {user?.apellido ?? '-'}</p>
-        <p>📧 Email: {user?.email ?? '-'}</p>
-        <p>🏥 Obra social: {datosPaciente?.health_insurance ?? '-'}</p>
-        <p>⚕️ Historia médica: {datosPaciente?.medical_history ?? '-'}</p>
-        <p>⚖️ Peso: {datosPaciente?.weight ?? '-'} kg</p>
-        <p>📏 Altura: {datosPaciente?.height ?? '-'} cm</p>
-        <p>🩸 Grupo sanguíneo: {datosPaciente?.blood_type ?? '-'}</p>
-        <p>✅ Consultas completadas: {datosPaciente?.completed_consultations ?? '-'}</p>
+    <>
+      <h1 className="text-3xl font-bold text-green-800">
+        Bienvenido, {paciente.usuario.nombre}
+      </h1>
+      <p>👤 Apellido: {paciente.usuario.apellido}</p>
+      <p>📧 Email: {paciente.usuario.email}</p>
+      <p>🏥 Obra social: {paciente.seguroMedico ?? "-"}</p>
+      <p>⚕️ Historia médica: {paciente.historialMedico ?? "-"}</p>
+      <p>⚖️ Peso: {paciente.peso ?? "-"} kg</p>
+      <p>📏 Altura: {paciente.altura ?? "-"} cm</p>
+      <p>🩸 Grupo sanguíneo: {paciente.tipoSangre ?? "-"}</p>
+      <p>✅ Consultas completadas: {paciente.consultasCompletadas ?? "-"}</p>
 
-        <section className="bg-green-50 p-4 rounded-lg shadow mt-6">
-          <h3 className="text-lg font-semibold text-green-800 mb-2">📌 Próximo turno</h3>
-          {turno ? (
-            <div>
-              <div className="mb-1">
-                <span className="font-bold">{turno.nombre}</span>{' '}
-                <span className="text-gray-500 font-light">- {turno.email}</span>
-              </div>
-              <div className="mb-1">
-                <span className="font-bold mr-1">Fecha:</span> 📅{' '}
-                {turno.fechaTurno.toLocaleDateString('es-ES', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                })}{' '}
-                🕒{' '}
-                {turno.fechaTurno.toLocaleTimeString('es-AR', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </div>
-              <div className="mb-1">
-                <div className="font-bold">Motivo de consulta:</div>
-                <p>{turno.motivo}</p>
-              </div>
+      <section className="bg-green-50 p-4 rounded-lg shadow mt-6">
+        <h3 className="text-lg font-semibold text-green-800 mb-2">
+          📌 Próximo turno
+        </h3>
+        {proximoTurno ? (
+          <div>
+            <div className="mb-1">
+              <span className="font-bold">{proximoTurno.nombre}</span>{" "}
+              <span className="text-gray-500 font-light">
+                - {proximoTurno.email}
+              </span>
             </div>
-          ) : (
-            <p className="text-gray-500">No hay turnos futuros pendientes.</p>
-          )}
-        </section>
-      </main>
-    </div>
+            <div className="mb-1">
+              <span className="font-bold mr-1">Fecha:</span> 📅{" "}
+              {proximoTurno.fechaTurno.toLocaleDateString("es-ES", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}{" "}
+              🕒{" "}
+              {proximoTurno.fechaTurno.toLocaleTimeString("es-AR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </div>
+            <div className="mb-1">
+              <div className="font-bold">Motivo de consulta:</div>
+              <p>{proximoTurno.motivo}</p>
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-500">No hay turnos futuros pendientes.</p>
+        )}
+      </section>
+    </>
   );
 }
-

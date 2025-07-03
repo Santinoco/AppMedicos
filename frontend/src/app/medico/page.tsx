@@ -1,50 +1,29 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { BackMedico } from "../../types/backMedico";
-import { BackPaciente } from "../../types/backPaciente";
-import { BackTurno } from "../../types/backTurno";
-import { getUserId } from "../../services/userIdService";
+import { getUserId } from "../../services/userService";
 import { Turno } from "../../types/Turno";
 import { verificarTipoUsuario } from "../../services/guardService";
-
-interface Medico {
-  nombre: string;
-  especialidad: string;
-  numeroMatricula: number;
-  email: string;
-  comienzoJornada: string;
-  finJornada: string;
-}
+import {
+  getDoctorById,
+  updateDoctor,
+  UpdateDoctorData,
+} from "../../services/doctorService";
+import { getNextPendingAppointmentForDoctor } from "../../services/appointmentService";
+import TimeSelect from "../../components/TimeSelect";
 
 export default function MedicoDashboard() {
   const router = useRouter();
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [especialidadInput, setEspecialidadInput] = useState<string | null>(
-    null
-  );
-  const [comienzoJornadaInput, setComienzoJornadaInput] = useState<
-    string | null
-  >(null);
-  const [finJornadaInput, setFinJornadaInput] = useState<string | null>(null);
-  const [medico, setMedico] = useState<Medico>({
-    nombre: "",
-    especialidad: "",
-    numeroMatricula: 0,
-    email: "",
-    comienzoJornada: "",
-    finJornada: "",
-  });
-  const [turno, setTurno] = useState<Turno>({
-    id: 1,
-    nombre: "",
-    email: "",
-    motivo: "",
-    fechaTurno: new Date("2025-05-29T10:30:00"),
-    estado: 0,
-  });
-  const [isVerified, setIsVerified] = useState(false); // Estado para controlar la verificación
+
+  const [medico, setMedico] = useState<BackMedico | null>(null);
+  const [turno, setTurno] = useState<Turno | null>(null);
+  const [formData, setFormData] = useState<UpdateDoctorData>({});
+
+  const [isVerified, setIsVerified] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const verificarAcceso = async () => {
@@ -60,189 +39,120 @@ export default function MedicoDashboard() {
     verificarAcceso();
   }, [router]);
 
-  useEffect(() => {
-    // Obtener el ID del usuario logueado
+  const fetchDashboardData = useCallback(async () => {
     const userId = getUserId();
-    const fetchUserById = async () => {
-      if (!userId) return;
+    if (!userId) {
+      setError("No se pudo obtener la información del usuario.");
+      setIsLoading(false);
+      return;
+    }
 
-      const token = localStorage.getItem("access_token");
+    setIsLoading(true);
+    setError(null);
 
-      try {
-        // El backend retorna un objeto con los datos del médico
-        getMedico(token, userId);
-        try {
-          // El backend retorna un objeto con los datos de los turnos del medico
-          const responseTurno = await axios.get(
-            `http://localhost:3000/appointments/doctor/${userId}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-          const turnoData: BackTurno = responseTurno.data.find(
-            (turno) => turno.status.status === "pending"
-          );
+    try {
+      // Ejecutar ambas peticiones en paralelo para mayor eficiencia
+      const [medicoData, proximoTurnoData] = await Promise.all([
+        getDoctorById(userId),
+        getNextPendingAppointmentForDoctor(userId),
+      ]);
+      setMedico(medicoData);
+      setTurno(proximoTurnoData);
+    } catch (err) {
+      console.error("Error al cargar los datos del dashboard:", err);
+      setError("No se pudieron cargar los datos. Intente de nuevo más tarde.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-          try {
-            // Obtener datos del paciente del primer turno
-            const responsePaciente = await axios.get(
-              `http://localhost:3000/patients/${turnoData.patient.user_id}`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-            const pacienteData: BackPaciente = responsePaciente.data;
-
-            // Asignar el primer turno como "próximo turno"
-            setTurno({
-              id: turnoData.id,
-              nombre: `${pacienteData.user.nombre} ${pacienteData.user.apellido}`,
-              email: pacienteData.user.email,
-              motivo: turnoData.motivo,
-              fechaTurno: turnoData.slot_datetime.slot_datetime,
-              estado: turnoData.status.status_id,
-            });
-          } catch (error) {
-            console.error("Error al obtener los datos del paciente:", error);
-          }
-        } catch (error) {
-          console.error("Error al obtener los datos del turno:", error);
-        }
-      } catch (error) {
-        console.error("Error al obtener los datos del usuario:", error);
-      }
-    };
-
-    fetchUserById();
+  useEffect(() => {
+    if (isVerified) {
+      fetchDashboardData();
+    }
   }, [isVerified]);
 
-  const getMedico = async (token, userId) => {
-    const responseMedico = await axios.get(
-      `http://localhost:3000/doctors/${userId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    const medicoData: BackMedico = responseMedico.data;
-
-    setMedico({
-      nombre: `${medicoData.user.nombre} ${medicoData.user.apellido}`,
-      especialidad: medicoData.specialty,
-      numeroMatricula: medicoData.license_number,
-      email: medicoData.user.email,
-      comienzoJornada: medicoData.shift_start,
-      finJornada: medicoData.shift_end,
-    });
-  };
-
   const toggleFormulario = () => {
+    if (!mostrarFormulario && medico) {
+      // Pre-llenar el formulario con los datos actuales al abrirlo
+      setFormData({
+        specialty: medico.specialty,
+        shift_start: medico.shift_start,
+        shift_end: medico.shift_end,
+      });
+    }
     setMostrarFormulario(!mostrarFormulario);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Validar los campos de entrada
-    if (
-      (comienzoJornadaInput &&
-        finJornadaInput &&
-        parseInt(comienzoJornadaInput) >= 1000 &&
-        parseInt(finJornadaInput) <= 1900 &&
-        parseInt(comienzoJornadaInput) < parseInt(finJornadaInput)) ||
-      (!comienzoJornadaInput && !finJornadaInput)
-    ) {
-      var especialidadFormateada: string;
-      var especialidadActualizada: boolean = true;
-      var comienzoJornadaFormateado: string;
-      var comienzoJornadaActualizado: boolean = true;
-      var finJornadaFormateado: string;
-      var finJornadaActualizado: boolean = true;
-      // Formatear los valores de jornadas
-      if (comienzoJornadaInput && finJornadaInput) {
-        comienzoJornadaFormateado = `${comienzoJornadaInput.slice(
-          0,
-          2
-        )}:${comienzoJornadaInput.slice(2, 4)}:00`;
-        finJornadaFormateado = `${finJornadaInput.slice(
-          0,
-          2
-        )}:${finJornadaInput.slice(2, 4)}:00`;
-      } else {
-        // Si no se ingresaron valores, mantener los valores actuales
-        comienzoJornadaFormateado = medico.comienzoJornada;
-        comienzoJornadaActualizado = false;
-        finJornadaFormateado = medico.finJornada;
-        finJornadaActualizado = false;
-      }
-      if (especialidadInput) {
-        especialidadFormateada = especialidadInput;
-      } else {
-        especialidadFormateada = medico.especialidad;
-        especialidadActualizada = false;
-      }
+    const userId = getUserId();
+    if (!userId) {
+      alert("Error: No se pudo identificar al usuario.");
+      return;
+    }
 
-      const token = localStorage.getItem("access_token");
-      const userId = getUserId();
+    // --- Validación de la jornada laboral ---
+    const { shift_start, shift_end } = formData;
 
-      try {
-        // Actualizar la jornada del médico en el backend
-        await axios.patch(
-          `http://localhost:3000/doctors/${userId}`,
-          {
-            specialty: especialidadFormateada,
-            shift_start: comienzoJornadaFormateado,
-            shift_end: finJornadaFormateado,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-      } catch (error) {
-        console.error("Error al actualizar los datos:", error);
-      }
+    // Si se modifica una hora, la otra también debe estar presente.
+    if ((shift_start && !shift_end) || (!shift_start && shift_end)) {
+      alert(
+        "Debe especificar tanto la hora de inicio como la de fin de jornada."
+      );
+      return;
+    }
+    // La hora de fin debe ser posterior a la de inicio.
+    if (shift_start && shift_end && shift_start >= shift_end) {
+      alert(
+        "La hora de fin de jornada debe ser posterior a la hora de inicio."
+      );
+      return;
+    }
 
-      try {
-        getMedico(token, userId); // Actualizar los datos del médico después de la modificación
-      } catch (error) {
-        console.error("Error al obtener datos actualizados del medico:", error);
-      }
-      // Mostrar mensaje de éxito
-      if (especialidadActualizada) {
-        alert(`Especialidad actualizada: ${especialidadFormateada}`);
-      }
-      if (comienzoJornadaActualizado && finJornadaActualizado) {
-        alert(
-          `Jornada actualizada: ${comienzoJornadaFormateado} - ${finJornadaFormateado}`
-        );
-      }
-    } else {
-      alert("Por favor, ingrese valores válidos.");
+    try {
+      await updateDoctor(userId, formData);
+      alert("Datos actualizados con éxito.");
+      setMostrarFormulario(false);
+      fetchDashboardData(); // Recargar los datos para mostrar la información actualizada
+    } catch (error) {
+      console.error("Error al actualizar los datos:", error);
+      alert("No se pudieron actualizar los datos. Inténtelo más tarde.");
     }
   };
+
+  if (isLoading) {
+    return (
+      <main className="flex-1 p-10 flex justify-center items-center">
+        <p className="text-gray-500 text-xl">Cargando dashboard...</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="flex-1 p-10 flex justify-center items-center">
+        <p className="text-red-500 text-xl">{error}</p>
+      </main>
+    );
+  }
 
   return (
     <main className="flex-1 p-10 space-y-6">
       <h1 className="text-3xl font-bold text-green-800">
-        Bienvenido, {medico.nombre}
+        Bienvenido, {medico?.user?.nombre} {medico?.user?.apellido}
       </h1>
-      <p>Especialidad: {medico.especialidad}</p>
-      <p>Numero de matricula: {medico.numeroMatricula}</p>
+      <p>Especialidad: {medico?.specialty}</p>
+      <p>Numero de matricula: {medico?.license_number}</p>
       <p>
-        Jornada laboral: {medico.comienzoJornada} a {medico.finJornada}
+        Jornada laboral: {medico?.shift_start} a {medico?.shift_end}
       </p>
-      <p>Email: {medico.email}</p>
+      <p>Email: {medico?.user?.email}</p>
       <section className="bg-green-50 p-4 rounded-lg shadow">
         <h3 className="text-lg font-semibold text-green-800 mb-2">
           📌 Próximo turno
         </h3>
-        {turno.id === 1 &&
-        turno.nombre === "" &&
-        turno.email === "" &&
-        turno.motivo === "" &&
-        turno.fechaTurno.getTime() ===
-          new Date("2025-05-29T10:30:00").getTime() &&
-        turno.estado === 0 ? (
-          <p className="text-gray-500">No hay turnos pendientes.</p>
-        ) : (
+        {turno ? (
           <div>
             <div className="mb-1">
               <span className="font-bold">{turno.nombre}</span>{" "}
@@ -262,6 +172,8 @@ export default function MedicoDashboard() {
               <p>{turno.motivo}</p>
             </div>
           </div>
+        ) : (
+          <p className="text-gray-500">No hay turnos pendientes.</p>
         )}
       </section>
       <button
@@ -285,8 +197,10 @@ export default function MedicoDashboard() {
             </label>
             <select
               id="especialidad"
-              value={especialidadInput || ""}
-              onChange={(e) => setEspecialidadInput(e.target.value)}
+              value={formData.specialty || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, specialty: e.target.value })
+              }
               className="border border-gray-300 rounded p-2 w-full"
             >
               <option value="" disabled>
@@ -306,26 +220,24 @@ export default function MedicoDashboard() {
             <label htmlFor="comienzoJornada" className="block font-bold">
               Comienzo Jornada:
             </label>
-            <input
-              type="number"
+            <TimeSelect
               id="comienzoJornada"
-              value={comienzoJornadaInput || ""}
-              onChange={(e) => setComienzoJornadaInput(e.target.value)}
-              className="border border-gray-300 rounded p-2 w-full"
-              placeholder="Ingrese un número de 4 dígitos mayor o igual a 1000"
+              value={formData.shift_start || ""}
+              onChange={(value) =>
+                setFormData({ ...formData, shift_start: value })
+              }
             />
           </div>
           <div>
             <label htmlFor="finJornada" className="block font-bold">
               Fin Jornada:
             </label>
-            <input
-              type="number"
+            <TimeSelect
               id="finJornada"
-              value={finJornadaInput || ""}
-              onChange={(e) => setFinJornadaInput(e.target.value)}
-              className="border border-gray-300 rounded p-2 w-full"
-              placeholder="Ingrese un número de 4 dígitos menor o igual a 1900"
+              value={formData.shift_end || ""}
+              onChange={(value) =>
+                setFormData({ ...formData, shift_end: value })
+              }
             />
           </div>
           <button
