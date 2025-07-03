@@ -88,7 +88,7 @@ export default function MedicoDashboard() {
     e.preventDefault();
     const userId = getUserId();
     if (!userId) {
-      alert("Error: No se pudo identificar al usuario.");
+      toast.error("No se pudo identificar al usuari. Intentalo mas tarde");
       return;
     }
 
@@ -97,14 +97,14 @@ export default function MedicoDashboard() {
 
     // Si se modifica una hora, la otra también debe estar presente.
     if ((shift_start && !shift_end) || (!shift_start && shift_end)) {
-      alert(
+      toast.info(
         "Debe especificar tanto la hora de inicio como la de fin de jornada."
       );
       return;
     }
     // La hora de fin debe ser posterior a la de inicio.
     if (shift_start && shift_end && shift_start >= shift_end) {
-      alert(
+      toast.info(
         "La hora de fin de jornada debe ser posterior a la hora de inicio."
       );
       return;
@@ -112,12 +112,12 @@ export default function MedicoDashboard() {
 
     try {
       await updateDoctor(userId, formData);
-      alert("Datos actualizados con éxito.");
+      toast.success("Datos actualizados con éxito.");
       setMostrarFormulario(false);
       fetchDashboardData(); // Recargar los datos para mostrar la información actualizada
     } catch (error) {
       console.error("Error al actualizar los datos:", error);
-      alert("No se pudieron actualizar los datos. Inténtelo más tarde.");
+      toast.error("No se pudieron actualizar los datos. Inténtelo más tarde.");
     }
   };
 

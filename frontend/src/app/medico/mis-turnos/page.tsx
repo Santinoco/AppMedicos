@@ -74,18 +74,17 @@ export default function misTurnos() {
   };
 
   const cancelarTurno = async (id: number) => {
-    if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
-      try {
-        await cancelAppointment(id);
-        setMostrarModal(false);
-        setTurnoSeleccionado(null);
-        fetchTurnos(); // Actualizar la lista de turnos después de cancelar
-        toast.success("Turno cancelado");
-      } catch (error) {
-        console.error("Error al cancelar el turno:", error);
-        toast.error("No se pudo cancelar el turno. Inténtalo más tarde.");
-      }
+    try {
+      await cancelAppointment(id);
+      setMostrarModal(false);
+      setTurnoSeleccionado(null);
+      fetchTurnos(); // Actualizar la lista de turnos después de cancelar
+      toast.success("Turno cancelado");
+    } catch (error) {
+      console.error("Error al cancelar el turno:", error);
+      toast.error("No se pudo cancelar el turno. Inténtalo más tarde.");
     }
+
   };
 
   const filtrarPorNombre = async (nombre: string) => {
@@ -146,22 +145,20 @@ export default function misTurnos() {
         {/* Filtros */}
         <div className="flex space-x-4 mb-4">
           <button
-            className={`py-2 px-4 rounded ${
-              mostrarPendientes
+            className={`py-2 px-4 rounded ${mostrarPendientes
                 ? "bg-green-600 text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+              }`}
             onClick={() => setMostrarPendientes(true)}
             disabled={mostrarPendientes}
           >
             Pendientes
           </button>
           <button
-            className={`py-2 px-4 rounded ${
-              !mostrarPendientes
+            className={`py-2 px-4 rounded ${!mostrarPendientes
                 ? "bg-green-600 text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+              }`}
             onClick={() => setMostrarPendientes(false)}
             disabled={!mostrarPendientes}
           >
@@ -199,10 +196,10 @@ export default function misTurnos() {
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : misTurnos.filter((turno) =>
-            mostrarPendientes
-              ? turno.estado === 1
-              : turno.estado === 2 || turno.estado === 3
-          ).length === 0 ? (
+          mostrarPendientes
+            ? turno.estado === 1
+            : turno.estado === 2 || turno.estado === 3
+        ).length === 0 ? (
           <p className="text-gray-500">
             No hay turnos para mostrar en esta sección.
           </p>
@@ -238,10 +235,10 @@ export default function misTurnos() {
                       {turno.estado === 1
                         ? "Pendiente"
                         : turno.estado === 2
-                        ? "Completado"
-                        : turno.estado === 3
-                        ? "Cancelado"
-                        : "Otro"}
+                          ? "Completado"
+                          : turno.estado === 3
+                            ? "Cancelado"
+                            : "Otro"}
                     </div>
                     <div className="mb-1">
                       <div className="font-bold">Motivo de consulta:</div>
