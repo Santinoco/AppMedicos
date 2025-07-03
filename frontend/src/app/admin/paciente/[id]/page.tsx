@@ -10,15 +10,8 @@ import {
   getPatientAppointments,
 } from "../../../../services/appointmentService";
 import { Paciente } from "../../../../types/Paciente";
-
-interface Turno {
-  id: number;
-  nombre: string;
-  email: string;
-  fechaTurno: Date;
-  motivo: string;
-  estado: number;
-}
+import { toast } from "sonner";
+import { Turno } from "../../../../types/Turno";
 
 export default function AdminUserView() {
   const router = useRouter();
@@ -82,20 +75,18 @@ export default function AdminUserView() {
   }, [isVerified, idUsuario]);
 
   const cancelarTurno = async (id: number) => {
-    if (confirm("¿Estás seguro de que deseas cancelar este turno?")) {
-      try {
-        await cancelAppointment(id);
+    try {
+      await cancelAppointment(id);
 
-        // Actualiza el estado del turno en la lista local
-        setTurnos((prevTurnos) =>
-          prevTurnos.map((t) => (t.id === id ? { ...t, estado: 3 } : t))
-        );
+      // Actualiza el estado del turno en la lista local
+      setTurnos((prevTurnos) =>
+        prevTurnos.map((t) => (t.id === id ? { ...t, estado: 3 } : t))
+      );
 
-        alert(`Turno con ID ${id} cancelado.`);
-      } catch (error) {
-        console.error("Error al cancelar el turno:", error);
-        alert("No se pudo cancelar el turno. Inténtalo más tarde.");
-      }
+      toast.success(`Turno con ID ${id} cancelado exitosamente`);
+    } catch (error) {
+      console.error("Error al cancelar el turno:", error);
+      toast.error("No se pudo cancelar el turno. Intentalo más tarde");
     }
   };
 

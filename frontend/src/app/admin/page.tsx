@@ -18,6 +18,7 @@ import {
   getPatientsPaginated,
 } from "../../services/patientService";
 import { PaginationInfo } from "../../types/PaginatedResponse";
+import { toast } from "sonner";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -31,6 +32,12 @@ export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const ITEMS_PER_PAGE = 5;
+  // Estado para el modal de confirmación
+  const [mostrarModalConfirm, setMostrarModalConfirm] = useState(false);
+  const [usuarioAEliminar, setUsuarioAEliminar] = useState<{
+    id: number;
+    tipo: string;
+  } | null>(null);
 
   useEffect(() => {
     const verificarAcceso = async () => {
@@ -101,6 +108,8 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
       setError("No se pudieron cargar los usuarios. Intente de nuevo.");
+
+      toast.error("No se pudieron obtener los usuarios. Intente más tarde");
     } finally {
       setIsLoading(false);
     }
@@ -165,28 +174,28 @@ export default function AdminDashboard() {
       fetchUsuarios(1);
     }
   };
+  // Mostrar modal confirmación antes de eliminar
+  const confirmarEliminacion = (idUsuario: number, tipo: string) => {
+    setUsuarioAEliminar({ id: idUsuario, tipo });
+    setMostrarModalConfirm(true);
+  };
 
   const eliminarUsuario = async (idUsuario: number) => {
-    if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-      try {
-        await deleteUser(idUsuario);
-        alert(`Usuario eliminado correctamente.`);
+    try {
+      await deleteUser(idUsuario);
+      setMostrarModalConfirm(false);
+      setUsuarioAEliminar(null);
 
-        if (filtroNombre.trim()) {
-          filtrarPorNombre(filtroNombre, currentPage);
-        } else {
-          fetchUsuarios(currentPage);
-        }
-      } catch (error) {
-        console.error("Error al eliminar el usuario:", error);
-        if (axios.isAxiosError(error) && error.response?.status === 500) {
-          alert(
-            "Error del servidor: No se puede eliminar el usuario. Es probable que todavía tenga datos asociados (como turnos activos o un perfil de médico/paciente)."
-          );
-        } else {
-          alert("No se pudo eliminar el usuario. Inténtalo más tarde.");
-        }
+      if (filtroNombre.trim()) {
+        filtrarPorNombre(filtroNombre, currentPage);
+      } else {
+        fetchUsuarios(currentPage);
       }
+
+      toast.success(`Usuario eliminado correctamente`);
+    } catch (error) {
+      console.error("Error al eliminar el usuario:", error);
+      toast.error("No se pudo eliminar el usuario. Inténtalo más tarde");
     }
   };
 
@@ -216,7 +225,6 @@ export default function AdminDashboard() {
     setCurrentPage(page);
   };
 
-  // Función para generar números de página a mostrar
   const getPageNumbers = () => {
     if (!pagination) return [];
 
@@ -244,7 +252,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <main className="flex-1 p-10 space-y-6">
+    <main className="flex-1 p-10 space-y-6 relative">
       <div className="flex">
         <h1 className="text-3xl font-bold text-green-800">
           Bienvenido, Administrador
@@ -313,7 +321,6 @@ export default function AdminDashboard() {
             de {pagination.total_items} resultados
           </div>
         )}
-
         {/* Loading indicator */}
         {isLoading ? (
           <div className="text-center py-4">
@@ -377,7 +384,9 @@ export default function AdminDashboard() {
                             Ver usuario
                           </button>
                           <button
-                            onClick={() => eliminarUsuario(medico.usuario.id)}
+                            onClick={() =>
+                              confirmarEliminacion(medico.usuario.id, "medico")
+                            }
                             className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded transition w-full"
                           >
                             Eliminar Usuario
@@ -445,7 +454,12 @@ export default function AdminDashboard() {
                             Ver usuario
                           </button>
                           <button
-                            onClick={() => eliminarUsuario(paciente.usuario.id)}
+                            onClick={() =>
+                              confirmarEliminacion(
+                                paciente.usuario.id,
+                                "paciente"
+                              )
+                            }
                             className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded transition w-full"
                           >
                             Eliminar Usuario
@@ -458,6 +472,31 @@ export default function AdminDashboard() {
               </div>
             )}
           </>
+        )}
+
+        {/* Modal de confirmación personalizado */}
+        {mostrarModalConfirm && (
+          <div className="fixed inset-0 bg-gray-200/40 backdrop-blur-xs flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full border border-gray-300">
+              <p className="text-gray-800 text-lg mb-6 text-center">
+                ¿Estás seguro de que deseas eliminar este usuario?
+              </p>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => eliminarUsuario(usuarioAEliminar?.id)}
+                  className="px-4 py-1 bg-red-500 hover:bg-red-700 text-white rounded-md"
+                >
+                  Confirmar
+                </button>
+                <button
+                  onClick={() => setMostrarModalConfirm(false)}
+                  className="px-4 py-1 bg-gray-300 hover:bg-gray-400 rounded-md"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Controles de paginación */}

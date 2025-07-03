@@ -13,6 +13,7 @@ import {
   updatePatient,
   UpdatePatientData,
 } from "../../../services/patientService";
+import { toast } from "sonner";
 
 export default function misPacientes() {
   const router = useRouter();
@@ -26,17 +27,15 @@ export default function misPacientes() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const verificarAcceso = async () => {
-      const esMedico = verificarTipoUsuario("doctor");
-      if (!esMedico) {
-        // Redirige al usuario si no es medico
-        router.push("/");
-      } else {
-        setIsVerified(true); // Marca como verificado si es medico
-      }
-    };
+  /* estado del filtro y del input */
+  const [nombreBusqueda, setNombreBusqueda] = useState<string>("");
 
+  useEffect(() => {
+    const verificarAcceso = () => {
+      const esMedico = verificarTipoUsuario("doctor");
+      if (!esMedico) router.push("/");
+      else setIsVerified(true);
+    };
     verificarAcceso();
   }, [router]);
 
@@ -59,10 +58,15 @@ export default function misPacientes() {
     } catch (error) {
       console.error("Error al obtener los pacientes:", error);
       setError("No se pudieron cargar los pacientes. Intente más tarde.");
+      toast.error("No se pudo obtener los pacientes. Intentalo más tarde");
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isVerified) fetchPacientes();
+  }, [isVerified]);
 
   const filtrarPorNombre = async (nombre: string) => {
     const userId = getUserId();
@@ -96,23 +100,48 @@ export default function misPacientes() {
     e.preventDefault();
     try {
       await updatePatient(pacienteId, formData);
-      alert(`Paciente actualizado con éxito.`);
+      toast.success(`Datos del paciente actualizados`);
       setPacienteEnEdicion(null);
       fetchPacientes(); // Recargar la lista para mostrar los datos actualizados
     } catch (error) {
       console.error("Error al actualizar los datos del paciente:", error);
-      alert("No se pudo actualizar el paciente. Inténtelo más tarde.");
+      toast.error("No se pudo actualizar el paciente. Intentalo más tarde");
     }
   };
 
   return (
-    <div className="flex-1 p-10 space-y-6">
-      <section id="misTurnos" className=" mx-2 flex flex-col items-center ">
-        <h1 className="text-3xl">Mis Pacientes</h1>
+    <div className="flex-1 p-10 space-y-6 relative">
+      {/*  Botón Volver */}
+      <button
+        onClick={() => router.push("/medico")}
+        className="absolute top-9 left-10 flex items-center gap-2 text-green-600 hover:text-green-800 transition"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        Volver a inicio
+      </button>
+
+      <section className="mx-2 flex flex-col items-center">
+        <h1 className="text-3xl font-bold text-green-800 mb-6 text-center">
+          Mis Pacientes
+        </h1>
       </section>
+
       <section className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Pacientes asignados</h2>
-        <div className="my-4">
+        <h2 className="text-xl font-semibold mb-4">👥 Pacientes asignados</h2>
+        <div className="my-4 flex items-center gap-4">
           <label htmlFor="nombre" className="mr-2">
             Filtrar:
           </label>
@@ -120,9 +149,24 @@ export default function misPacientes() {
             type="text"
             id="nombre"
             placeholder="Ingrese un nombre"
-            onChange={(e) => filtrarPorNombre(e.target.value)}
+            value={nombreBusqueda}
+            onChange={(e) => {
+              const valor = e.target.value;
+              setNombreBusqueda(valor);
+              filtrarPorNombre(valor);
+            }}
             className="border border-gray-300 rounded p-2"
           />
+          {/*Boton limpiar */}
+          <button
+            onClick={() => {
+              setNombreBusqueda("");
+              fetchPacientes();
+            }}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded transition"
+          >
+            Limpiar
+          </button>
         </div>
 
         {isLoading ? (
@@ -172,6 +216,8 @@ export default function misPacientes() {
                     <p>{paciente.historialMedico}</p>
                   </div>
                 </div>
+
+                {/*formulario actualizar información paciente */}
                 <div className="flex flex-col gap-4 items-center">
                   <button
                     onClick={() => handleEditClick(paciente)}
@@ -187,11 +233,8 @@ export default function misPacientes() {
                       className="mt-4 space-y-4"
                     >
                       <div>
-                        <label
-                          htmlFor="seguroMedico"
-                          className="block font-bold"
-                        >
-                          Seguro Médico:
+                        <label className="block font-bold" htmlFor="seguro">
+                          Seguro Médico
                         </label>
                         <input
                           type="text"
@@ -204,15 +247,14 @@ export default function misPacientes() {
                             })
                           }
                           className="border border-gray-300 rounded p-2 w-full"
-                          placeholder="Ingrese el seguro médico"
                         />
                       </div>
+
                       <div>
-                        <label htmlFor="peso" className="block font-bold">
-                          Peso (kg):
+                        <label className="block font-bold" htmlFor="peso">
+                          Peso (kg)
                         </label>
                         <input
-                          type="number"
                           id="peso"
                           value={formData.weight || ""}
                           onChange={(e) =>
@@ -222,15 +264,14 @@ export default function misPacientes() {
                             })
                           }
                           className="border border-gray-300 rounded p-2 w-full"
-                          placeholder="Ingrese el peso"
                         />
                       </div>
+
                       <div>
-                        <label htmlFor="altura" className="block font-bold">
-                          Altura (cm):
+                        <label className="block font-bold" htmlFor="altura">
+                          Altura (cm)
                         </label>
                         <input
-                          type="number"
                           id="altura"
                           value={formData.height || ""}
                           onChange={(e) =>
@@ -240,12 +281,11 @@ export default function misPacientes() {
                             })
                           }
                           className="border border-gray-300 rounded p-2 w-full"
-                          placeholder="Ingrese la altura"
                         />
                       </div>
                       <div>
-                        <label htmlFor="tipoSangre" className="block font-bold">
-                          Tipo de Sangre:
+                        <label className="block font-bold" htmlFor="sangre">
+                          Tipo de Sangre
                         </label>
                         <input
                           type="text"
@@ -258,15 +298,11 @@ export default function misPacientes() {
                             })
                           }
                           className="border border-gray-300 rounded p-2 w-full"
-                          placeholder="Ingrese el tipo de sangre"
                         />
                       </div>
                       <div>
-                        <label
-                          htmlFor="historialMedico"
-                          className="block font-bold"
-                        >
-                          Historial Médico:
+                        <label className="block font-bold" htmlFor="historial">
+                          Historial Médico
                         </label>
                         <textarea
                           id="historialMedico"
@@ -278,7 +314,6 @@ export default function misPacientes() {
                             })
                           }
                           className="border border-gray-300 rounded p-2 w-full"
-                          placeholder="Ingrese el historial médico"
                         />
                       </div>
                       <button
